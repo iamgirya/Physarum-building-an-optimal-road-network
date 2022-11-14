@@ -20,6 +20,9 @@ public:
 	//вектор нынешней позиции
 	vector<ft> positionVector;
 
+	// нынеший занимаемый пиксель
+	vector<it> pixelVector;
+
 	//вектор, куда должно быть сделано следующее движение
 	vector<ft> moveVector;
 
@@ -28,8 +31,14 @@ public:
 	vector<ft> centerSensorVector;
 	vector<ft> rigthSensorVector;
 
-	// нынеший занимаемый пиксель
-	vector<it> pixelVector;
+	SlimeAgent(vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv) {
+		positionVector = pv;
+		moveVector = mv;
+		leftSensorVector = lsv;
+		centerSensorVector = csv;
+		rigthSensorVector = rsv;
+		pixelVector = { it(pv[0]), it(pv[1]) };
+	}
 
 	// функция хода
 	void makeTurn(SlimeAgentsSettings& set, Location& loc) {
@@ -156,32 +165,26 @@ private:
 
 class SlimeAgentsSettings {
 public:
-	//floatType rotateAngle;
+	//активно используемые;
 	vector<vector<ft>> leftRotationMatrix;
 	vector<vector<ft>> rightRotationMatrix;
-
-	//floatType sensorAngle;
-	vector<vector<ft>> leftSensorPositionMatrix;
-	vector<vector<ft>> rigthSensorPositionMatrix;
-
-	ft sensorOffsetDistance;
-	it sensorWidth; //пока автоединица
-	ft stepSize;
-
 	ft depositPerStep;
 	ft chanceOfRandomChangeDirection;
+	
+	//используемые для создания
+	ft sensorAngle;
+	ft sensorOffsetDistance;
+	it sensorWidth; //пока автоединица, не используется
+	ft stepSize;
 
 	void setUp(ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd = 0) {
-		//матрицы нужные для поворота мув вектора
+		//матрицы нужные для поворота мув вектора и сенсоров
 		ra = ra * PI/180;
 		rightRotationMatrix = { {cos(ra), -sin(ra)}, { sin(ra), cos(ra)} };
 		leftRotationMatrix = { {cos(-ra), -sin(-ra)}, { sin(-ra), cos(-ra)} };
 
-		//матрицы для получения сенсоров из вуз вектора
-		sa = sa * PI / 180;
-		rigthSensorPositionMatrix = { {cos(sa), -sin(sa)}, { sin(sa), cos(sa)} };
-		leftSensorPositionMatrix = { {cos(-sa), -sin(-sa)}, { sin(-sa), cos(-sa)} };
-
+		//матрицы для первого получения сенсоров из вуз вектора
+		sensorAngle = sa * PI / 180;
 		//характеристики
 		sensorOffsetDistance = sod;
 		sensorWidth = 1;
@@ -190,6 +193,16 @@ public:
 		chanceOfRandomChangeDirection = corcd;
 
 		srand(it(time(NULL)));
+	}
+
+	SlimeAgent generateAgent(vector<ft>& startPosition, ft startAngle) {
+		startAngle = startAngle / 180 * PI;
+		vector<ft> moveVector = {stepSize*cos(startAngle), stepSize * sin(startAngle)};
+		vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorAngle), sensorOffsetDistance * sin(startAngle+ sensorAngle) };
+		vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
+		vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle- sensorAngle), sensorOffsetDistance * sin(startAngle- sensorAngle) };
+
+		return SlimeAgent(startPosition, moveVector, lsVector, csVector, rsVector);
 	}
 };
 
