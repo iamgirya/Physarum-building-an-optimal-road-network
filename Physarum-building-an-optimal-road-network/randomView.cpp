@@ -39,11 +39,21 @@ public:
 		rigthSensorVector = rsv;
 		pixelVector = { it(pv[0]), it(pv[1]) };
 	}
-
-	// функция хода
-	void makeTurn(SlimeAgentsSettings& set, Location& loc) {
+	//движение
+	void moveTurn(SlimeAgentsSettings& set, Location& loc) {
+		// если движение успешно
+		if (move(loc)) {
+			makeDeposit(set, loc);
+		}
+		else {
+			rotate(set, rand() % 2);
+		}
+	}
+	//сканирование
+	void skanTurn(SlimeAgentsSettings& set, Location& loc) {
+		//шанс рандомного поворота
 		if (set.chanceOfRandomChangeDirection > (rand() % 100 + 1)) {
-			rotate(set, rand()%2);
+			rotate(set, rand() % 2);
 		}
 		else {
 			// -1 - поворот налево, 0 - сохранение направления, 1 - поворот направо
@@ -52,14 +62,11 @@ public:
 				rotate(set, rotateSide == 1);
 			}
 		}
-
-		// если движение успешно
-		if (move(loc)) {
-			makeDeposit(set, loc);
-		}
-		else {
-			rotate(set, rand() % 2);
-		}
+	}
+	// функция хода
+	void makeFullTurn(SlimeAgentsSettings& set, Location& loc) {
+		moveTurn(set, loc);
+		skanTurn(set, loc);
 	}
 private:
 
@@ -176,16 +183,18 @@ public:
 	ft sensorOffsetDistance;
 	it sensorWidth; //пока автоединица, не используется
 	ft stepSize;
+	it startPopulation;
 
-	void setUp(ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd = 0) {
+	void setUp(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd = 0) {
+		ra = it(ra)%360;
 		//матрицы нужные для поворота мув вектора и сенсоров
-		ra = ra * PI/180;
+		ra = ra * PI / 180;
 		rightRotationMatrix = { {cos(ra), -sin(ra)}, { sin(ra), cos(ra)} };
 		leftRotationMatrix = { {cos(-ra), -sin(-ra)}, { sin(-ra), cos(-ra)} };
 
-		//матрицы для первого получения сенсоров из вуз вектора
+		sa = it(sa) % 360;
 		sensorAngle = sa * PI / 180;
-		//характеристики
+		startPopulation = sp;
 		sensorOffsetDistance = sod;
 		sensorWidth = 1;
 		stepSize = ss;
@@ -204,21 +213,71 @@ public:
 
 		return SlimeAgent(startPosition, moveVector, lsVector, csVector, rsVector);
 	}
+
+	vector<SlimeAgent> generatePopulationInPixel(vector<ft>& startPosition) {
+		vector<SlimeAgent> rezult(startPopulation);
+
+		ft angle = 0;
+		for (int i = 0; i < startPopulation; i++) {
+			rezult[i] = generateAgent(startPosition, (ft(rand()%360))/180.0*PI);
+			angle += sensorAngle;
+		}
+	}
 };
 
 class Location {
 public:
 	it xSize;
 	it ySize;
-	vector<vector<it>> trailMap;
+	vector<vector<ft>> trailMap;
 
-	ft startPopulationPerArea;
 	it diffusionSize;
 	ft decayFactor; //mult
 
 	bool isPeriodicBoundary;
 	bool isCanMultiAgent;
 	vector<vector<bool>> agentMap;
+
+	Location(it x, it y, it dif, ft dec, bool ipb, bool icma) {
+		xSize = x;
+		ySize - y;
+		diffusionSize = dif;
+		decayFactor = dec;
+		isPeriodicBoundary = ipb;
+		isCanMultiAgent = icma;
+
+		trailMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
+		if (isCanMultiAgent) {
+			agentMap = vector<vector<bool>>(xSize, vector<bool>(ySize, false));
+		}
+	}
+
+	void castDecay() {
+		for (int i = 0; i < xSize; i++) {
+			for (int j = 0; j < ySize; j++) {
+				trailMap[i][j] *= decayFactor;
+			}
+		}
+	}
+
+	void castDiffusion() {
+		vector<vector<ft>> newMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
+		for (int i = 0; i < xSize; i++) {
+			for (int j = 0; j < ySize; j++) {
+				if (trailMap[i][j]) {
+					for (int k = -1; k <= 1; k++) {
+						for (int l = -1; l <= 1; l++) {
+							if (checkMatrix(i+k, j + l)) {
+								newMap[i+k][j+l] += 0.1 * trailMap[i][j];
+							}
+						}
+					}
+					newMap[i][j] += 0.1 * trailMap[i][j];
+				}
+			}
+		}
+		trailMap = newMap;
+	}
 
 	bool canMakeMove(vector <it> xy) {
 		if (!isCanMultiAgent) {
@@ -249,6 +308,11 @@ public:
 			}
 		}
 	}
+
+private:
+	bool checkMatrix(it i, it j) {
+		return (i >= 0 && j >= 0 && i < xSize&& j < ySize);
+	}
 };
 
 class SlimeMoldSimulation {
@@ -256,9 +320,24 @@ public:
 	Location location;
 	SlimeAgentsSettings settings;
 	vector<SlimeAgent> particles;
+
 };
 
 int main()
 {
 
 }
+
+
+/*
+At each execution step of the scheduler, every agent attempts to move forward one step in the cur-rent direction.
+After every agent has attempted to move, the entire population performs its sensory behavior. If the movement is 
+successful (i.e., if the next site is not occupied) the agent moves to the new site and deposits a constant
+chemoattractant value. If the movement is not successful, the agent remains in its current position, no
+chemoattractant is deposited, and a new orientation is randomly se-lected. Agents are selected from the population
+randomly in the motor and sensory stages to avoid the possibility of long term bias by sequential ordering. The
+agent both deposits to and senses from the trail map, resulting in an autocrine mode of stimulus/response. Note
+that patterning is also possible with a simple passive agent response—where the agent responds to chemoattractant
+concentration without affecting the chemoattractant levels. The passive approach to particle RD computing is
+described in [25], and a comparison of the active and passive approaches can be found in [26].
+*/
