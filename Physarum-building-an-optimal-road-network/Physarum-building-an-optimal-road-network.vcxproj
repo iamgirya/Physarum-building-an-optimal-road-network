@@ -88,6 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\danek\Documents\GitHub\Physarum-building-an-optimal-road-network\Physarum-building-an-optimal-road-network</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +140,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="randomView.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SlimeMoldClass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SlimeMoldClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
