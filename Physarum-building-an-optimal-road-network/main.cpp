@@ -2,11 +2,14 @@
 
 int main()
 {
-	SlimeAgentsSettings sett = SlimeAgentsSettings(70, 9, 1, 45, 45, 1, 5, 0);
-	Location loc = Location(100, 100, 3, 0.1, true, true);
+	SlimeAgentsSettings sett = SlimeAgentsSettings(300, 9, 1, 45, 22.5, 1, 5, 0);
+	Location loc = Location(100, 100, 3, 0.7, true, true);
 
 	SlimeMoldSimulation sim = SlimeMoldSimulation(loc, sett);
-	sim.startSimulation({ 50.5, 50.5 });
+	sim.startSimulation({ 45.5, 45.5 });
+
+	//беды с поворотом
+	// беды с выходом за границы
 }
 
 

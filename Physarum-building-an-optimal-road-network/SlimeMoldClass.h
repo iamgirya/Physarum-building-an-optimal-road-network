@@ -47,9 +47,9 @@ public:
 private:
 
 	template<typename T>
-	vector<T> vSum(vector<T> x, vector<T> y);
+	vector<T> vSum(vector<T>& x, vector<T>& y);
 	template<typename T>
-	vector<T> vMult(vector<T> x, vector<vector<T>> r);
+	vector<T> vMult(vector<T>& x, vector<vector<T>>& r);
 	// определяет направление поворота
 	it activateSensors(Location& loc);
 	// поворот векторов скорости и сенсоров
@@ -98,9 +98,9 @@ public:
 
 	void castDiffusion();
 
-	bool canMakeMove(vector <it> xy, vector <it> oldxy);
+	bool canMakeMove(vector <it>& xy, vector <it>& oldxy);
 
-	vector<it> getPixelOnCoord(vector <ft> xy);
+	vector<it> getPixelOnCoord(vector <ft>& xy);
 
 private:
 	it xSize;
