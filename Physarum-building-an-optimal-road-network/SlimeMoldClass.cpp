@@ -25,7 +25,7 @@ void SlimeAgentsSettings::setUp(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dp
 	srand(it(time(NULL)));
 }
 
-SlimeAgent* SlimeAgentsSettings::generateAgent(vector<ft>& startPosition, ft startAngle) {
+SlimeAgent* SlimeAgentsSettings::generateAgent(vector<ft> startPosition, ft startAngle) {
 	startAngle = startAngle / 180 * PI;
 	vector<ft> moveVector = { stepSize * cos(startAngle), stepSize * sin(startAngle) };
 	vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorAngle), sensorOffsetDistance * sin(startAngle + sensorAngle) };
@@ -39,14 +39,20 @@ SlimeAgent* SlimeAgentsSettings::generateAgent(vector<ft>& startPosition, ft sta
 vector<SlimeAgent*> SlimeAgentsSettings::generatePopulationInPixel(vector<ft>& startPosition) {
 	vector<SlimeAgent*> rezult;
 
-	ft angle = 0;
 	for (int i = 0; i < startPopulation; i++) {
 		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360))));
-		angle += sensorAngle;
 	}
 	return rezult;
 }
 
+vector<SlimeAgent*> SlimeAgentsSettings::generatePopulationRandomPositions(vector<it> sizes) {
+	vector<SlimeAgent*> rezult;
+
+	for (int i = 0; i < startPopulation; i++) {
+		rezult.push_back(generateAgent({ ft(rand() % sizes[0]) , ft(rand() % sizes[1]) }, (ft(rand() % 360))));
+	}
+	return rezult;
+}
 
 
 Location::Location(){}
@@ -138,6 +144,10 @@ vector<it> Location::getPixelOnCoord(vector <ft>& xy) {
 
 bool Location::checkMatrix(it i, it j) {
 	return (i >= 0 && j >= 0 && i < xSize&& j < ySize);
+}
+
+vector<it> Location::getSizes() {
+	return { xSize, ySize };
 }
 
 
@@ -286,20 +296,17 @@ SlimeMoldSimulation::SlimeMoldSimulation(Location& l, SlimeAgentsSettings& s) {
 }
 
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
-	initSimulation(startPosition);
+	particles = settings.generatePopulationRandomPositions(location.getSizes());
+
 	int count = 0;
 	while (true) {
 		// что-то с rotate неправильно
 		makeStep();
 		random_shuffle(particles.begin(), particles.end());
-		if (count %10 == 0)
-			outputInConsoleAgentMap();
+		if (count %30 == 0)
+			outputInFileAgentMap();
 		count++;
 	}
-}
-
-void SlimeMoldSimulation::initSimulation(vector<ft>& startPosition) {
-	particles = settings.generatePopulationInPixel(startPosition);
 }
 
 void SlimeMoldSimulation::makeStep() {
@@ -343,4 +350,31 @@ void SlimeMoldSimulation::outputInConsoleAgentMap() {
 	}
 
 	cout << endl;
+}
+
+void SlimeMoldSimulation::outputInFileAgentMap() {
+	static int ii = 0;
+	ii++;
+	ii %= 1000;
+	ofstream output("out" + to_string(ii)+ ".txt");
+
+	vector<vector<bool>> tmp = vector<vector<bool>>(location.trailMap.size(), vector<bool>(location.trailMap[0].size(), false));
+	for (int i = 0; i < particles.size(); i++) {
+		tmp[particles[i]->pixelVector[0]][particles[i]->pixelVector[1]] = true;
+	}
+
+	for (int i = 0; i < location.trailMap.size(); i++) {
+		for (int j = 0; j < location.trailMap[0].size(); j++) {
+			if (tmp[i][j]) {
+				output << "1" << " ";
+			}
+			else {
+				output << "." << " ";
+			}
+
+		}
+		output << endl;
+	}
+
+	output.close();
 }

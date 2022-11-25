@@ -81,9 +81,11 @@ public:
 
 	void setUp(it, ft, it, ft, ft, ft, ft, ft );
 
-	SlimeAgent* generateAgent(vector<ft>& startPosition, ft startAngle);
+	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle);
 
 	vector<SlimeAgent*> generatePopulationInPixel(vector<ft>& startPosition);
+
+	vector<SlimeAgent*> generatePopulationRandomPositions(vector<it> sizes);
 };
 
 class Location {
@@ -93,6 +95,8 @@ public:
 	Location();
 
 	Location(it x, it y, it dif, ft dec, bool ipb, bool icma);
+
+	vector<it> getSizes();
 
 	void castDecay();
 
@@ -125,11 +129,12 @@ public:
 
 	void startSimulation(vector<ft> startPosition);
 private:
-	void initSimulation(vector<ft>& startPosition);
 
 	void makeStep();
 
 	void outputInConsoleTrayMap();
 
 	void outputInConsoleAgentMap();
+
+	void outputInFileAgentMap();
 };
