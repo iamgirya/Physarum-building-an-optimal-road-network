@@ -13,8 +13,10 @@ Location::Location(it x, it y, SlimeMoldSimulation* set) {
 }
 
 void Location::castDecay() {
-	for (int i = 0; i < xSize; i++) {
-		for (int j = 0; j < ySize; j++) {
+	it i, j;
+#pragma omp parallel for private(j)
+	for (i = 0; i < xSize; i++) {
+		for (j = 0; j < ySize; j++) {
 			trailMap[i][j] *= settings->decayFactor;
 		}
 	}
@@ -22,11 +24,13 @@ void Location::castDecay() {
 
 void Location::castDiffusion() {
 	vector<vector<ft>> newMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
-	for (it i = 0; i < xSize; i++) {
-		for (it j = 0; j < ySize; j++) {
+	it i, j, k, l;
+#pragma omp parallel for private(j, k, l)
+	for (i = 0; i < xSize; i++) {
+		for (j = 0; j < ySize; j++) {
 			if (trailMap[i][j]) {
-				for (it k = -1; k <= 1; k++) {
-					for (it l = -1; l <= 1; l++) {
+				for (k = -1; k <= 1; k++) {
+					for (l = -1; l <= 1; l++) {
 						if (checkMatrix(i + k, j + l)) {
 							newMap[i + k][j + l] += 0.1 * trailMap[i][j];
 						}
@@ -262,31 +266,14 @@ void SlimeMoldSimulation::setLocation(it xSize, it ySize) {
 	location = Location(xSize, ySize, this);
 }
 
-void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
-	if (updateSettingsFromFile()) {
-		it count = 0;
-		std::random_device rd;
-		std::mt19937 g(rd());
-
-		while (true) {
-			// что-то с rotate неправильно
-			makeStep(); // 450
-			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 10 == 0) { 
-				outputInBmp(); // 130 - txt // 5 - bmp
-				updateSettingsFromFile();
-			}
-
-			count++;
-		}
-	}
-}
-
 void SlimeMoldSimulation::makeStep() {
-	for (int i = 0; i < particles.size(); i++) {
+	int i;
+#pragma omp parallel for
+	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
 	}
-	for (int i = 0; i < particles.size(); i++) {
+#pragma omp parallel for
+	for (i = 0; i < particles.size(); i++) {
 		particles[i]->skanTurn();
 	}
 
@@ -352,7 +339,7 @@ void SlimeMoldSimulation::outputInFileAgentMap() {
 	output.close();
 }
 
-void SlimeMoldSimulation::outputInBmp() {
+void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	static int bmpi = 0;
 	bmpi++;
 	bmpi %= 1000;
@@ -385,12 +372,13 @@ void SlimeMoldSimulation::outputInBmp() {
 		}
 	}
 	*/
+	int colorOffset = isChangedSettings ? 2 : 1;
 	for (int i = 0; i < particles.size(); i++) {
-		if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] > 255-16) {
-			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] += 16;
+		if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] > 255-8) {
+			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] += 8;
 		}
 		else {
-			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] = 255;
+			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] = 255;
 		}
 	}
 
@@ -491,7 +479,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	it newPopulation;
 	try {
 		input >> isNeedToUpdate;
-		if (isNeedToUpdate == "yes") {
+		if (isNeedToUpdate == "yes" || stepSize == 0) {
 			input >> sod >> sw >> sa >> ra >> ss >> dps >> corcd >> dif >> dec >> ipb >> icma;
 			input >> newPopulation;
 			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sod || sensorAngle != sa || stepSize != ss);
@@ -535,5 +523,34 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	catch (exception) {
 		input.close();
 		return false;
+	}
+}
+
+void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
+	if (updateSettingsFromFile()) {
+		it count = 0;
+		std::random_device rd;
+		std::mt19937 g(rd());
+		ft timeForOneIteration1, timeForOneIteration2;
+		ft sumTime = 0;
+		while (true) {
+			timeForOneIteration1 = omp_get_wtime();
+
+			makeStep(); // 450 // 340 - если параллельно
+			
+			timeForOneIteration2 = omp_get_wtime();
+
+			count++;
+			timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
+			cout << count << endl << timeForOneIteration1 << endl;
+			sumTime += timeForOneIteration1;
+			cout << sumTime/count << endl << endl; // 12
+
+			shuffle(particles.begin(), particles.end(), g); // 3
+			if (count % 10 == 0) {
+				bool isUpdated = updateSettingsFromFile();
+				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
+			}
+		}
 	}
 }

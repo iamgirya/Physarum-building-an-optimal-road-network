@@ -1,6 +1,6 @@
-
 #define _CRT_SECURE_NO_WARNINGS
 #include <math.h>
+#include "omp.h"
 #include <tuple>
 #include <vector>
 #include <stdio.h>
@@ -142,5 +142,5 @@ private:
 
 	bool updateSettingsFromFile();
 
-	void outputInBmp();
+	void outputInBmp(bool);
 };
