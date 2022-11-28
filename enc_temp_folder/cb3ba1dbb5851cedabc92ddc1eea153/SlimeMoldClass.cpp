@@ -270,10 +270,10 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 
 		while (true) {
 			// что-то с rotate неправильно
-			makeStep();
-			shuffle(particles.begin(), particles.end(), g);
+			makeStep(); // 450
+			shuffle(particles.begin(), particles.end(), g); // 3
 			if (count % 30 == 0) {
-				outputInFileAgentMap();
+				outputInBmp(); // 130
 				updateSettingsFromFile();
 			}
 
@@ -350,6 +350,81 @@ void SlimeMoldSimulation::outputInFileAgentMap() {
 	}
 
 	output.close();
+}
+
+void SlimeMoldSimulation::outputInBmp() {
+	static int bmpi = 0;
+	bmpi++;
+	bmpi %= 1000;
+	int w = location.getSizes()[0], h = location.getSizes()[1];
+
+	FILE* f;
+	unsigned char* img = NULL;
+	int filesize = 54 + 3 * w * h;  //w is your image width, h is image height, both int
+
+	img = (unsigned char*)malloc(3 * w * h);
+	memset(img, 0, 3 * w * h);
+
+	int r, g, b;
+	/*
+	for (int i = 0; i < w; i++)
+	{
+		for (int j = 0; j < h; j++)
+		{
+			
+			int x = i; int y = (h - 1) - j;
+			r = location.trailMap[i][j];
+			g = 0;
+			b = 0;
+			if (r > 255) r = 255;
+			if (g > 255) g = 255;
+			if (b > 255) b = 255;
+			img[(x + y * w) * 3 + 2] = (unsigned char)(r);
+			img[(x + y * w) * 3 + 1] = (unsigned char)(g);
+			img[(x + y * w) * 3 + 0] = (unsigned char)(b);
+		}
+	}
+	*/
+	for (int i = 0; i < particles.size(); i++) {
+		if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] > 255-16) {
+			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] += 16;
+		}
+		else {
+			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] = 255;
+		}
+	}
+
+	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0 };
+	unsigned char bmpinfoheader[40] = { 40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0 };
+	unsigned char bmppad[3] = { 0,0,0 };
+
+	bmpfileheader[2] = (unsigned char)(filesize);
+	bmpfileheader[3] = (unsigned char)(filesize >> 8);
+	bmpfileheader[4] = (unsigned char)(filesize >> 16);
+	bmpfileheader[5] = (unsigned char)(filesize >> 24);
+
+	bmpinfoheader[4] = (unsigned char)(w);
+	bmpinfoheader[5] = (unsigned char)(w >> 8);
+	bmpinfoheader[6] = (unsigned char)(w >> 16);
+	bmpinfoheader[7] = (unsigned char)(w >> 24);
+	bmpinfoheader[8] = (unsigned char)(h);
+	bmpinfoheader[9] = (unsigned char)(h >> 8);
+	bmpinfoheader[10] = (unsigned char)(h >> 16);
+	bmpinfoheader[11] = (unsigned char)(h >> 24);
+	
+
+	string name = "img" + to_string(bmpi) + ".bmp";
+	f = fopen(name.data(), "wb");
+	fwrite(bmpfileheader, 1, 14, f);
+	fwrite(bmpinfoheader, 1, 40, f);
+	for (int i = 0; i < h; i++)
+	{
+		fwrite(img + (w * (h - i - 1) * 3), 3, w, f);
+		fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
+	}
+
+	free(img);
+	fclose(f);
 }
 
 SlimeAgent* SlimeMoldSimulation::generateAgent(vector<ft> startPosition, ft startAngle) {

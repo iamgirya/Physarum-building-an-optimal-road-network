@@ -1,3 +1,5 @@
+
+#define _CRT_SECURE_NO_WARNINGS
 #include <math.h>
 #include <tuple>
 #include <vector>
@@ -139,4 +141,6 @@ private:
 	void outputInFileAgentMap();
 
 	bool updateSettingsFromFile();
+
+	void outputInBmp();
 };
