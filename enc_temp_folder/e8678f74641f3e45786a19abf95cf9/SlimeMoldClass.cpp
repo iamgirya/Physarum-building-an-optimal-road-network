@@ -271,9 +271,9 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 		while (true) {
 			// что-то с rotate неправильно
 			makeStep(); // 450
-			shuffle(particles.begin(), particles.end(), g); // 3
+			shuffle(particles.begin(), particles.end(), g);
 			if (count % 30 == 0) {
-				outputInFileAgentMap(); // 130
+				outputInFileAgentMap();
 				updateSettingsFromFile();
 			}
 

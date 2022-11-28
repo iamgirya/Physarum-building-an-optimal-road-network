@@ -18,11 +18,13 @@ typedef double ft;
 const double PI = acos(-1.0);
 
 class SlimeAgent;
-class SlimeAgentsSettings;
+class SlimeMoldSimulation;
 class Location;
 
 class SlimeAgent {
 public:
+	//здесь настройки
+	SlimeMoldSimulation* settings;
 	//вектор нынешней позиции
 	vector<ft> positionVector;
 
@@ -37,13 +39,15 @@ public:
 	vector<ft> centerSensorVector;
 	vector<ft> rigthSensorVector;
 
-	void setUp(vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv);
+	SlimeAgent();
+
+	void setUp(vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
 	//движение
-	void moveTurn(SlimeAgentsSettings& set, Location& loc);
+	void moveTurn();
 	//сканирование
-	void skanTurn(SlimeAgentsSettings& set, Location& loc);
+	void skanTurn();
 	// функция хода
-	void makeFullTurn(SlimeAgentsSettings& set, Location& loc);
+	void makeFullTurn();
 private:
 
 	template<typename T>
@@ -51,50 +55,26 @@ private:
 	template<typename T>
 	vector<T> vMult(vector<T>& x, vector<vector<T>>& r);
 	// определяет направление поворота
-	it activateSensors(Location& loc);
+	it activateSensors();
 	// поворот векторов скорости и сенсоров
-	void rotate(SlimeAgentsSettings& set, bool isRigth);
+	void rotate(bool isRigth);
 	//сдвиг и установка пикселя, если это возможно
-	bool move(Location& loc);
+	bool move();
 	// нанесение следа на карту
-	void makeDeposit(SlimeAgentsSettings& set, Location& loc);
-};
-
-class SlimeAgentsSettings {
-public:
-	//активно используемые;
-	vector<vector<ft>> leftRotationMatrix;
-	vector<vector<ft>> rightRotationMatrix;
-	ft depositPerStep;
-	ft chanceOfRandomChangeDirection;
-
-	//используемые для создания
-	ft sensorAngle;
-	ft sensorOffsetDistance;
-	it sensorWidth; //пока автоединица, не используется
-	ft stepSize;
-	it startPopulation;
-
-	SlimeAgentsSettings();
-
-	SlimeAgentsSettings(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd = 0);
-
-	void setUp(it, ft, it, ft, ft, ft, ft, ft );
-
-	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle);
-
-	vector<SlimeAgent*> generatePopulationInPixel(vector<ft>& startPosition);
-
-	vector<SlimeAgent*> generatePopulationRandomPositions(vector<it> sizes);
+	void makeDeposit();
 };
 
 class Location {
 public:
+	//здесь настройки
+	SlimeMoldSimulation* settings;
+
 	vector<vector<ft>> trailMap;
+	vector<vector<bool>> agentMap;
 
 	Location();
 
-	Location(it x, it y, it dif, ft dec, bool ipb, bool icma);
+	Location(it x, it y, SlimeMoldSimulation* set);
 
 	vector<it> getSizes();
 
@@ -109,12 +89,6 @@ public:
 private:
 	it xSize;
 	it ySize;
-	it diffusionSize; // пока не робит
-	ft decayFactor; //mult
-
-	bool isPeriodicBoundary;
-	bool isCanMultiAgent;
-	vector<vector<bool>> agentMap;
 
 	bool checkMatrix(it i, it j);
 };
@@ -122,13 +96,39 @@ private:
 class SlimeMoldSimulation {
 public:
 	Location location;
-	SlimeAgentsSettings settings;
 	vector<SlimeAgent*> particles;
 
-	SlimeMoldSimulation(Location& l, SlimeAgentsSettings& s);
+	vector<vector<ft>> leftRotationMatrix;
+	vector<vector<ft>> rightRotationMatrix;
+	ft depositPerStep;
+	ft chanceOfRandomChangeDirection;
+
+	//используемые для создания
+	ft sensorAngle;
+	ft sensorOffsetDistance;
+	it sensorWidth; //пока автоединица, не используется
+	ft stepSize;
+	it population;
+
+	it diffusionSize; // пока не робит
+	ft decayFactor; //mult
+	bool isPeriodicBoundary;
+	bool isCanMultiAgent;
+
+	SlimeMoldSimulation();
+
+	void setLocation(it xSize, it ySize);
+
+	void setUp(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma);
 
 	void startSimulation(vector<ft> startPosition);
+
+	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle);
 private:
+
+	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition);
+
+	vector<SlimeAgent*> generatePopulationRandomPositions(it count, vector<it> sizes);
 
 	void makeStep();
 
@@ -137,4 +137,6 @@ private:
 	void outputInConsoleAgentMap();
 
 	void outputInFileAgentMap();
+
+	bool updateSettingsFromFile();
 };
