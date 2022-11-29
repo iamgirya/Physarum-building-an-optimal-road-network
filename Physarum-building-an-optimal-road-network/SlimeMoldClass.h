@@ -41,9 +41,12 @@ public:
 	vector<ft> centerSensorVector;
 	vector<ft> rigthSensorVector;
 
+	//время жизни
+	it timeToLife;
+
 	SlimeAgent();
 
-	void setUp(vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
+	void setUp(it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
 	//движение
 	void moveTurn();
 	//сканирование
@@ -100,6 +103,8 @@ public:
 	Location location;
 	vector<SlimeAgent*> particles;
 
+	vector<pair<vector<ft>, it>> generators;
+
 	vector<vector<ft>> leftRotationMatrix;
 	vector<vector<ft>> rightRotationMatrix;
 	ft depositPerStep;
@@ -111,6 +116,7 @@ public:
 	it sensorWidth; //пока автоединица, не используется
 	ft stepSize;
 	it population;
+	it startTimeToLife;
 
 	it diffusionSize; // пока не робит
 	ft decayFactor; //mult
@@ -121,7 +127,7 @@ public:
 
 	void setLocation(it xSize, it ySize);
 
-	void setUp(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma);
+	void setUp(it ttl, it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma);
 
 	void startSimulation(vector<ft> startPosition);
 

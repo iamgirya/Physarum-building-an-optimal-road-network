@@ -98,7 +98,7 @@ vector<it> Location::getSizes() {
 
 SlimeAgent::SlimeAgent() {}
 
-void SlimeAgent::setUp(vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv, SlimeMoldSimulation* set) {
+void SlimeAgent::setUp(it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv, SlimeMoldSimulation* set) {
 	positionVector = pv;
 	moveVector = mv;
 	leftSensorVector = lsv;
@@ -106,6 +106,7 @@ void SlimeAgent::setUp(vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> 
 	rigthSensorVector = rsv;
 	pixelVector = { it(pv[0]), it(pv[1]) };
 	settings = set;
+	timeToLife = ttl;
 }
 //движение
 void SlimeAgent::moveTurn() {
@@ -120,10 +121,9 @@ void SlimeAgent::moveTurn() {
 //сканирование
 void SlimeAgent::skanTurn() {
 	//шанс рандомного поворота
-	if (settings->chanceOfRandomChangeDirection > (rand() % 100 + 1)) {
+	if (settings->chanceOfRandomChangeDirection != 0 && settings->chanceOfRandomChangeDirection > (rand() % 100 + 1)) {
 		rotate(rand() % 2);
-	}
-	else {
+	} else {
 		// -1 - поворот налево, 0 - сохранение направления, 1 - поворот направо
 		it rotateSide = activateSensors();
 		if (rotateSide != 0) {
@@ -275,6 +275,19 @@ void SlimeMoldSimulation::makeStep() {
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->skanTurn();
+
+		particles[i]->timeToLife--;
+	}
+
+	for (i = 0; i < particles.size(); i++) {
+		if (particles[i]->timeToLife <= 0) {
+			particles.erase(particles.begin() + i);
+		}
+	}
+
+	for (i = 0; i < generators.size(); i++) {
+		vector<SlimeAgent*> newPart = generatePopulationInPixel(generators[i].second, generators[i].first);
+		particles.insert(particles.end(), newPart.begin(), newPart.end());
 	}
 
 	location.castDiffusion();
@@ -340,7 +353,8 @@ void SlimeMoldSimulation::outputInFileAgentMap() {
 }
 
 void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
-	static int bmpi = 0;
+	static int bmpi = -1;
+	static vector<ft> colorVector = { (rand() % 100 / 100.0), (rand() % 100 / 100.0) , (rand() % 100 / 100.0) };
 	bmpi++;
 	bmpi %= 1000;
 	int w = location.getSizes()[0], h = location.getSizes()[1];
@@ -372,14 +386,46 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		}
 	}
 	*/
-	int colorOffset = isChangedSettings ? 2 : 1;
-	for (int i = 0; i < particles.size(); i++) {
-		if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] > 255-8) {
-			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] += 8;
+	
+	if (!isChangedSettings) {
+		for (int colorOffset = 0; colorOffset < 3; colorOffset++) {
+			for (int i = 0; i < particles.size(); i++) {
+				if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] > (255 - 8) * colorVector[colorOffset]) {
+					img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] += 8 * colorVector[colorOffset];
+				}
+				else {
+					img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] = 255* colorVector[colorOffset];
+				}
+			}
 		}
-		else {
-			img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + colorOffset] = 255;
+	}
+	else {
+		for (int i = 0; i < particles.size(); i++) {
+			if (img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] > 255 - 8) {
+				img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] += 8;
+			}
+			else {
+				img[(particles[i]->pixelVector[0] + particles[i]->pixelVector[1] * w) * 3 + 2] = 255;
+			}
 		}
+	}
+	
+	for (int i = 0; i < generators.size(); i++) {
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
+		img[(it(generators[i].first[0] +1) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
+		img[(it(generators[i].first[0] +1) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
+		img[(it(generators[i].first[0] +1) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]+1) * w) * 3 + 0] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]+1) * w) * 3 + 1] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1]+1) * w) * 3 + 2] = 255;
+		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
+		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
+		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 0] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 1] = 255;
+		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 2] = 255;
 	}
 
 	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0 };
@@ -422,14 +468,14 @@ SlimeAgent* SlimeMoldSimulation::generateAgent(vector<ft> startPosition, ft star
 	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
 	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorAngle), sensorOffsetDistance * sin(startAngle - sensorAngle) };
 	SlimeAgent* tmp = new SlimeAgent();
-	tmp->setUp(startPosition, moveVector, lsVector, csVector, rsVector, this);
+	tmp->setUp(startTimeToLife ,startPosition, moveVector, lsVector, csVector, rsVector, this);
 	return tmp;
 }
 
 vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationInPixel(it count, vector<ft>& startPosition) {
 	vector<SlimeAgent*> rezult;
 
-	for (int i = 0; i < population; i++) {
+	for (int i = 0; i < count; i++) {
 		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360))));
 	}
 	return rezult;
@@ -444,9 +490,10 @@ vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationRandomPositions(it co
 	return rezult;
 }
 
-void SlimeMoldSimulation::setUp(it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma) {
+void SlimeMoldSimulation::setUp(it ttl, it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma) {
 	population = sp;
-	
+	startTimeToLife = ttl;
+
 	ra = it(ra) % 360;
 	ra = ra * PI / 180;
 
@@ -475,17 +522,27 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	ifstream input("settings.txt");
 
 	string isNeedToUpdate;
-	ft sod; it sw; ft sa; ft ra; ft ss; ft dps; ft corcd; it dif; ft dec; bool ipb; bool icma;
-	it newPopulation;
+	it ttl; ft sod; it sw; ft sa; ft ra; ft ss; ft dps; ft corcd; it dif; ft dec; bool ipb; bool icma;
+	it newPopulation; it countOfGenerators;
 	try {
 		input >> isNeedToUpdate;
 		if (isNeedToUpdate == "yes" || stepSize == 0) {
-			input >> sod >> sw >> sa >> ra >> ss >> dps >> corcd >> dif >> dec >> ipb >> icma;
-			input >> newPopulation;
+			input >> ttl >> sod >> sw >> sa >> ra >> ss >> dps >> corcd >> dif >> dec >> ipb >> icma;
+			input >> newPopulation >> countOfGenerators;
+
+			generators.clear();
+			for (int i = 0; i < countOfGenerators; i++) {
+				vector<ft> pos(2);
+				it rate;
+				input >> pos[0] >> pos[1] >> rate;
+				
+				generators.push_back(make_pair(pos, rate));
+			}
+
 			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sod || sensorAngle != sa || stepSize != ss);
 			bool isNeedToResizePopulation = population != newPopulation;
 
-			setUp(newPopulation, sod , 1 , sa , ra , ss , dps , corcd , dif , dec , ipb , icma);
+			setUp(ttl, newPopulation, sod , 1 , sa , ra , ss , dps , corcd , dif , dec , ipb , icma);
 
 			if (isNeedToResizePopulation) {
 				if (particles.size() < newPopulation) {
@@ -500,7 +557,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 			}
 
 			if (isNeedToUpdateAgents) {
-				for (it i = 0; i < population; i++) {
+				for (it i = 0; i < particles.size(); i++) {
 					ft partAngle = atan2(particles[i]->positionVector[0], particles[i]->positionVector[1]) / PI * 180;
 					particles[i] = generateAgent(particles[i]->positionVector, partAngle);
 				}
@@ -510,8 +567,11 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 
 			ofstream output("settings.txt");
 			output << "no" << endl;
-			output << sod << ' ' << sw << ' ' << sa << ' ' << ra << ' ' << ss << ' ' << dps << ' ' << corcd << ' ' << dif << ' ' << dec << ' ' << ipb << ' ' << icma << endl;
-			output << newPopulation;
+			output << ttl << ' ' << sod << ' ' << sw << ' ' << sa << ' ' << ra << ' ' << ss << ' ' << dps << ' ' << corcd << ' ' << dif << ' ' << dec << ' ' << ipb << ' ' << icma << endl;
+			output << newPopulation << ' ' << countOfGenerators;
+			for (int i = 0; i < countOfGenerators; i++) {
+				output << endl << generators[i].first[0] << ' ' << generators[i].first[1] << ' ' << generators[i].second;
+			}
 			output.close();
 			return true;
 		}
