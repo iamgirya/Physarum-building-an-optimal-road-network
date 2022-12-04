@@ -108,7 +108,7 @@ void SlimeAgent::setUp(it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vec
 	settings = set;
 	timeToLife = ttl;
 }
-//движение
+//движение и старение
 void SlimeAgent::moveTurn() {
 	// если движение успешно
 	if (move()) {
@@ -116,6 +116,24 @@ void SlimeAgent::moveTurn() {
 	}
 	else {
 		rotate(rand() % 2);
+	}
+}
+//старение
+bool SlimeAgent::timeTurn() {
+	timeToLife--;
+	return timeToLife <= 0;
+	
+}
+void SlimeAgent::deadTurn() {
+	const it delta = 2;
+	it i, j;
+	for (i = -delta; i <= delta; i++) {
+		for (j = -delta; j <= delta; j++) {
+			// кринжово
+			if (settings->location.checkMatrix(pixelVector[0] + i, pixelVector[1] + j)) {
+				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep*2;
+			}
+		}
 	}
 }
 //сканирование
@@ -272,17 +290,33 @@ void SlimeMoldSimulation::makeStep() {
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
 	}
+
+	vector<SlimeAgent*> stillAlive;
+#pragma omp parallel
+	{
+		vector<SlimeAgent*> stillAlivePrivate;
+#pragma omp for nowait // в конце цикла потоки не ждут друг друга, а идут дальше
+		for (i = 0; i < particles.size(); i++) {
+			if (particles[i]->timeTurn()) {
+				particles[i]->deadTurn();
+				delete particles[i];
+			}
+			else {
+				stillAlivePrivate.push_back(particles[i]);
+			}
+		}
+#pragma omp critical // данная строка выполняется по очереди
+		stillAlive.insert(stillAlive.end(), stillAlivePrivate.begin(), stillAlivePrivate.end());
+	}
+	particles = stillAlive;
+
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->skanTurn();
-
-		particles[i]->timeToLife--;
 	}
 
 	for (i = 0; i < particles.size(); i++) {
-		if (particles[i]->timeToLife <= 0) {
-			particles.erase(particles.begin() + i);
-		}
+		
 	}
 
 	for (i = 0; i < generators.size(); i++) {

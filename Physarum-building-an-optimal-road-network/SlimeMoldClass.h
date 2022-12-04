@@ -51,6 +51,10 @@ public:
 	void moveTurn();
 	//сканирование
 	void skanTurn();
+	//старение
+	bool timeTurn();
+	//смерть
+	void deadTurn();
 	// функция хода
 	void makeFullTurn();
 private:
@@ -91,11 +95,11 @@ public:
 
 	vector<it> getPixelOnCoord(vector <ft>& xy);
 
+	bool checkMatrix(it i, it j);
+
 private:
 	it xSize;
 	it ySize;
-
-	bool checkMatrix(it i, it j);
 };
 
 class SlimeMoldSimulation {
