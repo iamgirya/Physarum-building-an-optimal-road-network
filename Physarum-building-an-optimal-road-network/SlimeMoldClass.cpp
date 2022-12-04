@@ -361,7 +361,7 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 
 	FILE* f;
 	unsigned char* img = NULL;
-	int filesize = 54 + 3 * w * h;  //w is your image width, h is image height, both int
+	int filesize = 54 + 3 * w * h;
 
 	img = (unsigned char*)malloc(3 * w * h);
 	memset(img, 0, 3 * w * h);
@@ -607,7 +607,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			cout << sumTime/count << endl << endl; // 12
 
 			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 10 == 0) {
+			if (count % 30 == 0) {
 				bool isUpdated = updateSettingsFromFile();
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}
