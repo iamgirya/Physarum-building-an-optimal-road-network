@@ -43,10 +43,12 @@ public:
 
 	//время жизни
 	it timeToLife;
+	//из какого генератора рождён
+	it teamIndex;
 
 	SlimeAgent();
 
-	void setUp(it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
+	void setUp(it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
 	//движение
 	void moveTurn();
 	//сканирование
@@ -135,10 +137,10 @@ public:
 
 	void startSimulation(vector<ft> startPosition);
 
-	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle);
+	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it);
 private:
 
-	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition);
+	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex);
 
 	vector<SlimeAgent*> generatePopulationRandomPositions(it count, vector<it> sizes);
 

@@ -98,7 +98,7 @@ vector<it> Location::getSizes() {
 
 SlimeAgent::SlimeAgent() {}
 
-void SlimeAgent::setUp(it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv, SlimeMoldSimulation* set) {
+void SlimeAgent::setUp(it ti, it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv, SlimeMoldSimulation* set) {
 	positionVector = pv;
 	moveVector = mv;
 	leftSensorVector = lsv;
@@ -107,6 +107,7 @@ void SlimeAgent::setUp(it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vec
 	pixelVector = { it(pv[0]), it(pv[1]) };
 	settings = set;
 	timeToLife = ttl;
+	teamIndex = ti;
 }
 //движение и старение
 void SlimeAgent::moveTurn() {
@@ -120,11 +121,20 @@ void SlimeAgent::moveTurn() {
 }
 //старение
 bool SlimeAgent::timeTurn() {
+	
+	for (it i = 0; i < settings->generators.size(); i++) {
+		if (abs(pixelVector[0] - it(settings->generators[i].first[0])) <= 1 && abs(pixelVector[1] - it(settings->generators[i].first[1])) <= 1 && i != teamIndex) {
+			return true;
+		}
+	}
+
 	timeToLife--;
 	return timeToLife <= 0;
-	
 }
 void SlimeAgent::deadTurn() {
+	if (timeToLife >= 0) {
+		return;
+	}
 	const it delta = 2;
 	it i, j;
 	for (i = -delta; i <= delta; i++) {
@@ -239,6 +249,7 @@ void SlimeAgent::rotate(bool isRigth) {
 bool SlimeAgent::move() {
 	vector<ft> newPosition = vSum(positionVector, moveVector);
 	vector<it> newPixel = settings->location.getPixelOnCoord(newPosition);
+
 	if (newPixel.empty() || !settings->location.canMakeMove(newPixel, pixelVector)) {
 		return false;
 	}
@@ -315,14 +326,17 @@ void SlimeMoldSimulation::makeStep() {
 		particles[i]->skanTurn();
 	}
 
-	for (i = 0; i < particles.size(); i++) {
-		
+#pragma omp parallel
+	{
+		vector<SlimeAgent*> newPart;
+#pragma omp for nowait
+		for (i = 0; i < generators.size(); i++) {
+			newPart = generatePopulationInPixel(generators[i].second, generators[i].first, i);
+#pragma omp critical
+			particles.insert(particles.end(), newPart.begin(), newPart.end());
+		}
 	}
-
-	for (i = 0; i < generators.size(); i++) {
-		vector<SlimeAgent*> newPart = generatePopulationInPixel(generators[i].second, generators[i].first);
-		particles.insert(particles.end(), newPart.begin(), newPart.end());
-	}
+	
 
 	location.castDiffusion();
 	location.castDecay();
@@ -495,22 +509,22 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	fclose(f);
 }
 
-SlimeAgent* SlimeMoldSimulation::generateAgent(vector<ft> startPosition, ft startAngle) {
+SlimeAgent* SlimeMoldSimulation::generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex = -1) {
 	startAngle = startAngle / 180 * PI;
 	vector<ft> moveVector = { stepSize * cos(startAngle), stepSize * sin(startAngle) };
 	vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorAngle), sensorOffsetDistance * sin(startAngle + sensorAngle) };
 	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
 	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorAngle), sensorOffsetDistance * sin(startAngle - sensorAngle) };
 	SlimeAgent* tmp = new SlimeAgent();
-	tmp->setUp(startTimeToLife ,startPosition, moveVector, lsVector, csVector, rsVector, this);
+	tmp->setUp(teamIndex, startTimeToLife ,startPosition, moveVector, lsVector, csVector, rsVector, this);
 	return tmp;
 }
 
-vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationInPixel(it count, vector<ft>& startPosition) {
+vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex = -1) {
 	vector<SlimeAgent*> rezult;
 
 	for (int i = 0; i < count; i++) {
-		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360))));
+		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360)), teamIndex));
 	}
 	return rezult;
 }
