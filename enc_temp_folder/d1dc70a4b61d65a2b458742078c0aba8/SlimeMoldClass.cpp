@@ -679,8 +679,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 		std::mt19937 g(rd());
 		ft timeForOneIteration1, timeForOneIteration2;
 		ft sumTime = 0;
-		vector<ft> v = { 100,100 };
-		particles = generatePopulationInPixel(3000, v);
+
 		while (true) {
 			timeForOneIteration1 = omp_get_wtime();
 

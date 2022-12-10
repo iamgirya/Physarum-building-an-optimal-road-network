@@ -45,18 +45,20 @@ public:
 	it timeToLife;
 	//из какого генератора рождён
 	it teamIndex;
+	//Вектор направления при появлении
+	pair<ft ,vector<ft>> startAngle;
 
 	SlimeAgent();
 
-	void setUp(it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
+	void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
 	//движение
 	void moveTurn();
 	//сканирование
 	void skanTurn();
 	//старение
-	bool timeTurn();
+	it checkGeneratorsTurn();
 	//смерть
-	void deadTurn();
+	void deadTurn(it);
 	// функция хода
 	void makeFullTurn();
 private:
@@ -110,6 +112,7 @@ public:
 	vector<SlimeAgent*> particles;
 
 	vector<pair<vector<ft>, it>> generators;
+	vector<queue<ft>> generatorsQueue;
 
 	vector<vector<ft>> leftRotationMatrix;
 	vector<vector<ft>> rightRotationMatrix;
