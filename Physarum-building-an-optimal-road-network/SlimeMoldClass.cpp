@@ -17,7 +17,11 @@ void Location::castDecay() {
 #pragma omp parallel for private(j)
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
-			trailMap[i][j] *= settings->decayFactor;
+			//if (trailMap[i][j] > 0)
+				trailMap[i][j] *= settings->decayFactor;
+			/*else {
+				trailMap[i][j] *= 0.98;
+			}*/
 		}
 	}
 }
@@ -28,15 +32,18 @@ void Location::castDiffusion() {
 #pragma omp parallel for private(j, k, l)
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
-			if (trailMap[i][j]) {
+			if (trailMap[i][j] > 0) {
 				for (k = -1; k <= 1; k++) {
 					for (l = -1; l <= 1; l++) {
 						if (checkMatrix(i + k, j + l)) {
-							newMap[i + k][j + l] += 0.1 * trailMap[i][j];
+							newMap[i + k][j + l] += 0.05 * trailMap[i][j];
 						}
 					}
-				}
-				newMap[i][j] += 0.1 * trailMap[i][j];
+
+					newMap[i][j] += 0.55 * trailMap[i][j];
+				}			
+			} else {
+				newMap[i][j] += trailMap[i][j];
 			}
 		}
 	}
@@ -132,7 +139,7 @@ bool SlimeAgent::timeTurn() {
 	return timeToLife <= 0;
 }
 void SlimeAgent::deadTurn() {
-	if (timeToLife >= 0) {
+	if (timeToLife > 0) {
 		return;
 	}
 	const it delta = 2;
@@ -216,6 +223,13 @@ it SlimeAgent::activateSensors() {
 	else {
 		rw = 0;
 	}
+	/*if (cw < 0 && rw < 0 && lw < 0) {
+		moveVector = { -moveVector[0], -moveVector[1] };
+		centerSensorVector = { -centerSensorVector[0], -centerSensorVector[1] };
+		rigthSensorVector = { -rigthSensorVector[0], -rigthSensorVector[1] };
+		leftSensorVector = { -leftSensorVector[0], -leftSensorVector[1] };
+		return 0;
+	}*/
 
 	if ((cw >= rw && cw > lw) || (cw > rw && cw >= lw)) {
 		return 0;
@@ -402,7 +416,7 @@ void SlimeMoldSimulation::outputInFileAgentMap() {
 
 void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	static int bmpi = -1;
-	static vector<ft> colorVector = { (rand() % 100 / 100.0), (rand() % 100 / 100.0) , (rand() % 100 / 100.0) };
+	static vector<ft> colorVector = { (0.3 + rand() % 50 / 100.0), (0.3 + rand() % 50 / 100.0) , (0.3 + rand() % 50 / 100.0) };
 	bmpi++;
 	bmpi %= 1000;
 	int w = location.getSizes()[0], h = location.getSizes()[1];
@@ -474,6 +488,16 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 0] = 255;
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 1] = 255;
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 2] = 255;
+	}
+
+	for (int i = 0; i < 200; i++) {
+		for (int j = 0; j < 200; j++) {
+			if (location.trailMap[i][j] < 0) {
+				img[(i + j * w) * 3 + 0] = 0;
+				img[(i + j * w) * 3 + 1] = 0;
+				img[(i + j * w) * 3 + 2] = 255;
+			}
+		}
 	}
 
 	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0 };
@@ -655,7 +679,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			cout << sumTime/count << endl << endl; // 12
 
 			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 30 == 0) {
+			if (count % 10 == 0) {
 				bool isUpdated = updateSettingsFromFile();
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}
