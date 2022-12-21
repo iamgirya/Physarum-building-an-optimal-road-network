@@ -35,12 +35,12 @@ void Location::castDiffusion() {
 			if (trailMap[i][j] > 0) {
 				for (k = -1; k <= 1; k++) {
 					for (l = -1; l <= 1; l++) {
-						if ((k == 0 || l == 0) && checkMatrix(i + k, j + l)) {
-							newMap[i + k][j + l] += 0.1 * trailMap[i][j];
+						if ((l == 0 || k == 0) && checkMatrix(i + k, j + l)) {
+							newMap[i + k][j + l] += 0.05 * trailMap[i][j];
 						}
 					}
 
-					newMap[i][j] += 0.5 * trailMap[i][j];
+					newMap[i][j] += 0.75 * trailMap[i][j];
 				}			
 			} else {
 				newMap[i][j] += trailMap[i][j];
@@ -137,20 +137,22 @@ it SlimeAgent::checkGeneratorsTurn() {
 	}
 	return -1;
 }
+
 void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
 	const ft someAngle = 10;
 	if (indexOfGenerator != -1) {
 		ft newAngle = startAngle.first + (rand() % 2 == 0 ? -1 : 1) *someAngle;
-		settings->generatorsQueue[indexOfGenerator].push(newAngle);
+		settings->generatorsQueue[teamIndex].push(newAngle);
 		return;
 	}
 	const it delta = 2;
 	it i, j;
+	return;
 	for (i = -delta; i <= delta; i++) {
 		for (j = -delta; j <= delta; j++) {
 			// кринжово
 			if (settings->location.checkMatrix(pixelVector[0] + i, pixelVector[1] + j)) {
-				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep;
+				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep*3;
 			}
 		}
 	}
@@ -313,6 +315,7 @@ void SlimeMoldSimulation::setLocation(it xSize, it ySize) {
 
 void SlimeMoldSimulation::makeStep() {
 	int i;
+
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
@@ -423,7 +426,7 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	static int bmpi = -1;
 	static vector<ft> colorVector = { (0.3 + rand() % 50 / 100.0), (0.3 + rand() % 50 / 100.0) , (0.3 + rand() % 50 / 100.0) };
 	bmpi++;
-	bmpi %= 1000;
+	bmpi %= 10000;
 	int w = location.getSizes()[0], h = location.getSizes()[1];
 
 	FILE* f;
@@ -453,7 +456,16 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		}
 	}
 	*/
-	
+	//for (int i = 0; i < 200; i++) {
+	//	for (int j = 0; j < 200; j++) {
+	//		if (true) {
+	//			//img[(i + j * w) * 3 + 0] = 0;
+	//			//img[(i + j * w) * 3 + 1] = 0;
+	//			img[(i + j * w) * 3 + 2] = location.trailMap[i][j] * 10 > 255 ? 255 : location.trailMap[i][j] * 10;
+	//		}
+	//	}
+	//}
+
 	if (!isChangedSettings) {
 		for (int colorOffset = 0; colorOffset < 3; colorOffset++) {
 			for (int i = 0; i < particles.size(); i++) {
@@ -495,15 +507,8 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 2] = 255;
 	}
 
-	for (int i = 0; i < 200; i++) {
-		for (int j = 0; j < 200; j++) {
-			if (location.trailMap[i][j] < 0) {
-				img[(i + j * w) * 3 + 0] = 0;
-				img[(i + j * w) * 3 + 1] = 0;
-				img[(i + j * w) * 3 + 2] = 255;
-			}
-		}
-	}
+	
+	
 
 	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0 };
 	unsigned char bmpinfoheader[40] = { 40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0 };
@@ -679,8 +684,6 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 		std::mt19937 g(rd());
 		ft timeForOneIteration1, timeForOneIteration2;
 		ft sumTime = 0;
-		vector<ft> v = { 100,100 };
-		particles = generatePopulationInPixel(3000, v);
 		while (true) {
 			timeForOneIteration1 = omp_get_wtime();
 
@@ -695,7 +698,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			cout << sumTime/count << endl << endl; // 12
 
 			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 10 == 0) {
+			if (count % 4 == 0) {
 				bool isUpdated = updateSettingsFromFile();
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}

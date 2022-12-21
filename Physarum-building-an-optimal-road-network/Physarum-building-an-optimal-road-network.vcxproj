@@ -149,6 +149,7 @@
     <ClInclude Include="SlimeMoldClass.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="save.txt" />
     <Text Include="settings.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

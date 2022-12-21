@@ -1,0 +1,61 @@
+Задача кратчайшего пути + реализация
+https://www.hindawi.com/journals/tswj/2014/487069/
+
+Задача коммивояжёра и гигаулучшение с физ законами и муравьями
+https://translated.turbopages.org/proxy_u/en-ru.ru.06b27596-63582487-3a6e18df-74722d776562/https/www.frontiersin.org/articles/10.3389/fbioe.2022.806177/full
+
+Вот тут про Токио. Алгоритма не будет, но может быть что-то интересное
+https://www.science.org/doi/10.1126/science.1177894
+
+Слизневик и Вселенная 
+https://iopscience.iop.org/article/10.3847/2041-8213/ab700c
+
+Жесть, книга
+https://books.google.ca/books?id=Kbs_AIDbfU8C
+
+Диаграммы и биология:
+https://dominicluta.blogspot.com/2021/06/22-slime-mold-diagram.html
+
+Крутая фотка результатов работы:
+https://culturingscience.files.wordpress.com/2010/02/slime_mold_maps.jpg
+
+
+
+
+ААА готовый код, правда, на матлабе
+https://github.com/aliasgharheidaricom/Slime-Mould-Algorithm-A-New-Method-for-Stochastic-Optimization-
+
+А всего лишь нужно было набрать slime mold algorithm. Вот тут вики
+https://en.wikiversity.org/wiki/Slime_Mould_Algorithm
+
+
+
+Jones J. 2010 Artificial Life 16 127 - вроде бы им вдохновлялись !
+https://direct.mit.edu/artl/article-abstract/16/2/127/2650/Characteristics-of-Pattern-Formation-and-Evolution?redirectedFrom=fulltext
+
+Tero A., Tagaki S., Saigusa T. et al. 2010 Sci 327 439 - проектирования транспортных сетей !
+https://www.science.org/doi/epdf/10.1126/science.1177894
+
+Adamatzky A. 2010 Physarum Machines (Singapore: World Scientific) - книга об этом грибе !
+https://www.worldscientific.com/worldscibooks/10.1142/7968#t=aboutBook
+
+ХАХАХАХ ИГРА В СТИМЕ АХАХХА !
+https://store.steampowered.com/app/1667120/PHYSARUM_Slime_Mold_Simulator/
+
+На Го написанный: !
+https://cargocollective.com/sagejenson/physarum
+
+Ещё есть выжимка из книжки: !
+текстовый файл 123
+
+Вот тут вроде бы есть описанный алгоритм !
+https://docs.yandex.ru/docs/view?tm=1667733907&tld=ru&lang=en&name=Masi_L_Vasile_M_Pure_A_multi_directional_modified_Physarum_algorithm_for_optimal_multi_objective_discrete_decision_making_Jun_2013.pdf&text=PHYSARUM%20algorithm&url=https%3A%2F%2Fpure.strath.ac.uk%2Fws%2Fportalfiles%2Fportal%2F23142357%2FMasi_L_Vasile_M_Pure_A_multi_directional_modified_Physarum_algorithm_for_optimal_multi_objective_discrete_decision_making_Jun_2013.pdf&lr=20675&mime=pdf&l10n=ru&sign=92caf0026d596426ec3485e73d9f259c&keyno=0&serpParams=tm%3D1667733907%26tld%3Dru%26lang%3Den%26name%3DMasi_L_Vasile_M_Pure_A_multi_directional_modified_Physarum_algorithm_for_optimal_multi_objective_discrete_decision_making_Jun_2013.pdf%26text%3DPHYSARUM%2Balgorithm%26url%3Dhttps%253A%2F%2Fpure.strath.ac.uk%2Fws%2Fportalfiles%2Fportal%2F23142357%2FMasi_L_Vasile_M_Pure_A_multi_directional_modified_Physarum_algorithm_for_optimal_multi_objective_discrete_decision_making_Jun_2013.pdf%26lr%3D20675%26mime%3Dpdf%26l10n%3Dru%26sign%3D92caf0026d596426ec3485e73d9f259c%26keyno%3D0
+
+Ещё и прокаченный код:
+https://www.researchgate.net/publication/350084766_The_Physarum_Algorithm_with_Adaptive_Power_Control_A_Routing_Optimization_to_Overcome_Obstacle_Problems_in_IoT_Network
+
+
+
+
+
+

@@ -1,0 +1,126 @@
+Jones (2009) has been proposed a multi-agent, where Physarum is thought to consist of a population of particle-like
+agents [38]. Each agent senses and deposits trails as it moves towards the nearby stimulus within a 2D diffusive lattice.
+In this model, the structure of the Physarum network is indicated by the collective pattern of the positions of agents, and
+the protoplasmic flow is represented by the collective movement of agents. Furthermore, Wu et al. (2012) improved the
+initial multi-agent model by adding a memory module to each agent [99]. This improved model is more flexible and
+adaptive, and it approximates the behaviours of Physarum more closely.
+Liu et al. (2017b) proposed a self-organised system modelling approach in which two types of agents are used for
+simulating both the search (exploration) and the contraction (exploitation) of Physarum in foraging behaviours [49]. In
+this model, the body comprises a synthesis module and a motion module, and each sensor is armed with a trail sampling
+module and a chemo-nutrient sampling module.
+
+Physarum Competition Model
+Awad et al. (2019b) proposed a novel model to imitate the complex patterns observed in Physarum polycephalum
+generated in competition settings [16]. This new model is based on hexagonal Cellular Automata (CA) and ReactionDiffusion (RD) systems. This is the first time Physarum has been simulated in a 2-D hexagonal grid that is more
+applicable to Physarum natural diffusion in a circular pattern to equidistant cells. All other models considered either
+Von-Neumann (4 adjacent neighbours) [75] or Moore neighbourhoods (8 adjacent neighbours) [86]. However, in
+Von-Neumann model, diagonal diffusion of Physarum can still occur, while in Moore model the neighbourhoods are
+not equidistant. In this competition model multiple Physarum interact with each other and with their environment, each
+Physarum has its autonomous behaviour: it compares information on reward determined by food resources’mass and
+quality, negative effects of competing neighbours according to their mass, and hunger motivation in order to make
+correct and adaptive decisions. They believe that competition among different Physarum individuals can lead to the
+emergence of a complex global behaviour, far beyond the capability of individual Physarum. The individual skills
+of competition are more efficient to achieve an optimal balance between exploration and exploitation and maintain
+population diversity.
+
+
+9 Physarum-Inspired Applications
+In this section, we will address the most important question "What Physarum can offer to computing?". Many Physaruminspired algorithms have been developed and proved to have great potential to solve various optimisation problems
+using simple heuristics. In this context we will not be restricted to graph optimisation problems as previous reviews
+[101, 77, 5, 33], we will open the horizon and through light to more recent applications. We will address this issue by
+briefly reviewing some of the existing researches on these Physarum-inspired applications.
+9.1 Physarum-Inspired Algorithms for Graph-Optimisation Problems
+Physarum protoplasmic flux is changing continuously with the change of environment in its foraging process. This characteristic allows Physarum to have great potentials in dealing with graph-optimisation problems which are considered the
+main application. Physarum network design has attracted the attention of many researchers as it demonstrated excellent
+performance in network construction without central consciousness during the process of foraging. The Physarum
+solver is based on positive feedback where the tubes that are more suitable for transporting the nutrients will grow bigger
+and will be of less resistance, while the tubes which do not transport enough nutrients will vanish and disappear. This
+feedback mechanism helps to maximise the number of nutrient sources and to minimise transportation costs [58, 95].
+The Physarum solver constructs networks by making some nodes in the network "sources" and cytoplasmic streaming
+to others “sinks”. So there is a great difference between the way that Physarum solves the shortest path problem and the
+traditional methods, including the Dijkstra algorithm [24].
+Many mathematical models were proposed to simulate the intelligent behaviour of Physarum (as discussed in Section 8).
+The algorithms based on these models were able to find the shortest path in directed and undirected networks. Nakagaki
+et al. (2000) were the first to show how this simple organism has the ability to find the shortest path between two points
+in a labyrinth [57]. Subsequent research has confirmed and broadened the range of its computation abilities to spatial
+representations of various graph problems [101]. It showed that the Physarum’s network geometry met the requirements
+of a smart network: short tubes, close connections among all the branches, and tolerance to dynamic changes. Tero
+et al. (2010) designed a Physarum bio-inspired networks similar to the Tokyo rail system [82]. The resulting networks
+are both efficient and robust.
+12
+A PREPRINT - MAY 11, 2021
+A lot of Physarum-inspired algorithms (PAs) have been proposed to solve challenging network optimisation problems,
+such as the travelling salesman problem [52] and the Steiner tree problems [46, 56], transport network design and
+simulation [6, 87], spanning tree approximation [3], and vehicle routing problems [50]. Recent examples of the
+Physarum application include: designing supply chain networks [100], community detection [32], and discrete multiobjective optimisation problems [17]. For a detailed discussion on the existing methods and applications refer to
+[101, 77].
+These popular Physarum-inspired Algorithms (PAs) have proven its potential in solving challenging network optimisation problems [64, 101]. However, some network optimisation problems remain unsolved. New techniques are required
+to address the large scale of the next-generation networks, where centralised control of communication becomes
+impractical. Physarum distributed intelligence may inform the design of an adaptive, robust and spatial infrastructure
+networks with decentralised control systems [77]. We have proposed a Physarum competition model [16], where
+multiple Physarum with autonomous behaviours react to each other and with their environment without central control
+to achieve efficient exploration of the whole system evolving to an optimal global network, this has allowed us to
+deal with the increasingly proposed networks scenarios with multiple sources and multiple sinks. In our previous
+work, we have presented a Physarum-inspired competition algorithms for mobile wireless sensor networks, where
+multiple Physarum (as represented by sensors) will sense the surrounding environment, and compete over multiple
+food resources (as represented by interest points). These algorithms have demonstrated their promising performance in
+solving node deployment [14] and connectivity restoration even in harsh environment [15].
+These network graph-optimisation problems are typically based on the following four strategies:
+• One source node and one sink node: It was first proposed by Nakagaki et al. (2000) after performing his
+famous experiments showing that Physarum was able to find the shortest route through a maze [57]. Qian
+et al. (2013) solved the travelling salesman problem [63]. Zhang et al. (2016b) accelerated its optimisation
+process by intentionally removing the edges with a stable decreasing flow [101].
+• Multiple source nodes and one sink node: this strategy is to select one terminal to be the sink node and then
+select the other terminals to be source nodes. It has been applied by Liu et al. (2015b) to solve the classical
+Steiner tree problem in graphs [46]. It has also been used to solve the prize-collecting Steiner tree problem
+and the node-weighted Steiner tree problem [78].
+• One source node and multiple sink nodes: this strategy is to select one terminal to be the source node and
+then select the other terminals to be sink nodes. It was first used by Watanabe and Takamatsu (2014) to design
+transportation networks with fluctuating traffic distributions [94].
+• Multiple source nodes and multiple sink nodes: this strategy is to select multiple terminals to be the source
+nodes and multiple terminals to be the sink nodes. It was recently proposed by Zhang et al. (2016b) to solve
+the supply chain network design problem [101].
+9.2 Evolutionary Algorithm Optimisation (Hybrid Models)
+Prior knowledge plays a vital role in the computational efficiency of evolutionary algorithms (e.g., Genetic Algorithm,
+and Ant Colony). Taking advantage of Physarum powerful computational capabilities, such as morphological diversity
+[34] and positive feedback loop [80], these characteristics have been used to optimise some evolutionary algorithms to
+improve its efficiency and robustness [102, 32].
+Ant colony optimisation (ACO) algorithms have been shown to provide an approximate solution for NP-hard problems
+existing in many real-world applications. However, premature convergence has significantly reduced the performance
+of these algorithms. Zhang et al. (2014) proposed an optimisation strategy for updating the pheromone matrix in ant
+colony algorithms based on a Physarum mathematical model [102]. This strategy has accelerated the positive feedback
+process in ACO, for solving NP-hard problems such as travelling salesman problem (TSP) and 0/1 knapsack problem,
+which contributed to the quick convergence of the optimal solution [48]. Later on Gao et al. (2018) has incorporated
+Physarum-inspired initialisation to optimise the genetic algorithm, ant colony optimisation algorithm and Markov
+clustering algorithm for solving community detection problems [32].
+9.3 Biological Computing and Physarum Logic Gates
+Boolean logic which describes binary arithmetic is fundamental to computer science as electronic logic gates form the
+basis of digital operations in computers. Organism based Bio-Logic gates have been attempted using cell constituent
+(bacteria) as transducers [93]. Bacteria have many drawbacks, mainly due to the fragility, short life, limited temperature,
+and pH conditions. Also, bacteria will often not grow on specific substrates which would be ideal for the cell-transducer
+interface. Yeast and wild fungi are offering the advantage of high growth rate and the ability to grow on a broad range
+13
+A PREPRINT - MAY 11, 2021
+of surface substrates used for cell-transducer interface [18]. Moreover, yeast can survive for over a long time after
+dehydration and could be re-hydrated when required.
+Like other fungi and yeast, Physarum is accessible to culture on moist filter paper or agar and resist dehydration for a
+long time. This is why it can be considered as a prospective experimental prototype of biological computers which
+does not require sophisticated support. In standard electric devices, we deal with electrical signals to code information.
+However, in a Physarum biological device instead of electrical signals, the calculation process is performed by using
+the Physarum chemotaxis to food [5, 91].
+Physarum as a method of biological computing has been extensively studied in the PhyChip project that ran between
+2013 and 2016 "Physarum chip: growing computers from slime mould" [9]. A Physarum chip is formed of a living
+network of protoplasmic tubes that acts as an active non-linear transducer of information, while templates of tubes
+coated with conductor act as fast information channels. The symbolic-logical, mathematical and programming aspects
+of the Physarum chip have been studied by Schumann et al. (2015) [71]. Physarum was also used as a Boolean gate,
+where the presence and absence of Physarum in a given locus of space is equivalent to logic values 1 and 0, respectively
+[70]. The Physarum chip is expected to solve a wide range of computation tasks, including graph optimisation, logic
+and arithmetical computing [13].
+The EU-funded PhySense project "Physarum Sensor: Biosensor for Citizen Scientists" is an extension of the PhyChip
+project. This project showed that Physarum is an ideal biological substrate that could be used as a biosensor that
+converts a biological response into an electrical signal, providing a unique fusion of living and digital technology. The
+PhySense software calculates any changes in the frequency and amplitude of oscillations in the tubular structures of
+Physarum. The aim of this project is developing marketable low-cost biosensors for various applications, including
+environmental monitoring and health [22] 1
+
+https://arxiv.org/pdf/2103.00172.pdf

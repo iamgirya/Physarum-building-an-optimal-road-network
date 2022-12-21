@@ -31,5 +31,8 @@
     <Text Include="settings.txt">
       <Filter>Исходные файлы</Filter>
     </Text>
+    <Text Include="save.txt">
+      <Filter>Исходные файлы</Filter>
+    </Text>
   </ItemGroup>
 </Project>
