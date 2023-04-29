@@ -140,7 +140,7 @@ public:
 
 	void startSimulation(vector<ft> startPosition);
 
-	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it);
+	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex);
 private:
 
 	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex);

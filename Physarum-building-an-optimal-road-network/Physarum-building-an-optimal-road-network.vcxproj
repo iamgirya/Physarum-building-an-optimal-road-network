@@ -142,15 +142,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Location.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SlimeMoldClass.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SlimeMoldClass.h" />
+    <ClCompile Include="SimulationInOutput.cpp" />
+    <ClCompile Include="SlimeMoldSimulation.cpp" />
+    <ClCompile Include="SlimeAgent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="save.txt" />
     <Text Include="settings.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SlimeMoldClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

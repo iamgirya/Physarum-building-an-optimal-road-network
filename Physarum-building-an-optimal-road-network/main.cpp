@@ -1,4 +1,4 @@
-﻿#include <SlimeMoldClass.h>
+﻿#include "SlimeMoldClass.h"
 
 int main()
 {
