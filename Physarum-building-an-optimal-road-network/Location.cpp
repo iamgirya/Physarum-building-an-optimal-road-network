@@ -9,7 +9,7 @@ Location::Location(it x, it y, SlimeMoldSimulation* set) {
 
 	trailMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
 	agentMap = vector<vector<bool>>(xSize, vector<bool>(ySize, false));
-
+	blockRectangles = vector<pair<pair<it, it>, pair<it, it>>>();
 }
 
 void Location::castDecay() {
@@ -59,6 +59,14 @@ bool Location::canMakeMove(vector <it>& xy, vector <it>& oldxy) {
 			return true;
 		}
 		return false;
+	}
+
+	for (int i = 0; i < blockRectangles.size(); i++) {
+		if (xy[0] >= blockRectangles[i].first.first && xy[0] <= blockRectangles[i].second.first) {
+			if (xy[1] >= blockRectangles[i].first.second && xy[1] <= blockRectangles[i].second.second) {
+				return false;
+			}
+		}
 	}
 
 	return true;

@@ -84,6 +84,7 @@ public:
 
 	vector<vector<ft>> trailMap;
 	vector<vector<bool>> agentMap;
+	vector<pair<pair<it, it>, pair<it, it>>> blockRectangles;
 
 	Location();
 

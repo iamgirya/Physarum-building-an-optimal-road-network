@@ -8,6 +8,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	string isNeedToUpdate;
 	it ttl; ft sod; it sw; ft sa; ft ra; ft ss; ft dps; ft corcd; it dif; ft dec; bool ipb; bool icma;
 	it newPopulation; it countOfGenerators;
+	it countOfBlockRectangle;
 	try {
 		input >> isNeedToUpdate;
 		if (isNeedToUpdate == "yes" || stepSize == 0) {
@@ -16,6 +17,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 
 			generators.clear();
 			generatorsQueue.clear();
+			location.blockRectangles.clear();
 			for (int i = 0; i < countOfGenerators; i++) {
 				vector<ft> pos(2);
 				it rate;
@@ -23,6 +25,15 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 
 				generators.push_back(make_pair(pos, rate));
 				generatorsQueue.push_back(queue<ft>());
+			}
+
+			input >> countOfBlockRectangle;
+			for (int i = 0; i < countOfBlockRectangle; i++) {
+				vector<it> pos(4);
+				it rate;
+				input >> pos[0] >> pos[1] >> pos[2] >> pos[3];
+
+				location.blockRectangles.push_back(make_pair(make_pair(pos[0], pos[1]), make_pair(pos[2], pos[3])));
 			}
 
 			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sod || sensorAngle != sa || stepSize != ss);
@@ -57,6 +68,10 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 			output << newPopulation << ' ' << countOfGenerators;
 			for (int i = 0; i < countOfGenerators; i++) {
 				output << endl << generators[i].first[0] << ' ' << generators[i].first[1] << ' ' << generators[i].second;
+			}
+			output << endl << countOfBlockRectangle;
+			for (int i = 0; i < countOfBlockRectangle; i++) {
+				output << endl << location.blockRectangles[i].first.first << ' ' << location.blockRectangles[i].first.second << ' ' << location.blockRectangles[i].second.first << ' ' << location.blockRectangles[i].second.second;
 			}
 			output.close();
 			return true;
@@ -215,6 +230,14 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 0] = 255;
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 1] = 255;
 		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 2] = 255;
+	}
+
+	for (int i = 0; i < location.blockRectangles.size(); i++) {
+		for (it x = location.blockRectangles[i].first.first; x <= location.blockRectangles[i].second.first; x++) {
+			for (it y = location.blockRectangles[i].first.second; y <= location.blockRectangles[i].second.second; y++) {
+				img[(it(x) + it(y) * w) * 3 + 0] = 155;
+			}
+		}
 	}
 
 
