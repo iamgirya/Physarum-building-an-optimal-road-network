@@ -8,7 +8,8 @@ Location::Location(it x, it y, SlimeMoldSimulation* set) {
 	settings = set;
 
 	trailMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
-	agentMap = vector<vector<bool>>(xSize, vector<bool>(ySize, false));
+	agentMap = vector<vector<short int>>(xSize, vector<short int>(ySize, 0));
+	blockMap = vector<vector<short int>>(xSize, vector<short int>(ySize, 1));
 	blockRectangles = vector<pair<pair<it, it>, pair<it, it>>>();
 }
 
@@ -17,8 +18,8 @@ void Location::castDecay() {
 #pragma omp parallel for private(j)
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
-			//if (trailMap[i][j] > 0)
-			trailMap[i][j] *= settings->decayFactor;
+			if (trailMap[i][j] > 0)
+				trailMap[i][j] *= settings->decayFactor;
 			/*else {
 				trailMap[i][j] *= 0.98;
 			}*/
@@ -33,15 +34,14 @@ void Location::castDiffusion() {
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
 			if (trailMap[i][j] > 0) {
-				for (k = -1; k <= 1; k++) {
+				for (k = -1; k <= 1; k++) { 
 					for (l = -1; l <= 1; l++) {
 						if ((l == 0 || k == 0) && checkMatrix(i + k, j + l)) {
 							newMap[i + k][j + l] += 0.05 * trailMap[i][j];
 						}
 					}
-
-					newMap[i][j] += 0.75 * trailMap[i][j];
 				}
+				newMap[i][j] += 0.75 * trailMap[i][j];
 			}
 			else {
 				newMap[i][j] += trailMap[i][j];
@@ -52,21 +52,17 @@ void Location::castDiffusion() {
 }
 
 bool Location::canMakeMove(vector <it>& xy, vector <it>& oldxy) {
-	if (!(settings->isCanMultiAgent)) {
-		if (!agentMap[xy[0]][xy[1]]) {
-			agentMap[oldxy[0]][oldxy[1]] = false;
-			agentMap[xy[0]][xy[1]] = true;
-			return true;
-		}
+	if (!blockMap[xy[0]][xy[1]]) {
 		return false;
 	}
 
-	for (int i = 0; i < blockRectangles.size(); i++) {
-		if (xy[0] >= blockRectangles[i].first.first && xy[0] <= blockRectangles[i].second.first) {
-			if (xy[1] >= blockRectangles[i].first.second && xy[1] <= blockRectangles[i].second.second) {
-				return false;
-			}
+	if (!(settings->isCanMultiAgent)) {
+		if (!agentMap[xy[0]][xy[1]]) {
+			agentMap[oldxy[0]][oldxy[1]] = 0;
+			agentMap[xy[0]][xy[1]] = 1;
+			return true;
 		}
+		return false;
 	}
 
 	return true;
@@ -104,7 +100,7 @@ vector<it> Location::getPixelOnCoord(vector <ft>& xy) {
 }
 
 bool Location::checkMatrix(it i, it j) {
-	return (i >= 0 && j >= 0 && i < xSize&& j < ySize);
+	return (i >= 0 && j >= 0 && i < xSize&& j < ySize && blockMap[i][j]);
 }
 
 vector<it> Location::getSizes() {

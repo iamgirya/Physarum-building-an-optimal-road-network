@@ -31,12 +31,12 @@ void SlimeMoldSimulation::setLocation(it xSize, it ySize) {
 
 void SlimeMoldSimulation::makeStep() {
 	int i;
-
+	
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
 	}
-
+	// 12 ms для 100 сек
 	vector<SlimeAgent*> stillAlive;
 #pragma omp parallel
 	{
@@ -62,7 +62,8 @@ void SlimeMoldSimulation::makeStep() {
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->skanTurn();
 	}
-
+	// 30 ms
+	
 #pragma omp parallel
 	{
 		vector<SlimeAgent*> newPart;
@@ -76,7 +77,7 @@ void SlimeMoldSimulation::makeStep() {
 	}
 	
 
-	location.castDiffusion();
+	location.castDiffusion(); // 15 ms
 	location.castDecay();
 }
 

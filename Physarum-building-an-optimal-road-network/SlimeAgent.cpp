@@ -44,7 +44,6 @@ void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
 	}
 	const it delta = 2;
 	it i, j;
-	return;
 	for (i = -delta; i <= delta; i++) {
 		for (j = -delta; j <= delta; j++) {
 			// кринжово
@@ -172,6 +171,7 @@ bool SlimeAgent::move() {
 	else {
 		positionVector = newPosition;
 		pixelVector = newPixel;
+		pathVector.push_back(newPixel);
 		return true;
 	}
 }

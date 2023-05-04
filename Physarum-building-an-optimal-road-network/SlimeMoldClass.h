@@ -47,6 +47,8 @@ public:
 	it teamIndex;
 	//Вектор направления при появлении
 	pair<ft ,vector<ft>> startAngle;
+	// вектор с пройденными клетками
+	vector<vector<it>> pathVector;
 
 	SlimeAgent();
 
@@ -83,7 +85,8 @@ public:
 	SlimeMoldSimulation* settings;
 
 	vector<vector<ft>> trailMap;
-	vector<vector<bool>> agentMap;
+	vector<vector<short int>> agentMap;
+	vector<vector<short int>> blockMap;
 	vector<pair<pair<it, it>, pair<it, it>>> blockRectangles;
 
 	Location();

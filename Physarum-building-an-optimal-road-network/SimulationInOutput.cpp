@@ -36,6 +36,14 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 				location.blockRectangles.push_back(make_pair(make_pair(pos[0], pos[1]), make_pair(pos[2], pos[3])));
 			}
 
+			for (int i = 0; i < countOfBlockRectangle; i++) {
+				for (int x = location.blockRectangles[i].first.first; x <= location.blockRectangles[i].second.first; x++) {
+					for (int y = location.blockRectangles[i].first.second; y <= location.blockRectangles[i].second.second; y++) {
+						location.blockMap[x][y] = false;;
+					}
+				}
+			}
+
 			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sod || sensorAngle != sa || stepSize != ss);
 			bool isNeedToResizePopulation = population != newPopulation;
 
@@ -262,7 +270,7 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
 
-	string name = "img" + to_string(bmpi) + ".bmp";
+	string name = "img.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);
