@@ -41,19 +41,13 @@ void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
 		ft newAngle = startAngle.first + (rand() % 2 == 0 ? -1 : 1) * someAngle;
 		settings->generatorsQueue[teamIndex].push(newAngle);
 		for (int i = 0; i < pathVector.size(); i++) {
-			settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] += settings->depositPerStep * 3;
+			settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] += settings->depositPerStep * 5;
 		}
 		return;
 	}
-	const it delta = 2;
-	it i, j;
-	for (i = -delta; i <= delta; i++) {
-		for (j = -delta; j <= delta; j++) {
-			// кринжово
-			if (settings->location.checkMatrix(pixelVector[0] + i, pixelVector[1] + j)) {
-				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep * 5;
-			}
-		}
+
+	for (int i = 0; i < pathVector.size(); i++) {
+		settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] -= settings->depositPerStep * 1.8;
 	}
 }
 //сканирование
@@ -167,8 +161,11 @@ void SlimeAgent::rotate(bool isRigth) {
 bool SlimeAgent::move() {
 	vector<ft> newPosition = vSum(positionVector, moveVector);
 	vector<it> newPixel = settings->location.getPixelOnCoord(newPosition);
-
-	if (newPixel.empty() || !settings->location.canMakeMove(newPixel, pixelVector)) {
+	if (newPixel.empty()) {
+		timeToLife = 0;
+		return false;
+	}
+	if (!settings->location.canMakeMove(newPixel, pixelVector)) {
 		return false;
 	}
 	else {
