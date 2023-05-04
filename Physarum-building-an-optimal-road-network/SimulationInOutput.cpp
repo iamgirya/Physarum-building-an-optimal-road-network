@@ -294,7 +294,7 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	fclose(f);
 }
 
-void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, bool isChangedSettings = false) {
+void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<vector<it>>& graph, bool isChangedSettings = false) {
 	static int bmpi = -1;
 	static vector<ft> colorVector = { (0.3 + rand() % 50 / 100.0), (0.3 + rand() % 50 / 100.0) , (0.3 + rand() % 50 / 100.0) };
 	bmpi++;
@@ -357,6 +357,47 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, bool isC
 			}
 			else {
 				img[(points[i].first + points[i].second * w) * 3 + 2] = 255;
+			}
+		}
+	}
+
+	for (int i = 0; i < graph.size(); i++) {
+		for (int k = 0; k < graph[i].size(); k++) {
+			pair<it, it> first = points[i];
+			pair<it, it> second = points[graph[i][k]];
+			it minX = min(first.first, second.first);
+			it maxX = max(first.first, second.first);
+			it minY = min(first.second, second.second);
+			it maxY = max(first.second, second.second);
+			ft deltaX = maxX - minX+1;
+			ft deltaY = maxY - minY+1;
+			if (deltaX >= deltaY) {
+				int j = minY;
+				ft step = deltaX / deltaY;
+				ft nowStep = 0;
+				for (int i = minX; i <= maxX; i++) {
+					img[(i + j * w) * 3 + 1] += 255;
+
+					nowStep++;
+					if (nowStep >= step) {
+						nowStep -= step;
+						j++;
+					}
+				}
+			}
+			else {
+				int j = minX;
+				ft step = deltaY / deltaX;
+				ft nowStep = 0;
+				for (int i = minY; i <= maxY; i++) {
+					img[(j + i * w) * 3 + 1] += 255;
+
+					nowStep++;
+					if (nowStep >= step) {
+						nowStep -= step;
+						j++;
+					}
+				}
 			}
 		}
 	}

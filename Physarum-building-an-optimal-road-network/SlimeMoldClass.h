@@ -194,7 +194,7 @@ private:
 
 	void outputInBmp(bool);
 
-	void outputInBmpGraph(vector<pair<it, it>>& points, bool isChangedSettings);
+	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings);
 };
 
 //вторая часть
@@ -204,6 +204,7 @@ class AgentGraphAnalyser {
 public:
 	ft edgesRange;
 	ft vertexRange;
+	vector<vector<it>> graph;
 	
 	AgentGraphAnalyser();
 

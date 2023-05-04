@@ -112,7 +112,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				tmp.edgesRange = 4;
 				tmp.vertexRange = 6;
 				auto tmptmp = tmp.makeMinimizedGraph(particles, location.generators);
-				outputInBmpGraph(tmptmp, false);
+				outputInBmpGraph(tmptmp, tmp.graph, false);
 			}
 		}
 	}

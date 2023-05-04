@@ -3,9 +3,12 @@
 AgentGraphAnalyser::AgentGraphAnalyser() {}
 
 vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
-	vector<pair<it, it>> positions;
+	vector<pair<pair<it,it>, bool>> positions;
 	for (auto u : particles) {
-		positions.push_back(make_pair(u->pixelVector[0], u->pixelVector[1]));
+		positions.push_back(make_pair(make_pair(u->pixelVector[0], u->pixelVector[1]), false));
+	}
+	for (auto u : generators) {
+		positions.push_back(make_pair(make_pair(u->position[0], u->position[1]), true));
 	}
 	sort(positions.begin(), positions.end());
 
@@ -26,10 +29,10 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 	for (int i = 0; i < positions.size(); i++) {
 		for (int j = i+1; j < positions.size(); j++) {
 			//благодаря сортировке из n^2 переходим в n*log(n). А в случае с нашими графами ускорение практически в 15 раз
-			if (abs(positions[i].first - positions[j].first) > edgesRange) {
+			if (abs(positions[i].first.first - positions[j].first.first) > edgesRange) {
 				break;
 			}
-			if (distance(positions[i], positions[j]) <= edgesRange) {
+			if (distance(positions[i].first, positions[j].first) <= edgesRange) {
 				EdgeListNode* newNode = new EdgeListNode();
 				newNode->vextexOne = i;
 				newNode->vextexTwo = j;
@@ -58,24 +61,29 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 		last = begin;
 		while (last->next != NULL) {
 			EdgeListNode* next = last->next;
+			bool isNeedDelete = false;
 			if (teams[last->vextexOne] == teams[last->vextexTwo]) {
-				last->prev->next = last->next;
-				last->next->prev = last->prev;
-				if (last == begin) {
-					begin = begin->next;
+				isNeedDelete = true;
+			} else if (distance(positions[teams[last->vextexOne]].first, positions[teams[last->vextexTwo]].first) <= vertexRange) {
+				//если вторая точка - город, то изменяем первую под неё
+				if (positions[teams[last->vextexTwo]].second) {
+					positions[teams[last->vextexOne]].first = positions[teams[last->vextexTwo]].first;
 				}
-				delete last;
-				count--;
-			} else if (distance(positions[teams[last->vextexOne]], positions[teams[last->vextexTwo]]) <= vertexRange) {
-				positions[teams[last->vextexOne]] = average(positions[teams[last->vextexOne]], positions[teams[last->vextexTwo]]);
+				//если первая точка - не город, то делаем новую точку - среднее между двумя точками
+				else if (!positions[teams[last->vextexOne]].second) {
+					positions[teams[last->vextexOne]].first = average(positions[teams[last->vextexOne]].first, positions[teams[last->vextexTwo]].first);
+				}
 				teams[last->vextexTwo] = teams[last->vextexOne];
+				isNeedDelete = true;
+				hasChange = true;
+			}
+			if (isNeedDelete) {
 				last->prev->next = last->next;
 				last->next->prev = last->prev;
 				if (last == begin) {
 					begin = begin->next;
 				}
 				delete last;
-				hasChange = true;
 				count--;
 			}
 			last = next;
@@ -93,18 +101,23 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 	for (auto u: tmpExitVertex) {
 		exitVertex.push_back(u);
 	}
+	sort(exitVertex.begin(), exitVertex.end());
 
 	vector<pair<it, it>> exitPoints;
 	for (int i = 0; i < exitVertex.size(); i++) {
-		exitPoints.push_back(positions[exitVertex[i]]);
+		exitPoints.push_back(positions[exitVertex[i]].first);
 	}
 
-	/*vector<vector<it>> exitGraph(exitPoints.size(), vector<it>(exitPoints.size(), 0));
+	vector<vector<it>> exitGraph(exitPoints.size(), vector<it>());
 	last = begin;
-	while (last != NULL) {
-		exitGraph[teams[last->vextexOne]][teams[last->vextexOne]] = 1;
+	while (last->next != NULL) {
+		int i = lower_bound(exitVertex.begin(), exitVertex.end(), teams[last->vextexOne]) - exitVertex.begin();
+		int j = lower_bound(exitVertex.begin(), exitVertex.end(), teams[last->vextexTwo]) - exitVertex.begin();
+		exitGraph[i].push_back(j);
+		exitGraph[j].push_back(i);
 		last = last->next;
-	}*/
+	}
 
+	this->graph = exitGraph;
 	return exitPoints;
 }
