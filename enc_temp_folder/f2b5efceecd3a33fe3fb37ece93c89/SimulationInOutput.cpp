@@ -409,7 +409,7 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, bool isC
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
 
-	string name =  "1imgGraph.bmp"; // to_string(bmpi) +
+	string name = to_string(bmpi) + "imgGraph.bmp"; // 
 	f = fopen(name.data(), "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);

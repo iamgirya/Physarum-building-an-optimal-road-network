@@ -22,11 +22,9 @@ void Location::castDecay() {
 #pragma omp parallel for private(j)
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
-			if (trailMap[i][j] > 0)
+			if (trailMap[i][j] > 0) {
 				trailMap[i][j] -= decayFactor;
-			/*else {
-				trailMap[i][j] *= 0.98;
-			}*/
+			}
 		}
 	}
 }

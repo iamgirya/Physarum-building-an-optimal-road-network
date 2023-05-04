@@ -106,6 +106,14 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				bool isUpdated = updateSettingsFromFile(false);
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}
+			if (count % 100 == 0) {
+				//дебаг код
+				auto tmp = AgentGraphAnalyser();
+				tmp.edgesRange = 4;
+				tmp.vertexRange = 6;
+				auto tmptmp = tmp.makeMinimizedGraph(particles, location.generators);
+				outputInBmpGraph(tmptmp, false);
+			}
 		}
 	}
 }

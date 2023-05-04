@@ -5,6 +5,8 @@
 #include <vector>
 #include <stdio.h>
 #include <algorithm>
+#include <set>
+#include <map>
 #include <queue>
 #include <string>
 #include <random>
@@ -23,6 +25,7 @@ class Generator;
 class SlimeAgent;
 class SlimeMoldSimulation;
 class Location;
+class AgentGraphAnalyser;
 
 class SlimeAgent {
 public:
@@ -190,4 +193,19 @@ private:
 	bool updateSettingsFromFile(bool);
 
 	void outputInBmp(bool);
+
+	void outputInBmpGraph(vector<pair<it, it>>& points, bool isChangedSettings);
+};
+
+//вторая часть
+
+
+class AgentGraphAnalyser {
+public:
+	ft edgesRange;
+	ft vertexRange;
+	
+	AgentGraphAnalyser();
+
+	vector<pair<it, it>> makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
 };
