@@ -57,13 +57,13 @@ public:
 	void moveTurn();
 	//сканирование
 	void skanTurn();
-	//старение
-	it checkGeneratorsTurn();
-	//смерть
-	void deadTurn(it);
+	//старение и смерть
+	short int isTimeToDeath();
 	// функция хода
 	void makeFullTurn();
 private:
+	const ft addOnGenerator = 5;
+	const ft addOnDeath = -1.8;
 
 	template<typename T>
 	vector<T> vSum(vector<T>& x, vector<T>& y);
@@ -79,19 +79,63 @@ private:
 	void makeDeposit();
 };
 
+class SlimeAgentFactory {
+public:
+	it startTimeToLife;
+	ft sensorOffsetDistance;
+	ft sensorAngle;
+	ft stepSize;
+
+	//временно
+	SlimeMoldSimulation* settings;
+
+	SlimeAgentFactory();
+
+	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex);
+
+	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex);
+
+	vector<SlimeAgent*> generatePopulationRandomPositions(it count, vector<it> sizes);
+};
+
+class Generator {
+public:
+	vector<ft> position;
+	queue<ft> generatorsQueue;
+	it agentsPerStep;
+	it teamIndex;
+	SlimeAgentFactory* factory;
+
+	Generator();
+
+	Generator(vector<ft> position, it agentsPerStep, it teamIndex, SlimeAgentFactory* factory);
+
+	vector<SlimeAgent*> generate();
+
+	bool isNear(vector<it>& position, it team);
+
+	void push(ft angle);
+private:
+	const it rangeOfGenerator = 2;
+	const ft someAngle = 10;
+};
+
 class Location {
 public:
-	//здесь настройки
-	SlimeMoldSimulation* settings;
+	ft decayFactor; //mult
+	bool isPeriodicBoundary;
+	bool isCanMultiAgent;
 
 	vector<vector<ft>> trailMap;
 	vector<vector<short int>> agentMap;
 	vector<vector<short int>> blockMap;
+
+	vector<Generator*> generators;
 	vector<pair<pair<it, it>, pair<it, it>>> blockRectangles;
 
 	Location();
 
-	Location(it x, it y, SlimeMoldSimulation* set);
+	Location(it x, it y);
 
 	vector<it> getSizes();
 
@@ -99,11 +143,15 @@ public:
 
 	void castDiffusion();
 
+	void onAgentsDeath(vector<vector<it>> points, ft diff, it indexOfGenerator, ft startAngle);
+
 	bool canMakeMove(vector <it>& xy, vector <it>& oldxy);
 
 	vector<it> getPixelOnCoord(vector <ft>& xy);
 
 	bool checkMatrix(it i, it j);
+
+	int checkNearGenerator(vector<it>& position, it teamIndex);
 
 private:
 	it xSize;
@@ -114,42 +162,22 @@ class SlimeMoldSimulation {
 public:
 	Location location;
 	vector<SlimeAgent*> particles;
+	SlimeAgentFactory factory;
 
-	vector<pair<vector<ft>, it>> generators;
-	vector<queue<ft>> generatorsQueue;
-
+	it population;
 	vector<vector<ft>> leftRotationMatrix;
 	vector<vector<ft>> rightRotationMatrix;
 	ft depositPerStep;
-	ft chanceOfRandomChangeDirection;
-
-	//используемые для создания
-	ft sensorAngle;
-	ft sensorOffsetDistance;
-	it sensorWidth; //пока автоединица, не используется
-	ft stepSize;
-	it population;
-	it startTimeToLife;
-
-	it diffusionSize; // пока не робит
-	ft decayFactor; //mult
-	bool isPeriodicBoundary;
-	bool isCanMultiAgent;
 
 	SlimeMoldSimulation();
 
 	void setLocation(it xSize, it ySize);
 
-	void setUp(it ttl, it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma);
+	void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
 
 	void startSimulation(vector<ft> startPosition);
 
-	SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex);
 private:
-
-	vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex);
-
-	vector<SlimeAgent*> generatePopulationRandomPositions(it count, vector<it> sizes);
 
 	void makeStep();
 

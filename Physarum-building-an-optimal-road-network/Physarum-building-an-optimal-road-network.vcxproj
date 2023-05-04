@@ -142,9 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SimulationInOutput.cpp" />
+    <ClCompile Include="SlimeAgentsFabric.cpp" />
     <ClCompile Include="SlimeMoldSimulation.cpp" />
     <ClCompile Include="SlimeAgent.cpp" />
   </ItemGroup>

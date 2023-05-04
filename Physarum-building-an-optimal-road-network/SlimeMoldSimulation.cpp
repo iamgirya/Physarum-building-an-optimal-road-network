@@ -9,24 +9,13 @@ SlimeMoldSimulation::SlimeMoldSimulation() {
 	rightRotationMatrix = { {cos(0), -sin(0)}, { sin(0), cos(0)} };
 	leftRotationMatrix = { {cos(-0), -sin(-0)}, { sin(-0), cos(-0)} };
 
-	// параметры агентов
-	sensorOffsetDistance = 0;
-	sensorWidth = 1;
-	sensorAngle = 0;
-	stepSize = 0;
-	depositPerStep = 0;
-	chanceOfRandomChangeDirection = 0;
-
 	// параметры локации
-	diffusionSize = 0;
-	decayFactor = 0;
-	isPeriodicBoundary = 0;
-	isCanMultiAgent = 0;
-	location = Location(0, 0, this);
+	location = Location(0, 0);
+	factory = SlimeAgentFactory();
 }
 
 void SlimeMoldSimulation::setLocation(it xSize, it ySize) {
-	location = Location(xSize, ySize, this);
+	location = Location(xSize, ySize);
 }
 
 void SlimeMoldSimulation::makeStep() {
@@ -43,15 +32,12 @@ void SlimeMoldSimulation::makeStep() {
 		vector<SlimeAgent*> stillAlivePrivate;
 #pragma omp for nowait // в конце цикла потоки не ждут друг друга, а идут дальше
 		for (i = 0; i < particles.size(); i++) {
-			particles[i]->timeToLife--;
-			it generatorIndex = particles[i]->checkGeneratorsTurn();
-			if (generatorIndex != -1 || particles[i]->timeToLife <=0) {
-				particles[i]->deadTurn(generatorIndex);
+			if (particles[i]->isTimeToDeath()) {
 				delete particles[i];
 			}
 			else {
 				stillAlivePrivate.push_back(particles[i]);
-			}
+			}	
 		}
 #pragma omp critical // данная строка выполняется по очереди
 		stillAlive.insert(stillAlive.end(), stillAlivePrivate.begin(), stillAlivePrivate.end());
@@ -68,80 +54,42 @@ void SlimeMoldSimulation::makeStep() {
 	{
 		vector<SlimeAgent*> newPart;
 #pragma omp for nowait
-		for (i = 0; i < generators.size(); i++) {
-			newPart = generatePopulationInPixel(generators[i].second, generators[i].first, i);
-			location.trailMap[it(generators[i].first[0])][it(generators[i].first[1])]+=generators[i].second*depositPerStep;
+		for (int i = 0; i < location.generators.size(); i++) {
+			newPart = location.generators[i]->generate();
 #pragma omp critical
 			particles.insert(particles.end(), newPart.begin(), newPart.end());
 		}
 	}
-	
+
 	location.castDiffusion(); // 15 ms
 	location.castDecay();
 }
 
-SlimeAgent* SlimeMoldSimulation::generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex = -1) {
-	ft piStartAngle = startAngle / 180 * PI;
-	vector<ft> moveVector = { stepSize * cos(startAngle), stepSize * sin(startAngle) };
-	vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorAngle), sensorOffsetDistance * sin(startAngle + sensorAngle) };
-	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
-	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorAngle), sensorOffsetDistance * sin(startAngle - sensorAngle) };
-	SlimeAgent* tmp = new SlimeAgent();
-	tmp->setUp(startAngle, teamIndex, startTimeToLife ,startPosition, moveVector, lsVector, csVector, rsVector, this);
-	return tmp;
-}
+void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent) {
+	this->population = startPopulation;
 
-vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex = -1) {
-	vector<SlimeAgent*> rezult;
+	rotationAngle = it(rotationAngle) % 360;
+	rotationAngle = rotationAngle * PI / 180;
 
-	for (int i = 0; i < count; i++) {
-		if (teamIndex != -1 && !generatorsQueue[teamIndex].empty()) {
-			ft tmp = generatorsQueue[teamIndex].front();
-			generatorsQueue[teamIndex].pop();
-			rezult.push_back(generateAgent(startPosition, tmp, teamIndex));
-		}
-		else {
-			rezult.push_back(generateAgent(startPosition, (ft(rand() % 360)), teamIndex));
-		}
-	}
-	return rezult;
-}
-
-vector<SlimeAgent*> SlimeMoldSimulation::generatePopulationRandomPositions(it count, vector<it> sizes) {
-	vector<SlimeAgent*> rezult;
-
-	for (int i = 0; i < count; i++) {
-		rezult.push_back(generateAgent({ ft(rand() % sizes[0]) , ft(rand() % sizes[1]) }, (ft(rand() % 360))));
-	}
-	return rezult;
-}
-
-void SlimeMoldSimulation::setUp(it ttl, it sp, ft sod, it sw, ft sa, ft ra, ft ss, ft dps, ft corcd, it dif, ft dec, bool ipb, bool icma) {
-	population = sp;
-	startTimeToLife = ttl;
-
-	ra = it(ra) % 360;
-	ra = ra * PI / 180;
-
-	sa = it(sa) % 360;
-	sa = sa * PI / 180;
+	sensorsAngle = it(sensorsAngle) % 360;
+	sensorsAngle = sensorsAngle * PI / 180;
 	//матрицы нужные для поворота мув вектора и сенсоров
-	rightRotationMatrix = { {cos(ra), -sin(ra)}, { sin(ra), cos(ra)} };
-	leftRotationMatrix = { {cos(-ra), -sin(-ra)}, { sin(-ra), cos(-ra)} };
+	this->rightRotationMatrix = { {cos(rotationAngle), -sin(rotationAngle)}, { sin(rotationAngle), cos(rotationAngle)} };
+	this->leftRotationMatrix = { {cos(-rotationAngle), -sin(-rotationAngle)}, { sin(-rotationAngle), cos(-rotationAngle)} };
 	
 	// параметры агентов
-	sensorOffsetDistance = sod;
-	sensorWidth = 1;
-	sensorAngle = sa;
-	stepSize = ss;
-	depositPerStep = dps;
-	chanceOfRandomChangeDirection = corcd;
+	this->factory.startTimeToLife = timeToLive;
+	this->factory.sensorOffsetDistance = sensorOffsetDistance;
+	this->factory.sensorAngle = sensorsAngle;
+	this->factory.stepSize = stepSize;
+	this->factory.settings = this;
+	this->depositPerStep = depositPerStep;
+
 
 	// параметры локации
-	diffusionSize = dif;
-	decayFactor = dec;
-	isPeriodicBoundary = ipb;
-	isCanMultiAgent = icma;
+	this->location.decayFactor = decayFactor;
+	this->location.isPeriodicBoundary = isPeriodicBoundary;
+	this->location.isCanMultiAgent = isCanMultiAgent;
 }
 
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {

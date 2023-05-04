@@ -6,25 +6,23 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	ifstream input("settings.txt");
 
 	string isNeedToUpdate;
-	it ttl; ft sod; it sw; ft sa; ft ra; ft ss; ft dps; ft corcd; it dif; ft dec; bool ipb; bool icma;
+	it timeToLive; ft sensorOffsetDistance; ft sensorsAngle; ft rotationAngle; ft stepSize; ft depositPerStep; ft decayFactor; bool isPeriodicBoundary; bool isCanMultiAgent;
 	it newPopulation; it countOfGenerators;
 	it countOfBlockRectangle;
 	try {
 		input >> isNeedToUpdate;
-		if (isNeedToUpdate == "yes" || stepSize == 0) {
-			input >> ttl >> sod >> sw >> sa >> ra >> ss >> dps >> corcd >> dif >> dec >> ipb >> icma;
+		if (isNeedToUpdate == "yes" || factory.stepSize == 0) {
+			input >> timeToLive >> sensorOffsetDistance >> sensorsAngle >> rotationAngle >> stepSize >> depositPerStep >> decayFactor >> isPeriodicBoundary >> isCanMultiAgent;
 			input >> newPopulation >> countOfGenerators;
 
-			generators.clear();
-			generatorsQueue.clear();
+			location.generators.clear();
 			location.blockRectangles.clear();
 			for (int i = 0; i < countOfGenerators; i++) {
 				vector<ft> pos(2);
 				it rate;
 				input >> pos[0] >> pos[1] >> rate;
-
-				generators.push_back(make_pair(pos, rate));
-				generatorsQueue.push_back(queue<ft>());
+				Generator* tmpGenerator = new Generator(pos, rate, i, &factory);
+				location.generators.push_back(tmpGenerator);
 			}
 
 			input >> countOfBlockRectangle;
@@ -44,14 +42,14 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 				}
 			}
 
-			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sod || sensorAngle != sa || stepSize != ss);
+			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sensorOffsetDistance || factory.sensorAngle != sensorsAngle || stepSize != stepSize);
 			bool isNeedToResizePopulation = population != newPopulation;
 
-			setUp(ttl, newPopulation, sod, 1, sa, ra, ss, dps, corcd, dif, dec, ipb, icma);
+			setUp(timeToLive, newPopulation, sensorOffsetDistance, sensorsAngle, rotationAngle, stepSize, depositPerStep, decayFactor, isPeriodicBoundary, isCanMultiAgent);
 
 			if (isNeedToResizePopulation) {
 				if (particles.size() < newPopulation) {
-					auto newPart = generatePopulationRandomPositions(newPopulation - particles.size(), location.getSizes());
+					auto newPart = factory.generatePopulationRandomPositions(newPopulation - particles.size(), location.getSizes());
 					for (auto u : newPart) {
 						particles.push_back(u);
 					}
@@ -64,7 +62,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 			if (isNeedToUpdateAgents) {
 				for (it i = 0; i < particles.size(); i++) {
 					ft partAngle = atan2(particles[i]->positionVector[0], particles[i]->positionVector[1]) / PI * 180;
-					particles[i] = generateAgent(particles[i]->positionVector, partAngle, -1);
+					particles[i] = factory.generateAgent(particles[i]->positionVector, partAngle, -1);
 				}
 			}
 
@@ -72,10 +70,10 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 
 			ofstream output("settings.txt");
 			output << "no" << endl;
-			output << ttl << ' ' << sod << ' ' << sw << ' ' << sa << ' ' << ra << ' ' << ss << ' ' << dps << ' ' << corcd << ' ' << dif << ' ' << dec << ' ' << ipb << ' ' << icma << endl;
+			output << timeToLive << ' ' << sensorOffsetDistance << ' ' << sensorsAngle << ' ' << rotationAngle << ' ' << stepSize << ' ' << depositPerStep << ' ' << decayFactor << ' ' << isPeriodicBoundary << ' ' << isCanMultiAgent << endl;
 			output << newPopulation << ' ' << countOfGenerators;
 			for (int i = 0; i < countOfGenerators; i++) {
-				output << endl << generators[i].first[0] << ' ' << generators[i].first[1] << ' ' << generators[i].second;
+				output << endl << location.generators[i]->position[0] << ' ' << location.generators[i]->position[1] << ' ' << location.generators[i]->agentsPerStep;
 			}
 			output << endl << countOfBlockRectangle;
 			for (int i = 0; i < countOfBlockRectangle; i++) {
@@ -222,22 +220,22 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 		}
 	}
 
-	for (int i = 0; i < generators.size(); i++) {
-		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
-		img[(it(generators[i].first[0] + 1) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
-		img[(it(generators[i].first[0] + 1) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
-		img[(it(generators[i].first[0] + 1) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] + 1) * w) * 3 + 0] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] + 1) * w) * 3 + 1] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] + 1) * w) * 3 + 2] = 255;
-		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 0] = 255;
-		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 1] = 255;
-		img[(it(generators[i].first[0] - 1) + it(generators[i].first[1]) * w) * 3 + 2] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 0] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 1] = 255;
-		img[(it(generators[i].first[0]) + it(generators[i].first[1] - 1) * w) * 3 + 2] = 255;
+	for (int i = 0; i < location.generators.size(); i++) {
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1]) * w) * 3 + 0] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1]) * w) * 3 + 1] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1]) * w) * 3 + 2] = 255;
+		img[(it(location.generators[i]->position[0] + 1) + it(location.generators[i]->position[1]) * w) * 3 + 0] = 255;
+		img[(it(location.generators[i]->position[0] + 1) + it(location.generators[i]->position[1]) * w) * 3 + 1] = 255;
+		img[(it(location.generators[i]->position[0] + 1) + it(location.generators[i]->position[1]) * w) * 3 + 2] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] + 1) * w) * 3 + 0] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] + 1) * w) * 3 + 1] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] + 1) * w) * 3 + 2] = 255;
+		img[(it(location.generators[i]->position[0] - 1) + it(location.generators[i]->position[1]) * w) * 3 + 0] = 255;
+		img[(it(location.generators[i]->position[0] - 1) + it(location.generators[i]->position[1]) * w) * 3 + 1] = 255;
+		img[(it(location.generators[i]->position[0] - 1) + it(location.generators[i]->position[1]) * w) * 3 + 2] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] - 1) * w) * 3 + 0] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] - 1) * w) * 3 + 1] = 255;
+		img[(it(location.generators[i]->position[0]) + it(location.generators[i]->position[1] - 1) * w) * 3 + 2] = 255;
 	}
 
 	for (int i = 0; i < location.blockRectangles.size(); i++) {

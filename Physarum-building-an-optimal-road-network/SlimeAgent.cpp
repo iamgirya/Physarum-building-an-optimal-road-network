@@ -2,19 +2,19 @@
 
 SlimeAgent::SlimeAgent() {}
 
-void SlimeAgent::setUp(ft sa, it ti, it ttl, vector<ft> pv, vector<ft> mv, vector<ft> lsv, vector<ft> csv, vector<ft> rsv, SlimeMoldSimulation* set) {
-	positionVector = pv;
-	moveVector = mv;
-	leftSensorVector = lsv;
-	centerSensorVector = csv;
-	rigthSensorVector = rsv;
-	pixelVector = { it(pv[0]), it(pv[1]) };
-	settings = set;
-	timeToLife = ttl;
-	teamIndex = ti;
-	startAngle = make_pair(sa, mv);
+void SlimeAgent::setUp(ft startAngle, it teamIndex, it timeToLife, vector<ft> positionVector, vector<ft> moveVector, vector<ft> leftSensorVector, vector<ft> centerSensorVector, vector<ft> rigthSensorVector, SlimeMoldSimulation* settings) {
+	this->positionVector = positionVector;
+	this->moveVector = moveVector;
+	this->leftSensorVector = leftSensorVector;
+	this->centerSensorVector = centerSensorVector;
+	this->rigthSensorVector = rigthSensorVector;
+	this->pixelVector = { it(positionVector[0]), it(positionVector[1]) };
+	this->settings = settings;
+	this->timeToLife = timeToLife;
+	this->teamIndex = teamIndex;
+	this->startAngle = make_pair(startAngle, moveVector);
 }
-//движение и старение
+//движение
 void SlimeAgent::moveTurn() {
 	// если движение успешно
 	if (move()) {
@@ -24,50 +24,34 @@ void SlimeAgent::moveTurn() {
 		rotate(rand() % 2);
 	}
 }
-//старение
-it SlimeAgent::checkGeneratorsTurn() {
-	const it range = 2;
-	for (it i = 0; i < settings->generators.size(); i++) {
-		if (i != teamIndex && abs(pixelVector[0] - it(settings->generators[i].first[0])) <= range && abs(pixelVector[1] - it(settings->generators[i].first[1])) <= range) {
-			return i;
-		}
-	}
-	return -1;
-}
 
-void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
-	const ft someAngle = 10;
-	if (indexOfGenerator != -1) {
-		ft newAngle = startAngle.first + (rand() % 2 == 0 ? -1 : 1) * someAngle;
-		settings->generatorsQueue[teamIndex].push(newAngle);
-		for (int i = 0; i < pathVector.size(); i++) {
-			settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] += settings->depositPerStep * 5;
-		}
-		return;
-	}
-
-	for (int i = 0; i < pathVector.size(); i++) {
-		settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] -= settings->depositPerStep * 1.8;
-	}
-}
 //сканирование
 void SlimeAgent::skanTurn() {
-	//шанс рандомного поворота
-	if (settings->chanceOfRandomChangeDirection != 0 && settings->chanceOfRandomChangeDirection > (rand() % 100 + 1)) {
-		rotate(rand() % 2);
-	}
-	else {
-		// -1 - поворот налево, 0 - сохранение направления, 1 - поворот направо
-		it rotateSide = activateSensors();
-		if (rotateSide != 0) {
-			rotate(rotateSide == 1);
-		}
+	// -1 - поворот налево, 0 - сохранение направления, 1 - поворот направо
+	it rotateSide = activateSensors();
+	if (rotateSide != 0) {
+		rotate(rotateSide == 1);
 	}
 }
 // функция хода
 void SlimeAgent::makeFullTurn() {
 	moveTurn();
 	skanTurn();
+}
+
+short int SlimeAgent::isTimeToDeath() {
+	timeToLife--;
+	it generatorIndex = settings->location.checkNearGenerator(pixelVector, teamIndex);
+	if (generatorIndex != -1) {
+		settings->location.onAgentsDeath(pathVector, addOnGenerator, generatorIndex, startAngle.first);
+		return 1;
+	}
+	if (timeToLife <= 0) {
+		settings->location.onAgentsDeath(pathVector, addOnDeath, generatorIndex, startAngle.first);
+		return 1;
+	}
+	
+	return 0;
 }
 
 template<typename T>
@@ -145,6 +129,7 @@ it SlimeAgent::activateSensors() {
 // поворот векторов скорости и сенсоров
 void SlimeAgent::rotate(bool isRigth) {
 	if (isRigth) {
+		//TODO: в статическую переменную это
 		moveVector = vMult(moveVector, settings->rightRotationMatrix);
 		leftSensorVector = vMult(leftSensorVector, settings->rightRotationMatrix);
 		centerSensorVector = vMult(centerSensorVector, settings->rightRotationMatrix);
@@ -177,5 +162,6 @@ bool SlimeAgent::move() {
 }
 // нанесение следа на карту
 void SlimeAgent::makeDeposit() {
+	//TODO сделать статикой
 	settings->location.trailMap[pixelVector[0]][pixelVector[1]] += settings->depositPerStep;
 }
