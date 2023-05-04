@@ -19,7 +19,7 @@ void Location::castDecay() {
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
 			if (trailMap[i][j] > 0)
-				trailMap[i][j] *= settings->decayFactor;
+				trailMap[i][j] -= settings->decayFactor;
 			/*else {
 				trailMap[i][j] *= 0.98;
 			}*/
@@ -28,6 +28,7 @@ void Location::castDecay() {
 }
 
 void Location::castDiffusion() {
+	return;
 	vector<vector<ft>> newMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
 	it i, j, k, l;
 #pragma omp parallel for private(j, k, l)
@@ -37,11 +38,11 @@ void Location::castDiffusion() {
 				for (k = -1; k <= 1; k++) { 
 					for (l = -1; l <= 1; l++) {
 						if ((l == 0 || k == 0) && checkMatrix(i + k, j + l)) {
-							newMap[i + k][j + l] += 0.05 * trailMap[i][j];
+							newMap[i + k][j + l] += 0.04 * trailMap[i][j];
 						}
 					}
 				}
-				newMap[i][j] += 0.75 * trailMap[i][j];
+				newMap[i][j] += 0.84 * trailMap[i][j];
 			}
 			else {
 				newMap[i][j] += trailMap[i][j];

@@ -40,6 +40,9 @@ void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
 	if (indexOfGenerator != -1) {
 		ft newAngle = startAngle.first + (rand() % 2 == 0 ? -1 : 1) * someAngle;
 		settings->generatorsQueue[teamIndex].push(newAngle);
+		for (int i = 0; i < pathVector.size(); i++) {
+			settings->location.trailMap[pathVector[i][0]][pathVector[i][1]] += settings->depositPerStep * 3;
+		}
 		return;
 	}
 	const it delta = 2;
@@ -48,7 +51,7 @@ void SlimeAgent::deadTurn(it indexOfGenerator = -1) {
 		for (j = -delta; j <= delta; j++) {
 			// кринжово
 			if (settings->location.checkMatrix(pixelVector[0] + i, pixelVector[1] + j)) {
-				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep * 3;
+				settings->location.trailMap[pixelVector[0] + i][pixelVector[1] + j] -= settings->depositPerStep * 5;
 			}
 		}
 	}

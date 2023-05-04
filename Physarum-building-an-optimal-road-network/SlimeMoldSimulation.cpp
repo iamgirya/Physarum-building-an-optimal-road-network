@@ -76,7 +76,6 @@ void SlimeMoldSimulation::makeStep() {
 		}
 	}
 	
-
 	location.castDiffusion(); // 15 ms
 	location.castDecay();
 }
