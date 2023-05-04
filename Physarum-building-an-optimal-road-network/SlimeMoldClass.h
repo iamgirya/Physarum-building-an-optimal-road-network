@@ -16,17 +16,17 @@
 using namespace std;
 typedef long long it;
 typedef double ft;
-
 const double PI = acos(-1.0);
 
+class SlimeAgentFactory;
+class Generator;
 class SlimeAgent;
 class SlimeMoldSimulation;
 class Location;
 
 class SlimeAgent {
 public:
-	//здесь настройки
-	SlimeMoldSimulation* settings;
+	Location* location;
 	//вектор нынешней позиции
 	vector<ft> positionVector;
 
@@ -50,9 +50,14 @@ public:
 	// вектор с пройденными клетками
 	vector<vector<it>> pathVector;
 
+	//единые для всех параметры
+	static vector<vector<ft>> leftRotationMatrix;
+	static vector<vector<ft>> rightRotationMatrix;
+	static ft depositPerStep;
+
 	SlimeAgent();
 
-	void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, SlimeMoldSimulation*);
+	void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, Location*);
 	//движение
 	void moveTurn();
 	//сканирование
@@ -86,8 +91,7 @@ public:
 	ft sensorAngle;
 	ft stepSize;
 
-	//временно
-	SlimeMoldSimulation* settings;
+	Location* location;
 
 	SlimeAgentFactory();
 
@@ -160,18 +164,14 @@ private:
 
 class SlimeMoldSimulation {
 public:
-	Location location;
-	vector<SlimeAgent*> particles;
-	SlimeAgentFactory factory;
-
 	it population;
-	vector<vector<ft>> leftRotationMatrix;
-	vector<vector<ft>> rightRotationMatrix;
-	ft depositPerStep;
+	vector<SlimeAgent*> particles;
+	Location location;
+	SlimeAgentFactory factory;
 
 	SlimeMoldSimulation();
 
-	void setLocation(it xSize, it ySize);
+	SlimeMoldSimulation(it xSize, it ySize);
 
 	void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
 
@@ -187,7 +187,7 @@ private:
 
 	void outputInFileAgentMap();
 
-	bool updateSettingsFromFile();
+	bool updateSettingsFromFile(bool);
 
 	void outputInBmp(bool);
 };

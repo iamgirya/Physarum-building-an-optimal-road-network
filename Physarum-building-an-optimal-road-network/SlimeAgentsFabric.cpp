@@ -9,7 +9,7 @@ SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startA
 	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
 	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorAngle), sensorOffsetDistance * sin(startAngle - sensorAngle) };
 	SlimeAgent* tmp = new SlimeAgent();
-	tmp->setUp(startAngle, teamIndex, startTimeToLife, startPosition, moveVector, lsVector, csVector, rsVector, settings);
+	tmp->setUp(startAngle, teamIndex, startTimeToLife, startPosition, moveVector, lsVector, csVector, rsVector, location);
 	return tmp;
 }
 

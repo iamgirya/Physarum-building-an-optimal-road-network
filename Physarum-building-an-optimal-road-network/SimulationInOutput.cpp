@@ -2,7 +2,7 @@
 
 //input
 
-bool SlimeMoldSimulation::updateSettingsFromFile() {
+bool SlimeMoldSimulation::updateSettingsFromFile(bool isStart) {
 	ifstream input("settings.txt");
 
 	string isNeedToUpdate;
@@ -11,7 +11,7 @@ bool SlimeMoldSimulation::updateSettingsFromFile() {
 	it countOfBlockRectangle;
 	try {
 		input >> isNeedToUpdate;
-		if (isNeedToUpdate == "yes" || factory.stepSize == 0) {
+		if (isNeedToUpdate == "yes" || isStart) {
 			input >> timeToLive >> sensorOffsetDistance >> sensorsAngle >> rotationAngle >> stepSize >> depositPerStep >> decayFactor >> isPeriodicBoundary >> isCanMultiAgent;
 			input >> newPopulation >> countOfGenerators;
 

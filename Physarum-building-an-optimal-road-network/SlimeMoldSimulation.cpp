@@ -1,21 +1,11 @@
 #include "SlimeMoldClass.h"
 
-SlimeMoldSimulation::SlimeMoldSimulation() {
+SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 	srand(it(time(NULL)));
 
 	population = 0;
-
-	//матрицы нужные для поворота мув вектора и сенсоров
-	rightRotationMatrix = { {cos(0), -sin(0)}, { sin(0), cos(0)} };
-	leftRotationMatrix = { {cos(-0), -sin(-0)}, { sin(-0), cos(-0)} };
-
-	// параметры локации
-	location = Location(0, 0);
-	factory = SlimeAgentFactory();
-}
-
-void SlimeMoldSimulation::setLocation(it xSize, it ySize) {
 	location = Location(xSize, ySize);
+	factory = SlimeAgentFactory();
 }
 
 void SlimeMoldSimulation::makeStep() {
@@ -66,7 +56,6 @@ void SlimeMoldSimulation::makeStep() {
 }
 
 void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent) {
-	this->population = startPopulation;
 
 	rotationAngle = it(rotationAngle) % 360;
 	rotationAngle = rotationAngle * PI / 180;
@@ -74,17 +63,17 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 	sensorsAngle = it(sensorsAngle) % 360;
 	sensorsAngle = sensorsAngle * PI / 180;
 	//матрицы нужные для поворота мув вектора и сенсоров
-	this->rightRotationMatrix = { {cos(rotationAngle), -sin(rotationAngle)}, { sin(rotationAngle), cos(rotationAngle)} };
-	this->leftRotationMatrix = { {cos(-rotationAngle), -sin(-rotationAngle)}, { sin(-rotationAngle), cos(-rotationAngle)} };
+	SlimeAgent::rightRotationMatrix = { {cos(rotationAngle), -sin(rotationAngle)}, { sin(rotationAngle), cos(rotationAngle)} };
+	SlimeAgent::leftRotationMatrix = { {cos(-rotationAngle), -sin(-rotationAngle)}, { sin(-rotationAngle), cos(-rotationAngle)} };
+	SlimeAgent::depositPerStep = depositPerStep;
 	
+	this->population = startPopulation;
 	// параметры агентов
 	this->factory.startTimeToLife = timeToLive;
 	this->factory.sensorOffsetDistance = sensorOffsetDistance;
 	this->factory.sensorAngle = sensorsAngle;
 	this->factory.stepSize = stepSize;
-	this->factory.settings = this;
-	this->depositPerStep = depositPerStep;
-
+	this->factory.location = &(this->location);
 
 	// параметры локации
 	this->location.decayFactor = decayFactor;
@@ -93,7 +82,7 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 }
 
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
-	if (updateSettingsFromFile()) {
+	if (updateSettingsFromFile(true)) {
 		it count = 0;
 		std::random_device rd;
 		std::mt19937 g(rd());
@@ -114,7 +103,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 
 			shuffle(particles.begin(), particles.end(), g); // 3
 			if (count % 4 == 0) {
-				bool isUpdated = updateSettingsFromFile();
+				bool isUpdated = updateSettingsFromFile(false);
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}
 		}

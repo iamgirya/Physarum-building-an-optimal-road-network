@@ -1,15 +1,19 @@
 #include "SlimeMoldClass.h"
 
+ft SlimeAgent::depositPerStep = 0;
+vector<vector<ft>> SlimeAgent::leftRotationMatrix;
+vector<vector<ft>> SlimeAgent::rightRotationMatrix;
+
 SlimeAgent::SlimeAgent() {}
 
-void SlimeAgent::setUp(ft startAngle, it teamIndex, it timeToLife, vector<ft> positionVector, vector<ft> moveVector, vector<ft> leftSensorVector, vector<ft> centerSensorVector, vector<ft> rigthSensorVector, SlimeMoldSimulation* settings) {
+void SlimeAgent::setUp(ft startAngle, it teamIndex, it timeToLife, vector<ft> positionVector, vector<ft> moveVector, vector<ft> leftSensorVector, vector<ft> centerSensorVector, vector<ft> rigthSensorVector, Location* location) {
 	this->positionVector = positionVector;
 	this->moveVector = moveVector;
 	this->leftSensorVector = leftSensorVector;
 	this->centerSensorVector = centerSensorVector;
 	this->rigthSensorVector = rigthSensorVector;
 	this->pixelVector = { it(positionVector[0]), it(positionVector[1]) };
-	this->settings = settings;
+	this->location = location;
 	this->timeToLife = timeToLife;
 	this->teamIndex = teamIndex;
 	this->startAngle = make_pair(startAngle, moveVector);
@@ -41,13 +45,13 @@ void SlimeAgent::makeFullTurn() {
 
 short int SlimeAgent::isTimeToDeath() {
 	timeToLife--;
-	it generatorIndex = settings->location.checkNearGenerator(pixelVector, teamIndex);
+	it generatorIndex = location->checkNearGenerator(pixelVector, teamIndex);
 	if (generatorIndex != -1) {
-		settings->location.onAgentsDeath(pathVector, addOnGenerator, generatorIndex, startAngle.first);
+		location->onAgentsDeath(pathVector, addOnGenerator, generatorIndex, startAngle.first);
 		return 1;
 	}
 	if (timeToLife <= 0) {
-		settings->location.onAgentsDeath(pathVector, addOnDeath, generatorIndex, startAngle.first);
+		location->onAgentsDeath(pathVector, addOnDeath, generatorIndex, startAngle.first);
 		return 1;
 	}
 	
@@ -80,27 +84,27 @@ it SlimeAgent::activateSensors() {
 	vector<ft> tmp;
 
 	tmp = vSum(positionVector, leftSensorVector);
-	pixelSensorPosition = settings->location.getPixelOnCoord(tmp);
+	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		lw = settings->location.trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		lw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
 	}
 	else {
 		lw = 0;
 	}
 
 	tmp = vSum(positionVector, centerSensorVector);
-	pixelSensorPosition = settings->location.getPixelOnCoord(tmp);
+	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		cw = settings->location.trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		cw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
 	}
 	else {
 		cw = 0;
 	}
 
 	tmp = vSum(positionVector, rigthSensorVector);
-	pixelSensorPosition = settings->location.getPixelOnCoord(tmp);
+	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		rw = settings->location.trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		rw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
 	}
 	else {
 		rw = 0;
@@ -130,27 +134,27 @@ it SlimeAgent::activateSensors() {
 void SlimeAgent::rotate(bool isRigth) {
 	if (isRigth) {
 		//TODO: в статическую переменную это
-		moveVector = vMult(moveVector, settings->rightRotationMatrix);
-		leftSensorVector = vMult(leftSensorVector, settings->rightRotationMatrix);
-		centerSensorVector = vMult(centerSensorVector, settings->rightRotationMatrix);
-		rigthSensorVector = vMult(rigthSensorVector, settings->rightRotationMatrix);
+		moveVector = vMult(moveVector, SlimeAgent::rightRotationMatrix);
+		leftSensorVector = vMult(leftSensorVector, SlimeAgent::rightRotationMatrix);
+		centerSensorVector = vMult(centerSensorVector, SlimeAgent::rightRotationMatrix);
+		rigthSensorVector = vMult(rigthSensorVector, SlimeAgent::rightRotationMatrix);
 	}
 	else {
-		moveVector = vMult(moveVector, settings->leftRotationMatrix);
-		leftSensorVector = vMult(leftSensorVector, settings->leftRotationMatrix);
-		centerSensorVector = vMult(centerSensorVector, settings->leftRotationMatrix);
-		rigthSensorVector = vMult(rigthSensorVector, settings->leftRotationMatrix);
+		moveVector = vMult(moveVector, SlimeAgent::leftRotationMatrix);
+		leftSensorVector = vMult(leftSensorVector, SlimeAgent::leftRotationMatrix);
+		centerSensorVector = vMult(centerSensorVector, SlimeAgent::leftRotationMatrix);
+		rigthSensorVector = vMult(rigthSensorVector, SlimeAgent::leftRotationMatrix);
 	}
 }
 //сдвиг и установка пикселя, если это возможно
 bool SlimeAgent::move() {
 	vector<ft> newPosition = vSum(positionVector, moveVector);
-	vector<it> newPixel = settings->location.getPixelOnCoord(newPosition);
+	vector<it> newPixel = location->getPixelOnCoord(newPosition);
 	if (newPixel.empty()) {
 		timeToLife = 0;
 		return false;
 	}
-	if (!settings->location.canMakeMove(newPixel, pixelVector)) {
+	if (!location->canMakeMove(newPixel, pixelVector)) {
 		return false;
 	}
 	else {
@@ -163,5 +167,5 @@ bool SlimeAgent::move() {
 // нанесение следа на карту
 void SlimeAgent::makeDeposit() {
 	//TODO сделать статикой
-	settings->location.trailMap[pixelVector[0]][pixelVector[1]] += settings->depositPerStep;
+	location->trailMap[pixelVector[0]][pixelVector[1]] += SlimeAgent::depositPerStep;
 }
