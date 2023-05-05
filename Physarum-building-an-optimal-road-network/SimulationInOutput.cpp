@@ -361,41 +361,37 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<v
 		}
 	}
 
-	for (int i = 0; i < graph.size(); i++) {
-		for (int k = 0; k < graph[i].size(); k++) {
-			pair<it, it> first = points[i];
-			pair<it, it> second = points[graph[i][k]];
-			it minX = min(first.first, second.first);
-			it maxX = max(first.first, second.first);
-			it minY = min(first.second, second.second);
-			it maxY = max(first.second, second.second);
-			ft deltaX = maxX - minX+1;
-			ft deltaY = maxY - minY+1;
+	for (int h = 0; h < graph.size(); h++) {
+		for (int k = 0; k < graph[h].size(); k++) {
+			pair<it, it> first = points[h];
+			pair<it, it> second = points[graph[h][k]];
+			ft deltaX = abs(first.first- second.first) + 1;
+			ft deltaY = abs(first.second - second.second) + 1;
+			bool goLeftX = first.first >= second.first;
+			bool goLeftY = first.second >= second.second;
 			if (deltaX >= deltaY) {
-				int j = minY;
+				int j = first.second;
 				ft step = deltaX / deltaY;
 				ft nowStep = 0;
-				for (int i = minX; i <= maxX; i++) {
+				for (int i = first.first; i <= second.first; goLeftX ? i-- : i++) {
 					img[(i + j * w) * 3 + 1] += 255;
-
 					nowStep++;
 					if (nowStep >= step) {
 						nowStep -= step;
-						j++;
+						goLeftY ? j-- : j++;
 					}
 				}
 			}
 			else {
-				int j = minX;
+				int j = first.first;
 				ft step = deltaY / deltaX;
 				ft nowStep = 0;
-				for (int i = minY; i <= maxY; i++) {
+				for (int i = first.second; i <= second.second; goLeftY ? i-- : i++) {
 					img[(j + i * w) * 3 + 1] += 255;
-
 					nowStep++;
 					if (nowStep >= step) {
 						nowStep -= step;
-						j++;
+						goLeftX ? j-- : j++;
 					}
 				}
 			}

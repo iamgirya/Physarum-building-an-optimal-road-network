@@ -58,8 +58,6 @@ public:
 	static vector<vector<ft>> rightRotationMatrix;
 	static ft depositPerStep;
 
-	SlimeAgent();
-
 	void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, Location*);
 	//движение
 	void moveTurn();
@@ -172,8 +170,6 @@ public:
 	Location location;
 	SlimeAgentFactory factory;
 
-	SlimeMoldSimulation();
-
 	SlimeMoldSimulation(it xSize, it ySize);
 
 	void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
@@ -205,8 +201,6 @@ public:
 	ft edgesRange;
 	ft vertexRange;
 	vector<vector<it>> graph;
-	
-	AgentGraphAnalyser();
 
 	vector<pair<it, it>> makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
 };

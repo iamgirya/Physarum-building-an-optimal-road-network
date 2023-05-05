@@ -4,8 +4,6 @@ ft SlimeAgent::depositPerStep = 0;
 vector<vector<ft>> SlimeAgent::leftRotationMatrix;
 vector<vector<ft>> SlimeAgent::rightRotationMatrix;
 
-SlimeAgent::SlimeAgent() {}
-
 void SlimeAgent::setUp(ft startAngle, it teamIndex, it timeToLife, vector<ft> positionVector, vector<ft> moveVector, vector<ft> leftSensorVector, vector<ft> centerSensorVector, vector<ft> rigthSensorVector, Location* location) {
 	this->positionVector = positionVector;
 	this->moveVector = moveVector;

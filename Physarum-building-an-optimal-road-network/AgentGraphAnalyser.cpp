@@ -1,7 +1,5 @@
 #include "SlimeMoldClass.h"
 
-AgentGraphAnalyser::AgentGraphAnalyser() {}
-
 vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	vector<pair<pair<it,it>, bool>> positions;
 	for (auto u : particles) {
@@ -15,15 +13,8 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 	auto distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
 	auto average = [](pair<it, it> i, pair<it, it> j) {return make_pair((i.first+j.first)/2, (i.second + j.second) / 2); };
 
-	//односв€зный список рЄбер. „тобы удал€ть рЄбра за 1
-	struct EdgeListNode {
-		it vextexOne;
-		it vextexTwo;
-		EdgeListNode* next = NULL;
-		EdgeListNode* prev = NULL;
-	};
-	EdgeListNode* begin = new EdgeListNode();
-	EdgeListNode* last = begin;
+	//однонаправленный список. first - Ёлемент, а second - индекс следующего элемента
+	vector<pair<pair<it, it>, it>> edgeList;
 	int count = 0;
 
 	for (int i = 0; i < positions.size(); i++) {
@@ -33,63 +24,72 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 				break;
 			}
 			if (distance(positions[i].first, positions[j].first) <= edgesRange) {
-				EdgeListNode* newNode = new EdgeListNode();
-				newNode->vextexOne = i;
-				newNode->vextexTwo = j;
-				newNode->prev = last;
-				last->next = newNode;
-				last = newNode;
+				edgeList.push_back(make_pair(make_pair(i, j), -1));
 				count++;
 			}
 		}
-
-
 	}
-	begin = begin->next;
+	std::random_device rd;
+	std::mt19937 g(rd());
+	shuffle(edgeList.begin(), edgeList.end(), g);
+	for (int i = 0; i < edgeList.size()-1; i++) {
+		edgeList[i].second = i + 1;
+	}
 
 	vector<it> teams(positions.size());
 	for (int i = 0; i < positions.size(); i++) {
 		teams[i] = i;
 	}
 
-	//фиктивный конец и начало
-	last->next = new EdgeListNode();
-	begin->prev = new EdgeListNode();
+	int startIndex = 0;
 	bool hasChange = true;
+	vector<ft> tmpDis1, tmpDis2;
+	vector<pair<pair<it, it>, pair<it, it>>> tmpP1, tmpP2;
 	while (hasChange) {
+		tmpDis1.clear();
+		tmpDis2.clear();
+		tmpP1.clear();
+		tmpP2.clear();
 		hasChange = false;
-		last = begin;
-		while (last->next != NULL) {
-			EdgeListNode* next = last->next;
+		int prevIndex = -1;
+		int index = startIndex;
+		while (index != -1) {
 			bool isNeedDelete = false;
-			if (teams[last->vextexOne] == teams[last->vextexTwo]) {
+			pair<it, it> edge = edgeList[index].first;
+			if (teams[edge.first] == teams[edge.second]) {
 				isNeedDelete = true;
-			} else if (distance(positions[teams[last->vextexOne]].first, positions[teams[last->vextexTwo]].first) <= vertexRange) {
+			} else if (distance(positions[teams[edge.first]].first, positions[teams[edge.second]].first) <= edgesRange) {
 				//если втора€ точка - город, то измен€ем первую под неЄ
-				if (positions[teams[last->vextexTwo]].second) {
-					positions[teams[last->vextexOne]].first = positions[teams[last->vextexTwo]].first;
+				if (positions[teams[edge.second]].second) {
+					positions[teams[edge.first]].first = positions[teams[edge.second]].first;
 				}
 				//если перва€ точка - не город, то делаем новую точку - среднее между двум€ точками
-				else if (!positions[teams[last->vextexOne]].second) {
-					positions[teams[last->vextexOne]].first = average(positions[teams[last->vextexOne]].first, positions[teams[last->vextexTwo]].first);
+				else if (!positions[teams[edge.first]].second) {
+					positions[teams[edge.first]].first = average(positions[teams[edge.first]].first, positions[teams[edge.second]].first);
 				}
-				teams[last->vextexTwo] = teams[last->vextexOne];
+				teams[edge.second] = teams[edge.first];
 				isNeedDelete = true;
 				hasChange = true;
 			}
 			if (isNeedDelete) {
-				last->prev->next = last->next;
-				last->next->prev = last->prev;
-				if (last == begin) {
-					begin = begin->next;
+				if (index == startIndex) {
+					startIndex = edgeList[index].second;
 				}
-				delete last;
+				else {
+					edgeList[prevIndex].second = edgeList[index].second;
+				}
 				count--;
+				tmpP2.push_back(make_pair(positions[teams[edge.first]].first, positions[teams[edge.second]].first));
+				tmpDis2.push_back(distance(positions[teams[edge.first]].first, positions[teams[edge.second]].first));
 			}
-			last = next;
+			else {
+				prevIndex = index;
+				tmpP1.push_back(make_pair(positions[teams[edge.first]].first, positions[teams[edge.second]].first));
+				tmpDis1.push_back(distance(positions[teams[edge.first]].first, positions[teams[edge.second]].first));
+			}
+			index = edgeList[index].second;
 		}
 	}
-	begin->prev = NULL;
 
 	set<it> tmpExitVertex;
 	vector<it> exitVertex;
@@ -101,22 +101,40 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 	for (auto u: tmpExitVertex) {
 		exitVertex.push_back(u);
 	}
-	sort(exitVertex.begin(), exitVertex.end());
 
-	vector<pair<it, it>> exitPoints;
+	vector<pair< it, it >> exitPoints;
 	for (int i = 0; i < exitVertex.size(); i++) {
 		exitPoints.push_back(positions[exitVertex[i]].first);
 	}
 
+	sort(exitPoints.begin(), exitPoints.end());
+	count = 0;
+
 	vector<vector<it>> exitGraph(exitPoints.size(), vector<it>());
-	last = begin;
-	while (last->next != NULL) {
-		int i = lower_bound(exitVertex.begin(), exitVertex.end(), teams[last->vextexOne]) - exitVertex.begin();
-		int j = lower_bound(exitVertex.begin(), exitVertex.end(), teams[last->vextexTwo]) - exitVertex.begin();
+	for (int i = 0; i < exitPoints.size(); i++) {
+		for (int j = i + 1; j < exitPoints.size(); j++) {
+			//благодар€ сортировке из n^2 переходим в n*log(n). ј в случае с нашими графами ускорение практически в 15 раз
+			if (abs(exitPoints[i].first - exitPoints[j].first) > vertexRange) {
+				break;
+			}
+			if (distance(exitPoints[i], exitPoints[j]) <= vertexRange && distance(exitPoints[i], exitPoints[j]) >= 0.5) {
+				exitGraph[i].push_back(j);
+				exitGraph[j].push_back(i);
+				count++;
+			}
+		}
+	}
+
+	/*vector<vector<it>> exitGraph(exitPoints.size(), vector<it>());
+	int index = startIndex;
+	while (index != -1) {
+		pair<it, it> edge = edgeList[index].first;
+		int i = lower_bound(exitVertex.begin(), exitVertex.end(), teams[edge.first]) - exitVertex.begin();
+		int j = lower_bound(exitVertex.begin(), exitVertex.end(), teams[edge.second]) - exitVertex.begin();
 		exitGraph[i].push_back(j);
 		exitGraph[j].push_back(i);
-		last = last->next;
-	}
+		index = edgeList[index].second;	
+	}*/
 
 	this->graph = exitGraph;
 	return exitPoints;
