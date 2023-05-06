@@ -282,15 +282,20 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 
 	string name = "1img.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
-	fwrite(bmpfileheader, 1, 14, f);
-	fwrite(bmpinfoheader, 1, 40, f);
-	for (int i = 0; i < h; i++)
-	{
-		fwrite(img + (w * (h - i - 1) * 3), 3, w, f);
-		fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
-	}
+	try {
+		fwrite(bmpfileheader, 1, 14, f);
+		fwrite(bmpinfoheader, 1, 40, f);
+		for (int i = 0; i < h; i++)
+		{
+			fwrite(img + (w * (h - i - 1) * 3), 3, w, f);
+			fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
+		}
 
-	free(img);
+		free(img);
+	}
+	catch (exception) {
+
+	}
 	fclose(f);
 }
 
@@ -448,14 +453,20 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<v
 
 	string name =  "1imgGraph.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
-	fwrite(bmpfileheader, 1, 14, f);
-	fwrite(bmpinfoheader, 1, 40, f);
-	for (int i = 0; i < h; i++)
-	{
-		fwrite(img + (w * (h - i - 1) * 3), 3, w, f);
-		fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
-	}
+	try {
+		fwrite(bmpfileheader, 1, 14, f);
+		fwrite(bmpinfoheader, 1, 40, f);
+		for (int i = 0; i < h; i++)
+		{
+			fwrite(img + (w * (h - i - 1) * 3), 3, w, f);
+			fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
+		}
 
-	free(img);
+		free(img);
+	}
+	catch (exception) {
+
+	}
+	
 	fclose(f);
 }

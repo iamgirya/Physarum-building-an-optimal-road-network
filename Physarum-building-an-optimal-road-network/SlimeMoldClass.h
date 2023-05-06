@@ -195,11 +195,11 @@ private:
 
 //вторая часть
 
-
 class AgentGraphAnalyser {
 public:
 	ft edgesRange;
 	ft vertexRange;
+	it minVertexMass;
 	vector<vector<it>> graph;
 
 	vector<pair<it, it>> makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);

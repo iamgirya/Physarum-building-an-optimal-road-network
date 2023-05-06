@@ -123,8 +123,9 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			if (count % 100 == 0) {
 				//дебаг код
 				auto tmp = AgentGraphAnalyser();
-				tmp.edgesRange = 4;
-				tmp.vertexRange = 6;
+				tmp.edgesRange = 16;
+				tmp.vertexRange = 8;
+				tmp.minVertexMass = 8;
 				auto tmptmp = tmp.makeMinimizedGraph(particles, location.generators);
 				outputInBmpGraph(tmptmp, tmp.graph, false);
 			}
