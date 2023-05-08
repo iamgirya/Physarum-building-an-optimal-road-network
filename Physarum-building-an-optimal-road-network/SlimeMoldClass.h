@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include<functional>
 #pragma once
 using namespace std;
 typedef long long it;
@@ -200,7 +201,26 @@ public:
 	ft edgesRange;
 	ft vertexRange;
 	it minVertexMass;
+	ft minEdgeAngle;
 	vector<vector<it>> graph;
+	vector<pair<it, it>> exitPoints;
+	vector<bool> towns;
+	//лямбда функция нахождения дистанции
+	function<double(pair<it, it>, pair<it, it>)> distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
+	function<double(pair<ft, ft>)> length = [](pair<ft, ft> p) { return sqrt(pow(p.first, 2) + pow(p.second, 2)); };
+	function<pair<it, it>(pair<it, it>, pair<it, it>)> average = [](pair<it, it> i, pair<it, it> j) {return make_pair((i.first + j.first) / 2, (i.second + j.second) / 2); };
 
-	vector<pair<it, it>> makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
+	vector<pair<it, it>> makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
+
+	void minimizeGraph();
+private:
+	ft minRezultVectorLength = -1;
+
+	void eraseEdge(int index, int vertex);
+
+	bool findEdge(int index, int vertex);
+
+	bool canConnectEdges(int i);
+
+	vector<it> checkRomb(int index);
 };

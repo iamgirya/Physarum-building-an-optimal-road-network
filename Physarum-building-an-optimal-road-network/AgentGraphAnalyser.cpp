@@ -1,7 +1,66 @@
 #include "SlimeMoldClass.h"
 
-vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
+void AgentGraphAnalyser::eraseEdge(int index, int vertex) {
+	graph[index].erase(find(graph[index].begin(), graph[index].end(), vertex));
+}
+
+bool AgentGraphAnalyser::findEdge(int index, int vertex) {
+	return find(graph[index].begin(), graph[index].end(), vertex) != graph[index].end();
+}
+
+bool AgentGraphAnalyser::canConnectEdges(int i) {
+	if (minRezultVectorLength == -1) {
+		minRezultVectorLength = sqrt(pow(1 - cos(minEdgeAngle / 180 * PI), 2) + pow(sin(minEdgeAngle / 180 * PI), 2));
+	}
+
+	it firstIndex = graph[i][0];
+	it secondIndex = graph[i][1];
+	// находим вектора рёбер
+	pair<it, it> main = exitPoints[i];
+	pair<ft, ft> firstVector = make_pair(main.first - exitPoints[firstIndex].first, main.second - exitPoints[firstIndex].second);
+	pair<ft, ft> secondVector = make_pair(exitPoints[secondIndex].first - main.first, exitPoints[secondIndex].second - main.second);
+	// нормируем
+	ft tmpLength = length(firstVector);
+	firstVector = make_pair(firstVector.first / tmpLength, firstVector.second / tmpLength);
+	tmpLength = length(secondVector);
+	secondVector = make_pair(secondVector.first / tmpLength, secondVector.second / tmpLength);
+	// пример: угл между двух рёбер не превышает 10 градусов в случае, если длина разници нормированных векторов не больше 0.1737. Такие рёбра соединяем
+	pair<ft, ft> rezultVector = make_pair(firstVector.first - secondVector.first, firstVector.second - secondVector.second);
+	tmpLength = length(rezultVector);
+	return tmpLength <= minRezultVectorLength;
+}
+
+vector<it> AgentGraphAnalyser::checkRomb(int index) {
+	if (graph[index].size() <= 2) {
+		return vector<it>();
+	}
+	vector<it> rezult;
+	for (int i = 0; i < graph[index].size(); i++) {
+		for (int j = i+1; j < graph[index].size(); j++) {
+			it first = graph[index][i];
+			it second = graph[index][j];
+			// если есть такие две вершины, что соединены ребром
+			if (findEdge(first, second)) {
+				for (int third: graph[first]) {
+					// и у этих двух вершин есть смежная с ними вершина
+					if (third != index && findEdge(second, third)) {
+						// то это ромб с вершинами index, i, j, k
+						rezult.push_back(first);
+						rezult.push_back(second);
+						rezult.push_back(third);
+						return rezult;
+					}
+				}
+			}
+		}
+	}
+	return vector<it>();
+}
+
+//преобразует множество точек в нормальный граф
+vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
+	// TODO можно избавиться от такой вложенности пар с помощью ещё одного вектора
 	vector<pair<pair<it,it>, bool>> position;
 	for (auto u : particles) {
 		position.push_back(make_pair(make_pair(u->pixelVector[0], u->pixelVector[1]), false));
@@ -10,10 +69,6 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 		position.push_back(make_pair(make_pair(u->position[0], u->position[1]), true));
 	}
 	sort(position.begin(), position.end());
-
-	//лямбда функции нахождения средней точки и дистанции
-	auto distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
-	auto average = [](pair<it, it> i, pair<it, it> j) {return make_pair((i.first+j.first)/2, (i.second + j.second) / 2); };
 
 	// делаем из вектора односвязный список. В i-том элементе находится индекс вектора следующего активного элемента
 	vector<it> next(position.size(), -1);
@@ -53,12 +108,14 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 				}
 			}
 		}
-	}
+	} 
 
 	vector<pair<it,it>> exitPoints;
+	vector<bool> towns;
 	for (int i = 0; i != -1; i = next[i]) {
 		if (pointMass[i] >= minVertexMass || position[i].second) {
 			exitPoints.push_back(position[i].first);
+			towns.push_back(position[i].second);
 		}
 	}
 
@@ -69,11 +126,241 @@ vector<pair<it, it>> AgentGraphAnalyser::makeMinimizedGraph(vector<SlimeAgent*> 
 		for (int j = i + 1; j < exitPoints.size(); j++) {
 			if (distance(exitPoints[i], exitPoints[j]) <= edgesRange) {
 				exitGraph[i].push_back(j);
+				exitGraph[j].push_back(i);
 				count++;
 			}
 		}
 	}
 
+	this->towns = towns;
 	this->graph = exitGraph;
+	this->exitPoints = exitPoints;
+	//minimizeLongEndge();
 	return exitPoints;
+}
+
+// решает 4 проблемы:
+// одинокие - вершины с 1 ребром или без них
+// ломаные - линия, разбитая на несколько ребёр, что нужно соединить в одно
+// треугольники - вершина, что соединена только с двумя вершинами, что уже соединены
+// ромбы - четыре вершины, которые вместе образуют четырёх угольник.
+void AgentGraphAnalyser::minimizeGraph() {
+	
+
+	// если нужно что-то удалить, то запоминаем номер
+	vector<it> vertexToDelete;
+	// TODO можно переписать на односвязный список, чтобы меньше по памяти было
+	vector<bool> vertexWhatDeleted(exitPoints.size(), false);
+	// вначале чекаем все вершины, потом те вершины, что были затронуты удалением, потом те вершины, что были затронуты ещё одним удалением...
+	queue<it> vertexToCheck;
+	for (int i = 0; i < exitPoints.size(); i++) {
+		vertexToCheck.push(i);
+	}
+
+	while (!vertexToCheck.empty()) {
+
+		// дебаг код
+		for (int k = 0; k < graph.size(); k++) {
+			for (int j = 0; j < graph[k].size(); j++) {
+				if (!vertexWhatDeleted[k] && !vertexWhatDeleted[graph[k][j]] && !findEdge(graph[k][j], k)) {
+					cout << 1;
+				}
+			}
+		}
+		int thfd = 0;
+
+		int i = vertexToCheck.front(); vertexToCheck.pop();
+		if (!vertexWhatDeleted[i]) {
+			if (!towns[i]) {
+				thfd = 1;
+				// одинокая вершина
+				if (graph[i].size() <= 1) {
+					vertexToDelete.push_back(i);
+					vertexWhatDeleted[i] = true;
+					if (graph[i].size() == 1) {
+						eraseEdge(graph[i][0], i);
+						vertexToCheck.push(graph[i][0]);
+					}
+				}
+				// треугольник
+				else if (graph[i].size() == 2 && findEdge(graph[i][0], graph[i][1])) {
+					thfd = 2;
+					it firstIndex = graph[i][0];
+					it secondIndex = graph[i][1];
+
+					vertexToDelete.push_back(i);
+					vertexWhatDeleted[i] = true;
+
+					eraseEdge(firstIndex, i);
+					vertexToCheck.push(firstIndex);
+					eraseEdge(secondIndex, i);
+					vertexToCheck.push(secondIndex);
+				}
+				// ломаная
+				else if (graph[i].size() == 2 && canConnectEdges(i)) { 
+					thfd = 3;
+					it firstIndex = graph[i][0];
+					it secondIndex = graph[i][1];
+					// соединяем
+					vertexToDelete.push_back(i);
+					vertexWhatDeleted[i] = true;
+					// удаляем рёбра с i-й вершиной
+					eraseEdge(firstIndex, i);
+					eraseEdge(secondIndex, i);
+					// если вершины не соединены, соединяем
+					if (!findEdge(firstIndex, secondIndex)) {
+						graph[firstIndex].push_back(secondIndex);
+						graph[secondIndex].push_back(firstIndex);
+					}
+					// проверим эти вершины
+					vertexToCheck.push(firstIndex);
+					vertexToCheck.push(secondIndex);
+				}
+			} 
+			// ромб, Причём i-я вершина может быть городом
+			{
+				vector<it> rombVertex = checkRomb(i);
+				if (!rombVertex.empty()) {
+					// если обе диалогнали есть
+					if (findEdge(i, rombVertex[2])) {
+						thfd = 4;
+						int townCount = 0;
+						for (auto u : rombVertex) {
+							if (towns[u]) {
+								townCount++;
+							}
+						}
+						townCount += towns[i];
+						if (townCount >= 2) {
+							continue;
+						}
+						else {
+							// если находим хотя бы один город - фиксируем положение вершины
+							bool hasTown = false;
+							// делаем смежную вершину из четырёх
+							for (int k: rombVertex) {
+								// образуем вершину по середине
+								if (!hasTown) {
+									if (towns[k]) {
+										exitPoints[i] = exitPoints[k];
+										hasTown = true;
+									}
+									else {
+										exitPoints[i] = average(exitPoints[i], exitPoints[k]);
+									}
+								}
+								
+								for (int v: graph[k]) {
+									// соединяем первую вершину со смежными вершинами
+									if (i != v && !findEdge(i, v)) {
+										graph[i].push_back(v);
+										graph[v].push_back(i);
+									}
+									// стираем рёбра к k-вершине и проверяем все смежные вершины.
+									eraseEdge(v, k);
+									vertexToCheck.push(v);
+								}
+
+								vertexToDelete.push_back(k);
+								vertexWhatDeleted[k] = true;
+							}
+						}
+					}
+					else {
+						thfd = 5;
+						if (towns[rombVertex[0]] && towns[rombVertex[1]]) {
+							continue;
+						}
+						// делаем смежную вершину из двух, соединённых диагональю, изменяя первую и удаляя вторую
+						it firstIndex = -1;
+						it secondIndex = -1;
+						if (towns[rombVertex[1]]) {
+							firstIndex = rombVertex[1];
+							secondIndex = rombVertex[0];
+						}
+						else {
+							firstIndex = rombVertex[0];
+							secondIndex = rombVertex[1];
+						}
+						// если они не города, то образуем вершину по середине
+						if (!towns[rombVertex[0]] && !towns[rombVertex[1]]) {
+							exitPoints[firstIndex] = average(exitPoints[firstIndex], exitPoints[secondIndex]);
+						}
+						// для каждой смежной вершины: соединяем её с первой вершиной, удаляем рёбра со второй вершиной и проверяем их в последствии
+						for (int j: graph[secondIndex]) {
+							if (firstIndex != j && !findEdge(firstIndex, j)) {
+								graph[firstIndex].push_back(j);
+								graph[j].push_back(firstIndex);
+							}
+							eraseEdge(j, secondIndex);
+							vertexToCheck.push(j);
+						}
+						vertexToDelete.push_back(secondIndex);
+						vertexWhatDeleted[secondIndex] = true;
+					}
+				}
+			}
+		}
+	
+
+		// дебаг код
+		for (int k = 0; k < graph.size(); k++) {
+			for (int j = 0; j < graph[k].size(); j++) {
+				if (!vertexWhatDeleted[k] && !vertexWhatDeleted[graph[k][j]] && !findEdge(graph[k][j], k)) {
+					cout << 1;
+				}
+			}
+		}
+	}
+
+	// нужно из исходного графа удалить все вершины, что были слиты. Для этого пересобираем меньший граф и сохраняем, для какого индекса сколько уже было удалённых вершин
+	// чтобы после просто вычесть это числа из номера ребра. sort(vertexToDelete.begin(), vertexToDelete.end());
+	vector<it> shiftVector;
+	vector<vector<it>> newGraph;
+	vector<pair<it, it>> newExitPoints;
+	vector<bool> newTowns;
+	int lastDeleteIndex = 0;
+	sort(vertexToDelete.begin(), vertexToDelete.end());
+	for (int i = 0; i < exitPoints.size(); i++) {
+		if (lastDeleteIndex != vertexToDelete.size() && i == vertexToDelete[lastDeleteIndex]) {
+			lastDeleteIndex++;
+		}
+		else {
+			newExitPoints.push_back(exitPoints[i]);
+			newGraph.push_back(graph[i]);
+			newTowns.push_back(towns[i]);
+		}
+		// запоминаем сдвиг
+		shiftVector.push_back(lastDeleteIndex);
+	}
+	// Пример: было ребро 1-3 и 3-1. Удалили вершину 2. Теперь это будет ребро 1-2 2-1. Ребро 2-1 само становится на место, так как мы пропустили прошлую вершину 2 в новом графе.
+	// Ребро 1-2 мы должны сделать из ребра 1-3 тем, что из "3" вычтем кол-во удалённых до неё вершин - т.е. 1
+	for (int i = 0; i < newGraph.size(); i++) {
+		for (int j = 0; j < newGraph[i].size(); j++) {
+			
+			newGraph[i][j] -= shiftVector[newGraph[i][j]];
+			if (newGraph[i][j] == i) {
+				cout << 1;
+			}
+		}
+	}
+	// удаление выполняется за O(e+n)
+	this->towns = newTowns;
+	this->graph = newGraph;
+	this->exitPoints = newExitPoints;
+	return;
+	//не робит
+	//for (int i = 0; i < towns.size(); i++) {
+	//	// если город не соединён ни с кем
+	//	if (graph[towns[i]].empty()) {
+	//		ft minDistance = INT16_MAX;
+	//		//находим наиближайшую вершину
+	//		for (int j = 0; j < exitPoints.size(); j++) {
+	//			ft nowDistance = distance(exitPoints[towns[i]], exitPoints[j]);
+	//			if (nowDistance < minDistance && towns[i] != j) {
+
+	//			}
+	//		}
+	//	}
+	//}
 }

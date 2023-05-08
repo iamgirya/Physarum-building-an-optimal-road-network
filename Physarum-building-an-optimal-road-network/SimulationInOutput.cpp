@@ -300,6 +300,12 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 }
 
 void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<vector<it>>& graph, bool isChangedSettings = false) {
+	string num = "1";
+	if (isChangedSettings) {
+		isChangedSettings = false;
+		num = "2";
+	}
+	
 	static int bmpi = -1;
 	static vector<ft> colorVector = { (0.3 + rand() % 50 / 100.0), (0.3 + rand() % 50 / 100.0) , (0.3 + rand() % 50 / 100.0) };
 	bmpi++;
@@ -451,7 +457,7 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<v
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
 
-	string name =  "1imgGraph.bmp"; // to_string(bmpi) +
+	string name = num + "imgGraph.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
 	try {
 		fwrite(bmpfileheader, 1, 14, f);
