@@ -84,16 +84,26 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 		for (int i = 0; i != -1; i = next[i]) {
 			int prevIndex = i;
 			for (int j = next[i]; j != -1; j = next[j]) {
+				pair<it, it> firstPoint = position[i].first;
+				pair<it, it> secondPoint = position[j].first;
 				bool isNeedDelete = false;
-				//благодаря сортировке из n^2 переходим в n*log(n). А в случае с нашими графами ускорение практически в 15 раз
-				if (abs(position[i].first.first - position[j].first.first) > vertexRange) {
+				//благодаря сортировке из n^2 переходим в n*log(n) в случае с нашими графами
+				if (abs(firstPoint.first - secondPoint.first) > vertexRange) {
 					break;
 				}
 				// если точки достаточно близко, стираем точку j
-				if (distance(position[i].first, position[j].first) <= vertexRange) {
+				if (distance(firstPoint, secondPoint) <= vertexRange) {
 					//если вторая точка - город, то мы не можем её убрать. Чтобы в итоге получился связный граф, мы просто останавливаем обработку этой точки. Проблема лишь в бОльшем количестве точек, которая решится в некст функции
 					if (position[j].second) {
-						break;
+						// в случае, если обе точки стоят в одном месте, то их стоит поменять местами, после чего слить воедино.
+						if (firstPoint.first == secondPoint.first && firstPoint.second == secondPoint.second) {
+							bool tmp = position[j].second;
+							position[j].second = position[i].second;
+							position[i].second = tmp;
+						}
+						else {
+							break;
+						}
 					}
 					isNeedDelete = true;
 					hasChange = true;
@@ -119,12 +129,16 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 		}
 	}
 
-
+	// дебаг count
 	int count = 0;
 	vector<vector<it>> exitGraph(exitPoints.size(), vector<it>());
 	for (int i = 0; i < exitPoints.size(); i++) {
 		for (int j = i + 1; j < exitPoints.size(); j++) {
-			if (distance(exitPoints[i], exitPoints[j]) <= edgesRange) {
+			if (abs(exitPoints[i].first - exitPoints[j].first) > edgesRange) {
+				break;
+			}
+			ft tmpDistance = distance(exitPoints[i], exitPoints[j]);
+			if (tmpDistance <= edgesRange) {
 				exitGraph[i].push_back(j);
 				exitGraph[j].push_back(i);
 				count++;
@@ -135,14 +149,13 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 	this->towns = towns;
 	this->graph = exitGraph;
 	this->exitPoints = exitPoints;
-	//minimizeLongEndge();
 	return exitPoints;
 }
 
-// решает 4 проблемы:
-// одинокие - вершины с 1 ребром или без них
-// ломаные - линия, разбитая на несколько ребёр, что нужно соединить в одно
-// треугольники - вершина, что соединена только с двумя вершинами, что уже соединены
+// Решает 4 проблемы артефактов:
+// одинокие - вершины с 1 ребром или без них;
+// ломаные - линия, разбитая на несколько ребёр, что нужно соединить в одно;
+// треугольники - вершина, что соединена только с двумя вершинами, что уже соединены;
 // ромбы - четыре вершины, которые вместе образуют четырёх угольник.
 void AgentGraphAnalyser::minimizeGraph() {
 	
@@ -158,21 +171,9 @@ void AgentGraphAnalyser::minimizeGraph() {
 	}
 
 	while (!vertexToCheck.empty()) {
-
-		// дебаг код
-		for (int k = 0; k < graph.size(); k++) {
-			for (int j = 0; j < graph[k].size(); j++) {
-				if (!vertexWhatDeleted[k] && !vertexWhatDeleted[graph[k][j]] && !findEdge(graph[k][j], k)) {
-					cout << 1;
-				}
-			}
-		}
-		int thfd = 0;
-
 		int i = vertexToCheck.front(); vertexToCheck.pop();
 		if (!vertexWhatDeleted[i]) {
 			if (!towns[i]) {
-				thfd = 1;
 				// одинокая вершина
 				if (graph[i].size() <= 1) {
 					vertexToDelete.push_back(i);
@@ -184,7 +185,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 				}
 				// треугольник
 				else if (graph[i].size() == 2 && findEdge(graph[i][0], graph[i][1])) {
-					thfd = 2;
 					it firstIndex = graph[i][0];
 					it secondIndex = graph[i][1];
 
@@ -198,7 +198,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 				}
 				// ломаная
 				else if (graph[i].size() == 2 && canConnectEdges(i)) { 
-					thfd = 3;
 					it firstIndex = graph[i][0];
 					it secondIndex = graph[i][1];
 					// соединяем
@@ -223,7 +222,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 				if (!rombVertex.empty()) {
 					// если обе диалогнали есть
 					if (findEdge(i, rombVertex[2])) {
-						thfd = 4;
 						int townCount = 0;
 						for (auto u : rombVertex) {
 							if (towns[u]) {
@@ -243,6 +241,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 								if (!hasTown) {
 									if (towns[k]) {
 										exitPoints[i] = exitPoints[k];
+										towns[i] = true;
 										hasTown = true;
 									}
 									else {
@@ -267,7 +266,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 						}
 					}
 					else {
-						thfd = 5;
 						if (towns[rombVertex[0]] && towns[rombVertex[1]]) {
 							continue;
 						}
@@ -301,20 +299,11 @@ void AgentGraphAnalyser::minimizeGraph() {
 				}
 			}
 		}
-	
-
-		// дебаг код
-		for (int k = 0; k < graph.size(); k++) {
-			for (int j = 0; j < graph[k].size(); j++) {
-				if (!vertexWhatDeleted[k] && !vertexWhatDeleted[graph[k][j]] && !findEdge(graph[k][j], k)) {
-					cout << 1;
-				}
-			}
-		}
 	}
 
 	// нужно из исходного графа удалить все вершины, что были слиты. Для этого пересобираем меньший граф и сохраняем, для какого индекса сколько уже было удалённых вершин
 	// чтобы после просто вычесть это числа из номера ребра. sort(vertexToDelete.begin(), vertexToDelete.end());
+	// удаление выполняется за O(e+n)
 	vector<it> shiftVector;
 	vector<vector<it>> newGraph;
 	vector<pair<it, it>> newExitPoints;
@@ -344,23 +333,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 			}
 		}
 	}
-	// удаление выполняется за O(e+n)
 	this->towns = newTowns;
 	this->graph = newGraph;
 	this->exitPoints = newExitPoints;
-	return;
-	//не робит
-	//for (int i = 0; i < towns.size(); i++) {
-	//	// если город не соединён ни с кем
-	//	if (graph[towns[i]].empty()) {
-	//		ft minDistance = INT16_MAX;
-	//		//находим наиближайшую вершину
-	//		for (int j = 0; j < exitPoints.size(); j++) {
-	//			ft nowDistance = distance(exitPoints[towns[i]], exitPoints[j]);
-	//			if (nowDistance < minDistance && towns[i] != j) {
-
-	//			}
-	//		}
-	//	}
-	//}
 }
