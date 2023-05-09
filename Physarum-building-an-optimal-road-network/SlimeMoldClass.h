@@ -204,7 +204,7 @@ public:
 	ft minEdgeAngle;
 	vector<vector<it>> graph;
 	vector<pair<it, it>> exitPoints;
-	vector<bool> towns;
+	vector<it> towns;
 	//лямбда функция нахождения дистанции
 	function<double(pair<it, it>, pair<it, it>)> distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
 	function<double(pair<ft, ft>)> length = [](pair<ft, ft> p) { return sqrt(pow(p.first, 2) + pow(p.second, 2)); };
@@ -213,8 +213,17 @@ public:
 	vector<pair<it, it>> makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
 
 	void minimizeGraph();
+
+	ft calculateWeigth();
+
+	ft calculateDeltaFlow();
+
+	ft calculateOmega();
 private:
 	ft minRezultVectorLength = -1;
+
+	vector<vector<ft>> weigthGraph;
+	vector<it> townIndexes;
 
 	void eraseEdge(int index, int vertex);
 
@@ -223,4 +232,8 @@ private:
 	bool canConnectEdges(int i);
 
 	vector<it> checkRomb(int index);
+
+	vector<pair<it, it>> buildFlow();
+
+	vector<vector<it>> diikstra(it begin_index);
 };

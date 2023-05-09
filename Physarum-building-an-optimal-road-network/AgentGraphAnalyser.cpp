@@ -61,12 +61,12 @@ vector<it> AgentGraphAnalyser::checkRomb(int index) {
 vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	// TODO можно избавиться от такой вложенности пар с помощью ещё одного вектора
-	vector<pair<pair<it,it>, bool>> position;
+	vector<pair<pair<it,it>, it>> position;
 	for (auto u : particles) {
-		position.push_back(make_pair(make_pair(u->pixelVector[0], u->pixelVector[1]), false));
+		position.push_back(make_pair(make_pair(u->pixelVector[0], u->pixelVector[1]), 0));
 	}
 	for (auto u : generators) {
-		position.push_back(make_pair(make_pair(u->position[0], u->position[1]), true));
+		position.push_back(make_pair(make_pair(u->position[0], u->position[1]), u->agentsPerStep));
 	}
 	sort(position.begin(), position.end());
 
@@ -121,7 +121,7 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 	} 
 
 	vector<pair<it,it>> exitPoints;
-	vector<bool> towns;
+	vector<it> towns;
 	for (int i = 0; i != -1; i = next[i]) {
 		if (pointMass[i] >= minVertexMass || position[i].second) {
 			exitPoints.push_back(position[i].first);
@@ -158,8 +158,6 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 // треугольники - вершина, что соединена только с двумя вершинами, что уже соединены;
 // ромбы - четыре вершины, которые вместе образуют четырёх угольник.
 void AgentGraphAnalyser::minimizeGraph() {
-	
-
 	// если нужно что-то удалить, то запоминаем номер
 	vector<it> vertexToDelete;
 	// TODO можно переписать на односвязный список, чтобы меньше по памяти было
@@ -307,7 +305,8 @@ void AgentGraphAnalyser::minimizeGraph() {
 	vector<it> shiftVector;
 	vector<vector<it>> newGraph;
 	vector<pair<it, it>> newExitPoints;
-	vector<bool> newTowns;
+	vector<it> newTowns;
+	vector<it> townIndexes;
 	int lastDeleteIndex = 0;
 	sort(vertexToDelete.begin(), vertexToDelete.end());
 	for (int i = 0; i < exitPoints.size(); i++) {
@@ -318,6 +317,9 @@ void AgentGraphAnalyser::minimizeGraph() {
 			newExitPoints.push_back(exitPoints[i]);
 			newGraph.push_back(graph[i]);
 			newTowns.push_back(towns[i]);
+			if (towns[i]) {
+				townIndexes.push_back(newTowns.size()-1);
+			}
 		}
 		// запоминаем сдвиг
 		shiftVector.push_back(lastDeleteIndex);
@@ -326,7 +328,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 	// Ребро 1-2 мы должны сделать из ребра 1-3 тем, что из "3" вычтем кол-во удалённых до неё вершин - т.е. 1
 	for (int i = 0; i < newGraph.size(); i++) {
 		for (int j = 0; j < newGraph[i].size(); j++) {
-			
 			newGraph[i][j] -= shiftVector[newGraph[i][j]];
 			if (newGraph[i][j] == i) {
 				cout << 1;
@@ -335,5 +336,102 @@ void AgentGraphAnalyser::minimizeGraph() {
 	}
 	this->towns = newTowns;
 	this->graph = newGraph;
+	this->townIndexes = townIndexes;
 	this->exitPoints = newExitPoints;
+}
+
+ft AgentGraphAnalyser::calculateWeigth() {
+	ft sum = 0;
+	weigthGraph.clear();
+	weigthGraph = vector<vector<ft>>(graph.size(), vector<ft>(graph.size(), -1));
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j: graph[i]) {
+			weigthGraph[i][j] = distance(exitPoints[i], exitPoints[j]);
+			if (i < j) {
+				sum += weigthGraph[i][j];
+			}
+		}
+	}
+	return sum;
+}
+
+// Для каждой пары генераторов находим кратчайший маршрут между ними
+// Пересоздаём таблицу смежности, но с параметром потока.
+// Для каждого маршрута проходимся по нему и добавляем поток между данными генераторами
+vector<pair<it, it>> AgentGraphAnalyser::buildFlow() {
+	vector<vector<it>> ways;
+	
+}
+
+ft AgentGraphAnalyser::calculateDeltaFlow() {
+	// Суммируем поток и отдельно суммируем приоритеты
+	// вычитаем
+}
+
+ft AgentGraphAnalyser::calculateOmega() {
+	// Суммируем весь поток и делим на количество рёбер.
+	// Проходимся по каждому ребру и вычисляем квадрат разницы его потока и значения выше, суммируем и находим корень
+}
+
+vector<vector<it>> AgentGraphAnalyser::diikstra(it begin_index) {
+	const it MAXIT = INT_MAX;
+	it SIZE = graph.size();
+	
+	// минимальное расстояние. Массив и очередь вместе нужны для оптимизации алгоритма. В очередь записываем отрицательные значения
+	vector<ft> d(SIZE, MAXIT); d[begin_index] = 0; 
+	priority_queue<pair<ft, it>> q; q.push(make_pair(-0, begin_index));
+	// посещенные вершины
+	vector<it> visited(SIZE, 0);
+	// число - это индекс вершины, откуда идёт путь. Для начальной вершины число равно -1
+	vector<it> prevVertex(SIZE); prevVertex[begin_index] = -1;
+
+	it minIndex, min;
+	pair<it, it> tmp;
+	// Шаг алгоритма
+	do {
+		// берём вершину, к которой меньше всего топать и которую мы ещё не смотрели
+		do {
+			if (!q.empty()) {
+				tmp = q.top(); q.pop();
+			}
+			else {
+				goto endAlgo;
+			}
+		} while (visited[tmp.second]);
+		min = -tmp.first;
+		minIndex = tmp.second;
+		// для всех смежных
+		for (int i : graph[minIndex])
+		{
+			
+			if (!visited[i] && weigthGraph[minIndex][i] > 0) // если -1, то ребра нет
+			{
+				// если из этой вершины меньше топать в смежную, то перестраиваем путь
+				ft tmp = min + weigthGraph[minIndex][i];
+				if (tmp < d[i])
+				{
+					d[i] = tmp;
+					q.push(make_pair(-d[i], i));
+
+					prevVertex[i] = minIndex;
+				}
+			}
+		}
+		// притопали в вершину
+		visited[minIndex] = 1;
+	} while (true); // выход через очередь
+endAlgo:
+
+	vector<vector<it>> reversePath;
+	for (int i: townIndexes) {
+		vector<it> tmp = vector<it>(); tmp.push_back(i);
+		int nowIndex = prevVertex[i];
+		while (nowIndex != -1) {
+			tmp.push_back(nowIndex);
+			nowIndex = prevVertex[nowIndex];
+		}
+		reversePath.push_back(tmp);
+	}
+
+	return reversePath;
 }
