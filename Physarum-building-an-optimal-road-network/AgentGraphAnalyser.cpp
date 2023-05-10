@@ -97,7 +97,7 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 					if (position[j].second) {
 						// в случае, если обе точки стоят в одном месте, то их стоит поменять местами, после чего слить воедино.
 						if (firstPoint.first == secondPoint.first && firstPoint.second == secondPoint.second) {
-							bool tmp = position[j].second;
+							it tmp = position[j].second;
 							position[j].second = position[i].second;
 							position[i].second = tmp;
 						}
@@ -226,7 +226,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 								townCount++;
 							}
 						}
-						townCount += towns[i];
+						townCount += towns[i] != 0 ? 1 : 0;
 						if (townCount >= 2) {
 							continue;
 						}
@@ -235,11 +235,11 @@ void AgentGraphAnalyser::minimizeGraph() {
 							bool hasTown = false;
 							// делаем смежную вершину из четырёх
 							for (int k: rombVertex) {
-								// образуем вершину по середине
+								// образуем вершину по середине или с центром в городе
 								if (!hasTown) {
 									if (towns[k]) {
 										exitPoints[i] = exitPoints[k];
-										towns[i] = true;
+										towns[i] = towns[k];
 										hasTown = true;
 									}
 									else {
@@ -340,53 +340,26 @@ void AgentGraphAnalyser::minimizeGraph() {
 	this->exitPoints = newExitPoints;
 }
 
-ft AgentGraphAnalyser::calculateWeigth() {
-	ft sum = 0;
-	weigthGraph.clear();
-	weigthGraph = vector<vector<ft>>(graph.size(), vector<ft>(graph.size(), -1));
-	for (int i = 0; i < graph.size(); i++) {
-		for (int j: graph[i]) {
-			weigthGraph[i][j] = distance(exitPoints[i], exitPoints[j]);
-			if (i < j) {
-				sum += weigthGraph[i][j];
-			}
-		}
-	}
-	return sum;
-}
-
-// Для каждой пары генераторов находим кратчайший маршрут между ними
-// Пересоздаём таблицу смежности, но с параметром потока.
-// Для каждого маршрута проходимся по нему и добавляем поток между данными генераторами
-vector<pair<it, it>> AgentGraphAnalyser::buildFlow() {
-	vector<vector<it>> ways;
-	
-}
-
-ft AgentGraphAnalyser::calculateDeltaFlow() {
-	// Суммируем поток и отдельно суммируем приоритеты
-	// вычитаем
-}
-
-ft AgentGraphAnalyser::calculateOmega() {
-	// Суммируем весь поток и делим на количество рёбер.
-	// Проходимся по каждому ребру и вычисляем квадрат разницы его потока и значения выше, суммируем и находим корень
-}
-
+// алгоритм для begin_index вершины возвращает обратные кратчайшие пути до каждого из townIndexes. Для самой себя или до недостижимой вершины он возвращает пустой путь
 vector<vector<it>> AgentGraphAnalyser::diikstra(it begin_index) {
+	if (weigthGraph.empty()) {
+		buildWeigth();
+	}
+
 	const it MAXIT = INT_MAX;
 	it SIZE = graph.size();
-	
+
 	// минимальное расстояние. Массив и очередь вместе нужны для оптимизации алгоритма. В очередь записываем отрицательные значения
-	vector<ft> d(SIZE, MAXIT); d[begin_index] = 0; 
+	vector<ft> d(SIZE, MAXIT); d[begin_index] = 0;
 	priority_queue<pair<ft, it>> q; q.push(make_pair(-0, begin_index));
 	// посещенные вершины
 	vector<it> visited(SIZE, 0);
 	// число - это индекс вершины, откуда идёт путь. Для начальной вершины число равно -1
-	vector<it> prevVertex(SIZE); prevVertex[begin_index] = -1;
+	vector<it> prevVertex(SIZE, -1);
 
 	it minIndex, min;
-	pair<it, it> tmp;
+	pair<ft, it> tmp;
+	// TODO оптимизировать как-то с использованием городов
 	// Шаг алгоритма
 	do {
 		// берём вершину, к которой меньше всего топать и которую мы ещё не смотрели
@@ -403,7 +376,7 @@ vector<vector<it>> AgentGraphAnalyser::diikstra(it begin_index) {
 		// для всех смежных
 		for (int i : graph[minIndex])
 		{
-			
+
 			if (!visited[i] && weigthGraph[minIndex][i] > 0) // если -1, то ребра нет
 			{
 				// если из этой вершины меньше топать в смежную, то перестраиваем путь
@@ -423,10 +396,19 @@ vector<vector<it>> AgentGraphAnalyser::diikstra(it begin_index) {
 endAlgo:
 
 	vector<vector<it>> reversePath;
-	for (int i: townIndexes) {
+	for (int i : townIndexes) {
+
+		// путь начинается в самой вершине
 		vector<it> tmp = vector<it>(); tmp.push_back(i);
 		int nowIndex = prevVertex[i];
+
+		// если пути нет, то предыдущая вершина -1
+		if (nowIndex == -1) {
+			reversePath.push_back(vector<it>());
+			continue;
+		}
 		while (nowIndex != -1) {
+			// если это была не последняя вершина, то добавляем индекс предыдущей
 			tmp.push_back(nowIndex);
 			nowIndex = prevVertex[nowIndex];
 		}
@@ -434,4 +416,141 @@ endAlgo:
 	}
 
 	return reversePath;
+}
+
+// Для каждой пары генераторов находим кратчайший маршрут между ними
+// Пересоздаём таблицу смежности, но с параметром потока.
+// Для каждого маршрута проходимся по нему и добавляем поток между данными генераторами
+void AgentGraphAnalyser::buildFlow() {
+	this->flowGraph.clear();
+	
+	// вектор, в котором i,j вектор - это обратный кратчайший путь от города i и j
+	vector<vector<vector<it>>> ways;
+	for (it i : townIndexes) {
+		ways.push_back(diikstra(i));
+	}
+
+	// дополнение к weigthGraph, чтобы не делать граф с парами
+	vector<vector<ft>> flowGraph(graph.size(), vector<ft>(graph.size(), -1));
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j: graph[i]) {
+			flowGraph[i][j] = 0;
+		}
+	}
+
+	ft sumOfPriority = 0;
+	for (int i = 0; i < towns.size(); i++) {
+		sumOfPriority += towns[i];
+	}
+
+	for (int i = 0; i < ways.size(); i++) {
+		// проходимся лишь по одной копии пути
+		for (int j = i+1; j < ways[i].size(); j++) {
+			it first;
+			it second = ways[i][j][0];
+			
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority - towns[townIndexes[i]]);// поток из i в j
+			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority - towns[townIndexes[j]]);// поток обратно
+			for (int k = 1; k < ways[i][j].size(); k++) {
+				first = second;
+				second = ways[i][j][k];
+				
+				//дебаг
+				if (flowGraph[first][second] == -1) {
+					cout << 1;
+				}
+				flowGraph[first][second] += waysFlow;
+			}
+		}
+	}
+
+	this->flowGraph = flowGraph;
+}
+
+// Создаём матрицу с весом рёбер, где вес - расстояние между вершинами
+void AgentGraphAnalyser::buildWeigth() {
+	weigthGraph.clear();
+	weigthGraph = vector<vector<ft>>(graph.size(), vector<ft>(graph.size(), -1));
+
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j : graph[i]) {
+			weigthGraph[i][j] = distance(exitPoints[i], exitPoints[j]);
+		}
+	}
+
+	this->weigthGraph = weigthGraph;
+}
+
+// Сумма веса всех рёбер
+ft AgentGraphAnalyser::calculateWeigth() {
+	if (weigthGraph.empty()) {
+		buildWeigth();
+	}
+
+	ft rezult = 0;
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j : graph[i]) {
+			if (i < j) {
+				rezult += weigthGraph[i][j];
+			}
+		}
+	}
+	return rezult;
+}
+
+// Разница сумм потока и приоритетов
+ft AgentGraphAnalyser::calculateDeltaFlow() {
+	if (flowGraph.empty()) {
+		buildFlow();
+	}
+
+	ft sumOfPriority = 0;
+	for (int i = 0; i < towns.size(); i++) {
+		sumOfPriority += towns[i];
+	}
+
+	ft sumOfFlow = 0;
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j : graph[i]) {
+			if (i < j) {
+				sumOfFlow += flowGraph[i][j];
+			}
+		}
+	}
+
+	ft rezult = sumOfFlow - sumOfPriority;
+	return rezult;
+}
+
+// Суммируем весь поток и делим на количество рёбер.
+// Проходимся по каждому ребру и вычисляем квадрат разницы его потока и значения выше, суммируем и находим корень
+ft AgentGraphAnalyser::calculateOmega() {
+	if (flowGraph.empty()) {
+		buildFlow();
+	}
+
+	ft countOfEdge = 0;
+	ft sumOfFlow = 0;
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j : graph[i]) {
+			if (i < j) {
+				sumOfFlow += flowGraph[i][j];
+				countOfEdge++;
+			}
+		}
+	}
+
+	ft averageFlow = sumOfFlow / countOfEdge;
+
+	ft rezult = 0;
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j : graph[i]) {
+			if (i < j) {
+				rezult += pow(flowGraph[i][j] - averageFlow, 2);
+			}
+		}
+	}
+	rezult = sqrt(rezult);
+
+	return rezult;
 }

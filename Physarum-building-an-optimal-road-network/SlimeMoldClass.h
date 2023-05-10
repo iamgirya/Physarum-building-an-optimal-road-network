@@ -195,7 +195,7 @@ private:
 };
 
 //вторая часть
-
+// TODO потом все методы и приколы нужно нормально расположить и связять друг за другом
 class AgentGraphAnalyser {
 public:
 	ft edgesRange;
@@ -223,6 +223,7 @@ private:
 	ft minRezultVectorLength = -1;
 
 	vector<vector<ft>> weigthGraph;
+	vector<vector<ft>> flowGraph;
 	vector<it> townIndexes;
 
 	void eraseEdge(int index, int vertex);
@@ -233,7 +234,9 @@ private:
 
 	vector<it> checkRomb(int index);
 
-	vector<pair<it, it>> buildFlow();
+	void buildFlow();
+
+	void buildWeigth();
 
 	vector<vector<it>> diikstra(it begin_index);
 };

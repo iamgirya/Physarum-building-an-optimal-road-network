@@ -130,6 +130,10 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				auto tmptmp = tmp.makeGraph(particles, location.generators);
 				outputInBmpGraph(tmptmp, tmp.graph, false);
 				tmp.minimizeGraph();
+				auto fds1 = tmp.calculateWeigth();
+				auto fds2 = tmp.calculateDeltaFlow();
+				auto fds3 = tmp.calculateOmega();
+				cout << 1;
 				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
 			}
 		}
