@@ -95,6 +95,8 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 	this->location.isCanMultiAgent = isCanMultiAgent;
 }
 
+vector<vector<ft>> saveTmp;
+
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 	if (updateSettingsFromFile(true)) {
 		it count = 0;
@@ -123,18 +125,18 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			if (count % 100 == 0) {
 				//дебаг код
 				auto tmp = AgentGraphAnalyser();
-				tmp.edgesRange = 14;
+				tmp.edgesRange = 16;
 				tmp.vertexRange = 8;
 				tmp.minVertexMass = 8;
 				tmp.minEdgeAngle = 15;
-				auto tmptmp = tmp.makeGraph(particles, location.generators);
-				outputInBmpGraph(tmptmp, tmp.graph, false);
+				tmp.makeGraph(particles, location.generators);
+				outputInBmpGraph(tmp.exitPoints, tmp.graph, false);
 				tmp.minimizeGraph();
+				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
 				auto fds1 = tmp.calculateWeigth();
 				auto fds2 = tmp.calculateDeltaFlow();
 				auto fds3 = tmp.calculateOmega();
-				cout << 1;
-				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
+				saveTmp.push_back({ fds1 , fds2 , fds3 });
 			}
 		}
 	}

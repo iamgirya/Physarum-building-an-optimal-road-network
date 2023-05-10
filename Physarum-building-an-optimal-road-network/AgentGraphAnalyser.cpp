@@ -9,6 +9,7 @@ bool AgentGraphAnalyser::findEdge(int index, int vertex) {
 }
 
 bool AgentGraphAnalyser::canConnectEdges(int i) {
+	static ft minRezultVectorLength = -1;
 	if (minRezultVectorLength == -1) {
 		minRezultVectorLength = sqrt(pow(1 - cos(minEdgeAngle / 180 * PI), 2) + pow(sin(minEdgeAngle / 180 * PI), 2));
 	}
@@ -58,7 +59,7 @@ vector<it> AgentGraphAnalyser::checkRomb(int index) {
 }
 
 //преобразует множество точек в нормальный граф
-vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
+void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	// TODO можно избавиться от такой вложенности пар с помощью ещё одного вектора
 	vector<pair<pair<it,it>, it>> position;
@@ -149,7 +150,6 @@ vector<pair<it, it>> AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles
 	this->towns = towns;
 	this->graph = exitGraph;
 	this->exitPoints = exitPoints;
-	return exitPoints;
 }
 
 // Решает 4 проблемы артефактов:
@@ -216,6 +216,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 			} 
 			// ромб, Причём i-я вершина может быть городом
 			{
+				
 				vector<it> rombVertex = checkRomb(i);
 				if (!rombVertex.empty()) {
 					// если обе диалогнали есть
@@ -232,7 +233,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 						}
 						else {
 							// если находим хотя бы один город - фиксируем положение вершины
-							bool hasTown = false;
+							bool hasTown = towns[i];
 							// делаем смежную вершину из четырёх
 							for (int k: rombVertex) {
 								// образуем вершину по середине или с центром в городе
@@ -240,6 +241,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 									if (towns[k]) {
 										exitPoints[i] = exitPoints[k];
 										towns[i] = towns[k];
+										towns[k] = 0;
 										hasTown = true;
 									}
 									else {
@@ -279,7 +281,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 							secondIndex = rombVertex[1];
 						}
 						// если они не города, то образуем вершину по середине
-						if (!towns[rombVertex[0]] && !towns[rombVertex[1]]) {
+						if (!towns[firstIndex] && !towns[secondIndex]) {
 							exitPoints[firstIndex] = average(exitPoints[firstIndex], exitPoints[secondIndex]);
 						}
 						// для каждой смежной вершины: соединяем её с первой вершиной, удаляем рёбра со второй вершиной и проверяем их в последствии
@@ -295,9 +297,12 @@ void AgentGraphAnalyser::minimizeGraph() {
 						vertexWhatDeleted[secondIndex] = true;
 					}
 				}
+
+				
 			}
 		}
 	}
+
 
 	// нужно из исходного графа удалить все вершины, что были слиты. Для этого пересобираем меньший граф и сохраняем, для какого индекса сколько уже было удалённых вершин
 	// чтобы после просто вычесть это числа из номера ребра. sort(vertexToDelete.begin(), vertexToDelete.end());
@@ -334,6 +339,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 			}
 		}
 	}
+
 	this->towns = newTowns;
 	this->graph = newGraph;
 	this->townIndexes = townIndexes;
@@ -446,6 +452,10 @@ void AgentGraphAnalyser::buildFlow() {
 	for (int i = 0; i < ways.size(); i++) {
 		// проходимся лишь по одной копии пути
 		for (int j = i+1; j < ways[i].size(); j++) {
+			if (ways[i][j].empty()) {
+				continue;
+			}
+
 			it first;
 			it second = ways[i][j][0];
 			

@@ -320,35 +320,6 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<v
 	memset(img, 0, 3 * w * h);
 
 	int r, g, b;
-	/*
-	for (int i = 0; i < w; i++)
-	{
-		for (int j = 0; j < h; j++)
-		{
-
-			int x = i; int y = (h - 1) - j;
-			r = location.trailMap[i][j];
-			g = 0;
-			b = 0;
-			if (r > 255) r = 255;
-			if (g > 255) g = 255;
-			if (b > 255) b = 255;
-			img[(x + y * w) * 3 + 2] = (unsigned char)(r);
-			img[(x + y * w) * 3 + 1] = (unsigned char)(g);
-			img[(x + y * w) * 3 + 0] = (unsigned char)(b);
-		}
-	}
-	*/
-	//for (int i = 0; i < 200; i++) {
-	//	for (int j = 0; j < 200; j++) {
-	//		if (true) {
-	//			//img[(i + j * w) * 3 + 0] = 0;
-	//			//img[(i + j * w) * 3 + 1] = 0;
-	//			img[(i + j * w) * 3 + 2] = location.trailMap[i][j] * 10 > 255 ? 255 : location.trailMap[i][j] * 10;
-	//		}
-	//	}
-	//}
-
 	if (!isChangedSettings) {
 		for (int colorOffset = 0; colorOffset < 3; colorOffset++) {
 			for (int i = 0; i < points.size(); i++) {

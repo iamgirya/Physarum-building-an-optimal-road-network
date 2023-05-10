@@ -398,3 +398,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+enc_temp_folder/229f5a98b96c9824a77d3166c1bed745/SlimeMoldSimulation.cpp
+enc_temp_folder/61691127677cb660127ac05f10f8ab81/AgentGraphAnalyser.cpp
+enc_temp_folder/6a8baf1ea52acc6b195dafcf553144fb/SlimeMoldClass.h

@@ -202,15 +202,14 @@ public:
 	ft vertexRange;
 	it minVertexMass;
 	ft minEdgeAngle;
+	// списки смежности
 	vector<vector<it>> graph;
+	// множество точек
 	vector<pair<it, it>> exitPoints;
+	// приоритетность точек
 	vector<it> towns;
-	//лямбда функция нахождения дистанции
-	function<double(pair<it, it>, pair<it, it>)> distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
-	function<double(pair<ft, ft>)> length = [](pair<ft, ft> p) { return sqrt(pow(p.first, 2) + pow(p.second, 2)); };
-	function<pair<it, it>(pair<it, it>, pair<it, it>)> average = [](pair<it, it> i, pair<it, it> j) {return make_pair((i.first + j.first) / 2, (i.second + j.second) / 2); };
 
-	vector<pair<it, it>> makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
+	void makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
 
 	void minimizeGraph();
 
@@ -220,11 +219,16 @@ public:
 
 	ft calculateOmega();
 private:
-	ft minRezultVectorLength = -1;
-
+	// матрица весов
 	vector<vector<ft>> weigthGraph;
+	// матрица величины потока
 	vector<vector<ft>> flowGraph;
+	// индексы точек с не нулевым приоритетом
 	vector<it> townIndexes;
+
+	function<double(pair<it, it>, pair<it, it>)> distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
+	function<double(pair<ft, ft>)> length = [](pair<ft, ft> p) { return sqrt(pow(p.first, 2) + pow(p.second, 2)); };
+	function<pair<it, it>(pair<it, it>, pair<it, it>)> average = [](pair<it, it> i, pair<it, it> j) {return make_pair((i.first + j.first) / 2, (i.second + j.second) / 2); };
 
 	void eraseEdge(int index, int vertex);
 
@@ -234,9 +238,10 @@ private:
 
 	vector<it> checkRomb(int index);
 
+	vector<vector<it>> diikstra(it begin_index);
+
 	void buildFlow();
 
 	void buildWeigth();
 
-	vector<vector<it>> diikstra(it begin_index);
 };
