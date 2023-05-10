@@ -470,6 +470,7 @@ void AgentGraphAnalyser::buildFlow() {
 					cout << 1;
 				}
 				flowGraph[first][second] += waysFlow;
+				flowGraph[second][first] += waysFlow;
 			}
 		}
 	}

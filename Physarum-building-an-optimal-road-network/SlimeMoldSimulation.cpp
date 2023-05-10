@@ -113,9 +113,9 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 
 			count++;
 			timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-			cout << count << endl << timeForOneIteration1 << endl;
+			//cout << count << endl << timeForOneIteration1 << endl;
 			sumTime += timeForOneIteration1;
-			cout << sumTime/count << endl << endl; // 12
+			//cout << sumTime/count << endl; // 12
 
 			shuffle(particles.begin(), particles.end(), g); // 3
 			if (count % 4 == 0) {
@@ -136,7 +136,11 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				auto fds1 = tmp.calculateWeigth();
 				auto fds2 = tmp.calculateDeltaFlow();
 				auto fds3 = tmp.calculateOmega();
+				cout << fds1 << endl;
+				cout << fds2 << endl;
+				cout << fds3 << endl;
 				saveTmp.push_back({ fds1 , fds2 , fds3 });
+				cout << endl;
 			}
 		}
 	}
