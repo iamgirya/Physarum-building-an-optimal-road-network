@@ -244,4 +244,6 @@ private:
 
 	void buildWeigth();
 
+	bool checkConnected();
+
 };

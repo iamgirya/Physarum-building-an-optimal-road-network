@@ -465,10 +465,6 @@ void AgentGraphAnalyser::buildFlow() {
 				first = second;
 				second = ways[i][j][k];
 				
-				//дебаг
-				if (flowGraph[first][second] == -1) {
-					cout << 1;
-				}
 				flowGraph[first][second] += waysFlow;
 				flowGraph[second][first] += waysFlow;
 			}
@@ -564,4 +560,22 @@ ft AgentGraphAnalyser::calculateOmega() {
 	rezult = sqrt(rezult);
 
 	return rezult;
+}
+
+bool AgentGraphAnalyser::checkConnected() {
+	int countVertex = graph.size();
+	vector<bool> visited(graph.size(), false);
+
+	queue<it> q;
+	q.push(0); visited[0] = true;
+	while (q.size()) {
+		it i = q.front(); q.pop();
+		for (it j : graph[i]) {
+			visited[j] = true;
+			q.push(j);
+			countVertex--;
+		}
+	}
+
+	return countVertex == 0;
 }
