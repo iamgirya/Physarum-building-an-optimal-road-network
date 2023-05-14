@@ -177,6 +177,9 @@ public:
 
 	void startSimulation(vector<ft> startPosition);
 
+
+	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings);
+
 private:
 
 	void makeStep();
@@ -191,7 +194,6 @@ private:
 
 	void outputInBmp(bool);
 
-	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings);
 };
 
 //вторая часть
@@ -208,6 +210,8 @@ public:
 	vector<pair<it, it>> exitPoints;
 	// приоритетность точек
 	vector<it> towns;
+	// индексы точек с не нулевым приоритетом
+	vector<it> townIndexes;
 
 	void makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
 
@@ -215,16 +219,23 @@ public:
 
 	ft calculateWeigth();
 
+	ft calculateOverDistance();
+
+	pair<it, it> calculateResistance();
+
 	ft calculateDeltaFlow();
 
 	ft calculateOmega();
+
+	bool checkConnected();
 private:
 	// матрица весов
 	vector<vector<ft>> weigthGraph;
 	// матрица величины потока
 	vector<vector<ft>> flowGraph;
-	// индексы точек с не нулевым приоритетом
-	vector<it> townIndexes;
+	// матрица кратчайших путей между городами
+	vector<vector<vector<it>>> waysGraph;
+	
 
 	function<double(pair<it, it>, pair<it, it>)> distance = [](pair<it, it> i, pair<it, it> j) { return sqrt(pow(i.first - j.first, 2) + pow(i.second - j.second, 2)); };
 	function<double(pair<ft, ft>)> length = [](pair<ft, ft> p) { return sqrt(pow(p.first, 2) + pow(p.second, 2)); };
@@ -238,12 +249,10 @@ private:
 
 	vector<it> checkRomb(int index);
 
-	vector<vector<it>> diikstra(it begin_index);
+	void buildWays();
 
 	void buildFlow();
 
 	void buildWeigth();
-
-	bool checkConnected();
 
 };

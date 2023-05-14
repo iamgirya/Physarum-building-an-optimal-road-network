@@ -346,82 +346,87 @@ void AgentGraphAnalyser::minimizeGraph() {
 	this->exitPoints = newExitPoints;
 }
 
-// алгоритм для begin_index вершины возвращает обратные кратчайшие пути до каждого из townIndexes. Для самой себя или до недостижимой вершины он возвращает пустой путь
-vector<vector<it>> AgentGraphAnalyser::diikstra(it begin_index) {
+// строит граф кратчайших путей для каждого из townIndexes. Для каждого i и j хранится кратчайший между ними путь. Для самой себя или до недостижимой вершины он хранит пустой путь
+void AgentGraphAnalyser::buildWays() {
+	waysGraph.clear();
 	if (weigthGraph.empty()) {
 		buildWeigth();
 	}
 
+	vector<vector<vector<it>>> ways;
 	const it MAXIT = INT_MAX;
 	it SIZE = graph.size();
+	for (it begin_index : townIndexes) {
+		vector<vector<it>> way;
 
-	// минимальное расстояние. Массив и очередь вместе нужны для оптимизации алгоритма. В очередь записываем отрицательные значения
-	vector<ft> d(SIZE, MAXIT); d[begin_index] = 0;
-	priority_queue<pair<ft, it>> q; q.push(make_pair(-0, begin_index));
-	// посещенные вершины
-	vector<it> visited(SIZE, 0);
-	// число - это индекс вершины, откуда идёт путь. Для начальной вершины число равно -1
-	vector<it> prevVertex(SIZE, -1);
+		// минимальное расстояние. Массив и очередь вместе нужны для оптимизации алгоритма. В очередь записываем отрицательные значения
+		vector<ft> d(SIZE, MAXIT); d[begin_index] = 0;
+		priority_queue<pair<ft, it>> q; q.push(make_pair(-0, begin_index));
+		// посещенные вершины
+		vector<it> visited(SIZE, 0);
+		// число - это индекс вершины, откуда идёт путь. Для начальной вершины число равно -1
+		vector<it> prevVertex(SIZE, -1);
 
-	it minIndex, min;
-	pair<ft, it> tmp;
-	// TODO оптимизировать как-то с использованием городов
-	// Шаг алгоритма
-	do {
-		// берём вершину, к которой меньше всего топать и которую мы ещё не смотрели
+		it minIndex, min;
+		pair<ft, it> tmp;
+		// TODO оптимизировать как-то с использованием городов
+		// Шаг алгоритма
 		do {
-			if (!q.empty()) {
-				tmp = q.top(); q.pop();
-			}
-			else {
-				goto endAlgo;
-			}
-		} while (visited[tmp.second]);
-		min = -tmp.first;
-		minIndex = tmp.second;
-		// для всех смежных
-		for (int i : graph[minIndex])
-		{
-
-			if (!visited[i] && weigthGraph[minIndex][i] > 0) // если -1, то ребра нет
+			// берём вершину, к которой меньше всего топать и которую мы ещё не смотрели
+			do {
+				if (!q.empty()) {
+					tmp = q.top(); q.pop();
+				}
+				else {
+					goto endAlgo;
+				}
+			} while (visited[tmp.second]);
+			min = -tmp.first;
+			minIndex = tmp.second;
+			// для всех смежных
+			for (int i : graph[minIndex])
 			{
-				// если из этой вершины меньше топать в смежную, то перестраиваем путь
-				ft tmp = min + weigthGraph[minIndex][i];
-				if (tmp < d[i])
-				{
-					d[i] = tmp;
-					q.push(make_pair(-d[i], i));
 
-					prevVertex[i] = minIndex;
+				if (!visited[i] && weigthGraph[minIndex][i] > 0) // если -1, то ребра нет
+				{
+					// если из этой вершины меньше топать в смежную, то перестраиваем путь
+					ft tmp = min + weigthGraph[minIndex][i];
+					if (tmp < d[i])
+					{
+						d[i] = tmp;
+						q.push(make_pair(-d[i], i));
+
+						prevVertex[i] = minIndex;
+					}
 				}
 			}
-		}
-		// притопали в вершину
-		visited[minIndex] = 1;
-	} while (true); // выход через очередь
-endAlgo:
+			// притопали в вершину
+			visited[minIndex] = 1;
+		} while (true); // выход через очередь
+	endAlgo:
 
-	vector<vector<it>> reversePath;
-	for (int i : townIndexes) {
+		for (int i : townIndexes) {
 
-		// путь начинается в самой вершине
-		vector<it> tmp = vector<it>(); tmp.push_back(i);
-		int nowIndex = prevVertex[i];
+			// путь начинается в самой вершине
+			vector<it> tmp = vector<it>(); tmp.push_back(i);
+			int nowIndex = prevVertex[i];
 
-		// если пути нет, то предыдущая вершина -1
-		if (nowIndex == -1) {
-			reversePath.push_back(vector<it>());
-			continue;
+			// если пути нет, то предыдущая вершина -1
+			if (nowIndex == -1) {
+				way.push_back(vector<it>());
+				continue;
+			}
+			while (nowIndex != -1) {
+				// если это была не последняя вершина, то добавляем индекс предыдущей
+				tmp.push_back(nowIndex);
+				nowIndex = prevVertex[nowIndex];
+			}
+			way.push_back(tmp);
 		}
-		while (nowIndex != -1) {
-			// если это была не последняя вершина, то добавляем индекс предыдущей
-			tmp.push_back(nowIndex);
-			nowIndex = prevVertex[nowIndex];
-		}
-		reversePath.push_back(tmp);
+
+		ways.push_back(way);
 	}
-
-	return reversePath;
+	this->waysGraph = ways;
 }
 
 // Для каждой пары генераторов находим кратчайший маршрут между ними
@@ -429,11 +434,8 @@ endAlgo:
 // Для каждого маршрута проходимся по нему и добавляем поток между данными генераторами
 void AgentGraphAnalyser::buildFlow() {
 	this->flowGraph.clear();
-	
-	// вектор, в котором i,j вектор - это обратный кратчайший путь от города i и j
-	vector<vector<vector<it>>> ways;
-	for (it i : townIndexes) {
-		ways.push_back(diikstra(i));
+	if (waysGraph.empty()) {
+		buildWays();
 	}
 
 	// дополнение к weigthGraph, чтобы не делать граф с парами
@@ -449,21 +451,21 @@ void AgentGraphAnalyser::buildFlow() {
 		sumOfPriority += towns[i];
 	}
 
-	for (int i = 0; i < ways.size(); i++) {
+	for (int i = 0; i < waysGraph.size(); i++) {
 		// проходимся лишь по одной копии пути
-		for (int j = i+1; j < ways[i].size(); j++) {
-			if (ways[i][j].empty()) {
+		for (int j = i+1; j < waysGraph[i].size(); j++) {
+			if (waysGraph[i][j].empty()) {
 				continue;
 			}
 
 			it first;
-			it second = ways[i][j][0];
+			it second = waysGraph[i][j][0];
 			
 			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority - towns[townIndexes[i]]);// поток из i в j
 			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority - towns[townIndexes[j]]);// поток обратно
-			for (int k = 1; k < ways[i][j].size(); k++) {
+			for (int k = 1; k < waysGraph[i][j].size(); k++) {
 				first = second;
-				second = ways[i][j][k];
+				second = waysGraph[i][j][k];
 				
 				flowGraph[first][second] += waysFlow;
 				flowGraph[second][first] += waysFlow;
@@ -488,10 +490,17 @@ void AgentGraphAnalyser::buildWeigth() {
 	this->weigthGraph = weigthGraph;
 }
 
-// Сумма веса всех рёбер
+// Вычисляет значение на сколько много длины дорог использовано в графе, где 1 - все, а 0 - ничего
 ft AgentGraphAnalyser::calculateWeigth() {
 	if (weigthGraph.empty()) {
 		buildWeigth();
+	}
+
+	ft maxWeigth = 0;
+	for (int i = 0; i < townIndexes.size(); i++) {
+		for (int j = i+1; j < townIndexes.size(); j++) {
+			maxWeigth += distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
+		}
 	}
 
 	ft rezult = 0;
@@ -502,10 +511,54 @@ ft AgentGraphAnalyser::calculateWeigth() {
 			}
 		}
 	}
-	return rezult;
+	rezult /= maxWeigth;
+
+	return rezult;;
 }
 
-// Разница сумм потока и приоритетов
+// вычисляет во сколько раз в среднем пути стали длиннее, в сравнении с полным графом
+ft AgentGraphAnalyser::calculateOverDistance() {
+	if (waysGraph.empty()) {
+		buildWays();
+	}
+
+	ft waysCount = 0; ft overMult = 0;
+	for (int i = 0; i < waysGraph.size(); i++) {
+		// проходимся лишь по одной копии пути
+		for (int j = i + 1; j < waysGraph[i].size(); j++) {
+			if (waysGraph[i][j].empty()) {
+				continue;
+			}
+			ft minDistance = distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
+			ft nowDistance = 0;
+
+			it first;
+			it second = waysGraph[i][j][0];
+			for (int k = 1; k < waysGraph[i][j].size(); k++) {
+				first = second;
+				second = waysGraph[i][j][k];
+
+				townIndexes[i] += weigthGraph[first][second];
+			}
+
+			waysCount++;
+			// debug
+			if (nowDistance < minDistance) {
+				cout << 1;
+			}
+			overMult += nowDistance / minDistance;
+		}
+	}
+	overMult /= waysCount;
+	
+	return overMult;
+}
+
+pair<it, it> AgentGraphAnalyser::calculateResistance() {
+	return make_pair(0, 0);
+}
+
+// Частное сумм потока и приоритетов
 ft AgentGraphAnalyser::calculateDeltaFlow() {
 	if (flowGraph.empty()) {
 		buildFlow();
@@ -525,7 +578,7 @@ ft AgentGraphAnalyser::calculateDeltaFlow() {
 		}
 	}
 
-	ft rezult = sumOfFlow - sumOfPriority;
+	ft rezult = sumOfFlow / sumOfPriority;
 	return rezult;
 }
 
@@ -563,7 +616,7 @@ ft AgentGraphAnalyser::calculateOmega() {
 }
 
 bool AgentGraphAnalyser::checkConnected() {
-	int countVertex = graph.size();
+	int countVertex = graph.size() -1;
 	vector<bool> visited(graph.size(), false);
 
 	queue<it> q;
@@ -571,9 +624,11 @@ bool AgentGraphAnalyser::checkConnected() {
 	while (q.size()) {
 		it i = q.front(); q.pop();
 		for (it j : graph[i]) {
-			visited[j] = true;
-			q.push(j);
-			countVertex--;
+			if (!visited[j]) {
+				visited[j] = true;
+				q.push(j);
+				countVertex--;
+			}
 		}
 	}
 

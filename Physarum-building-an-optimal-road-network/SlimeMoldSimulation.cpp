@@ -127,20 +127,22 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				auto tmp = AgentGraphAnalyser();
 				tmp.edgesRange = 16;
 				tmp.vertexRange = 8;
-				tmp.minVertexMass = 8;
+				tmp.minVertexMass = 4;
 				tmp.minEdgeAngle = 15;
 				tmp.makeGraph(particles, location.generators);
 				outputInBmpGraph(tmp.exitPoints, tmp.graph, false);
 				tmp.minimizeGraph();
 				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
-				auto fds1 = tmp.calculateWeigth();
-				auto fds2 = tmp.calculateDeltaFlow();
-				auto fds3 = tmp.calculateOmega();
-				cout << fds1 << endl;
-				cout << fds2 << endl;
-				cout << fds3 << endl;
-				saveTmp.push_back({ fds1 , fds2 , fds3 });
-				cout << endl;
+				if (tmp.checkConnected()) {
+					auto fds1 = tmp.calculateWeigth();
+					auto fds2 = tmp.calculateDeltaFlow();
+					auto fds3 = tmp.calculateOmega();
+					cout << fds1 << endl;
+					cout << fds2 << endl;
+					cout << fds3 << endl;
+					saveTmp.push_back({ fds1 , fds2 , fds3 });
+					cout << endl;
+				}
 			}
 		}
 	}
