@@ -136,11 +136,14 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				if (tmp.checkConnected()) {
 					auto fds1 = tmp.calculateWeigth();
 					auto fds2 = tmp.calculateDeltaFlow();
-					auto fds3 = tmp.calculateOmega();
+					auto fds3 = tmp.calculateOverDistance();
+					auto fds4 = tmp.calculateResistance();
 					cout << fds1 << endl;
 					cout << fds2 << endl;
 					cout << fds3 << endl;
-					saveTmp.push_back({ fds1 , fds2 , fds3 });
+					cout << fds4.first << endl;
+					cout << fds4.second << endl;
+					saveTmp.push_back({ fds1 , fds2 , fds3, ft(fds4.first), ft(fds4.second) });
 					cout << endl;
 				}
 			}

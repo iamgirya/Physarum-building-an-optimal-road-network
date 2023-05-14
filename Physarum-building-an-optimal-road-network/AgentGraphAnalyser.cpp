@@ -527,9 +527,6 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 	for (int i = 0; i < waysGraph.size(); i++) {
 		// проходимс€ лишь по одной копии пути
 		for (int j = i + 1; j < waysGraph[i].size(); j++) {
-			if (waysGraph[i][j].empty()) {
-				continue;
-			}
 			ft minDistance = distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
 			ft nowDistance = 0;
 
@@ -539,14 +536,10 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 				first = second;
 				second = waysGraph[i][j][k];
 
-				townIndexes[i] += weigthGraph[first][second];
+				nowDistance += weigthGraph[first][second];
 			}
 
 			waysCount++;
-			// debug
-			if (nowDistance < minDistance) {
-				cout << 1;
-			}
 			overMult += nowDistance / minDistance;
 		}
 	}
@@ -555,11 +548,60 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 	return overMult;
 }
 
+// находит количество мостов и максимально длинный цикл - самые стрессоопасные элементы графа
 pair<it, it> AgentGraphAnalyser::calculateResistance() {
-	return make_pair(0, 0);
+	it bridgeCount = 0;
+	it maxCycle = 0;
+	// выбираем все возможные рЄбра. ”дал€ем это ребро и пытаетс€ найти путь из i в j. ≈сли путь можно найти, то получаетс€, что мы имеем цикл, иначе мост
+	for (int i = 0; i < graph.size(); i++) {
+		for (it j : graph[i]) {
+			if (i >= j) {
+				continue;
+			}
+			vector<int> visited(graph.size(), 0); visited[i] = 1;
+			queue<pair<it, it>> vertex;
+			// заранее проходимс€ по всем рЄбрам из i, чтобы исключить условие на проверку ребра i j
+			for (it k : graph[i]) {
+				if (k != j) {
+					vertex.push(make_pair(k, 1)); visited[k] = 1;
+				}
+			}
+			
+			// длину можно вычислить без полного перебора с помощью жадности прохода в ширину
+			it index;
+			it size;
+			while (vertex.size()) {
+				index = vertex.front().first;
+				size = vertex.front().second; vertex.pop();
+				
+				for (it k : graph[index]) {
+					if (k == j) {
+						visited[j] = 1;
+						goto endWhile;
+					}
+					if (!visited[k]) {
+						vertex.push(make_pair(k, size + 1));
+						visited[k] = 1;
+					}
+				}
+			}
+			endWhile:
+			// если смогли прийти в j вершину, значит есть цикл
+			if (visited[j]) {
+				maxCycle = max(maxCycle, size + 1);
+			}
+			// иначе граф уже не св€зный и значит i j - мост
+			else {
+				bridgeCount++;
+			}
+		}
+	}
+
+	// добавл€ем +1 потому, что мы считали циклы без 1 ребра
+	return make_pair(bridgeCount, maxCycle+1);
 }
 
-// „астное сумм потока и приоритетов
+// „астное сумм потока и приоритетов. ¬о сколько раз поток выше, чем минимальный
 ft AgentGraphAnalyser::calculateDeltaFlow() {
 	if (flowGraph.empty()) {
 		buildFlow();

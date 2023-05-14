@@ -43,8 +43,8 @@ int main()
 	tmp.graph[6].push_back(7);
 	tmp.graph[7].push_back(8);
 	tmp.graph[8].push_back(9);
-	tmp.graph[9].push_back(1);
-	tmp.graph[9].push_back(3);
+	tmp.graph[1].push_back(9);
+	tmp.graph[3].push_back(9);
 	tmp.graph[9].push_back(10);
 	tmp.graph[10].push_back(11);
 	tmp.graph[7].push_back(11);
@@ -63,7 +63,9 @@ int main()
 	tmp.graph[22].push_back(23);
 	for (int i = 0; i < tmp.graph.size(); i++) {
 		for (it j : tmp.graph[i]) {
-			tmp.graph[j].push_back(i);
+			if (i < j) {
+				tmp.graph[j].push_back(i);
+			}
 		}
 		tmp.towns.push_back(2);
 		tmp.townIndexes.push_back(i);
@@ -80,7 +82,9 @@ int main()
 
 	cout << tmp.calculateWeigth() << endl;
 	cout << tmp.calculateDeltaFlow() << endl;
-	cout << tmp.calculateOmega() << endl;
+	cout << tmp.calculateOverDistance() << endl;
+	cout << tmp.calculateResistance().first << endl;
+	cout << tmp.calculateResistance().second << endl;
 	cout << endl;
 	sim.outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
 
