@@ -513,6 +513,7 @@ ft AgentGraphAnalyser::calculateWeigth() {
 	}
 	rezult /= maxWeigth;
 
+
 	return rezult;;
 }
 
