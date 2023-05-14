@@ -490,16 +490,33 @@ void AgentGraphAnalyser::buildWeigth() {
 	this->weigthGraph = weigthGraph;
 }
 
-// ¬ычисл€ет значение на сколько много длины дорог использовано в графе, где 1 - все, а 0 - ничего
+// ¬ычисл€ет значение во сколько раз длина дорог превышает минимально возможную
 ft AgentGraphAnalyser::calculateWeigth() {
 	if (weigthGraph.empty()) {
 		buildWeigth();
 	}
 
-	ft maxWeigth = 0;
-	for (int i = 0; i < townIndexes.size(); i++) {
-		for (int j = i+1; j < townIndexes.size(); j++) {
-			maxWeigth += distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
+	ft minWeigth = 0;
+	// первое число - длина ребра, второе - вершина, куда идЄт ребро
+	priority_queue<pair<ft, it>> edges;
+	vector<int> visited(townIndexes.size(), 0); visited[0] = 1;
+	for (it i = 1; i < townIndexes.size(); i++) {
+		edges.push(make_pair(-distance(exitPoints[townIndexes[0]], exitPoints[townIndexes[i]]), i));
+	}
+	int countOfVertex = townIndexes.size()-1;
+	while (countOfVertex) {
+		auto edge = edges.top(); edges.pop();
+		if (visited[edge.second]) {
+			continue;
+		}
+		minWeigth -= edge.first;
+		countOfVertex--;
+		visited[edge.second] = 1;
+		// фу так делать через for
+		for (it i = 1; i < townIndexes.size(); i++) {
+			if (!visited[i]) {
+				edges.push(make_pair(-distance(exitPoints[townIndexes[edge.second]], exitPoints[townIndexes[i]]), i));
+			}
 		}
 	}
 
@@ -511,7 +528,7 @@ ft AgentGraphAnalyser::calculateWeigth() {
 			}
 		}
 	}
-	rezult /= maxWeigth;
+	rezult /= minWeigth;
 
 
 	return rezult;;
