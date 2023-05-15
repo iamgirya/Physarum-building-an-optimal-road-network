@@ -95,9 +95,9 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 	this->location.isCanMultiAgent = isCanMultiAgent;
 }
 
-vector<vector<ft>> saveTmp;
 vector<vector<ft>> savicc;
 bool isFirst = true;
+int saveNumber = 0;
 
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 	if (updateSettingsFromFile(true)) {
@@ -120,7 +120,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 			//cout << sumTime/count << endl; // 12
 
 			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 4 == 0) {
+			if (count % 100 == 0) {
 				bool isUpdated = updateSettingsFromFile(false);
 				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
 			}
@@ -132,16 +132,16 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				tmp.minVertexMass = 4;
 				tmp.minEdgeAngle = 15;
 				tmp.makeGraph(particles, location.generators);
-				outputInBmpGraph(tmp.exitPoints, tmp.graph, false);
+				outputInBmpGraph(tmp.exitPoints, tmp.graph, false, -1);
 				tmp.minimizeGraph();
-				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
+				outputInBmpGraph(tmp.exitPoints, tmp.graph, true, -1);
 				if (isFirst) {
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999 });
 					isFirst = false;
 				}
 				if (tmp.checkConnected()) {
@@ -149,7 +149,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 					auto fds2 = tmp.calculateDeltaFlow();
 					auto fds3 = tmp.calculateOverDistance();
 					auto fds4 = tmp.calculateResistance();
-					vector <ft> fds = {fds1, fds2, fds3, ft(fds4.first), ft(fds4.second), };
+					vector <ft> fds = {fds1, fds2, fds3, fds4 };
 					
 					for (int yui = 0; yui < fds.size(); yui++) {
 						if (fds[yui] < savicc[yui][yui]) {
@@ -157,38 +157,48 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 							savicc[yui][1] = fds[1];
 							savicc[yui][2] = fds[2];
 							savicc[yui][3] = fds[3];
-							savicc[yui][4] = fds[4];
 						
 							cout << yui << endl;
 							cout << fds1 << endl;
 							cout << fds2 << endl;
 							cout << fds3 << endl;
-							cout << fds4.first << endl;
-							cout << fds4.second << endl;
+							cout << fds4 << endl;
 							cout << endl;
 						}
 					}
 
-					if (fds[0] * fds[1] * fds[2] < savicc[5][0] * savicc[5][1] * savicc[5][2]) {
-						int yui = 5;
+					if (fds[0] * fds[1] * fds[2] < savicc[4][0] * savicc[4][1] * savicc[4][2]) {
+						int yui = 4;
 						savicc[yui][0] = fds[0];
 						savicc[yui][1] = fds[1];
 						savicc[yui][2] = fds[2];
 						savicc[yui][3] = fds[3];
-						savicc[yui][4] = fds[4];
 
 						cout << yui << endl;
 						cout << fds1 << endl;
 						cout << fds2 << endl;
 						cout << fds3 << endl;
-						cout << fds4.first << endl;
-						cout << fds4.second << endl;
+						cout << fds4 << endl;
 						cout << endl;
+
+						outputInBmpGraph(tmp.exitPoints, tmp.graph, true, yui);
 					}
-					
-					
-					saveTmp.push_back({ fds1 , fds2 , fds3, ft(fds4.first), ft(fds4.second) });
-					
+					if (fds[0] * fds[1] * fds[2] * fds[3] < savicc[5][0] * savicc[5][1] * savicc[5][2] * savicc[5][3]) {
+						int yui = 5;
+						savicc[yui][0] = fds[0];
+						savicc[yui][1] = fds[1];
+						savicc[yui][2] = fds[2];
+						savicc[yui][3] = fds[3];
+
+						cout << yui << endl;
+						cout << fds1 << endl;
+						cout << fds2 << endl;
+						cout << fds3 << endl;
+						cout << fds4 << endl;
+						cout << endl;
+
+						outputInBmpGraph(tmp.exitPoints, tmp.graph, true, yui);
+					}
 				}
 			}
 		}

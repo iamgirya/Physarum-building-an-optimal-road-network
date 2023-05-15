@@ -83,10 +83,9 @@ int main()
 	cout << tmp.calculateWeigth() << endl;
 	cout << tmp.calculateDeltaFlow() << endl;
 	cout << tmp.calculateOverDistance() << endl;
-	cout << tmp.calculateResistance().first << endl;
-	cout << tmp.calculateResistance().second << endl;
+	cout << tmp.calculateResistance() << endl;
 	cout << endl;
-	sim.outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
+	sim.outputInBmpGraph(tmp.exitPoints, tmp.graph, true, -1);
 
 	sim.startSimulation({ 45.5, 45.5 });
 }

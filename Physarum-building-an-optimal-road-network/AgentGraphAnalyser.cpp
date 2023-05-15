@@ -540,12 +540,20 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 		buildWays();
 	}
 
+	ft sumOfPriority = 0;
+	for (int i = 0; i < towns.size(); i++) {
+		sumOfPriority += towns[i];
+	}
+
 	ft waysCount = 0; ft overMult = 0;
 	for (int i = 0; i < waysGraph.size(); i++) {
 		// проходимся лишь по одной копии пути
 		for (int j = i + 1; j < waysGraph[i].size(); j++) {
 			ft minDistance = distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
 			ft nowDistance = 0;
+
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority - towns[townIndexes[i]]);// поток из i в j
+			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority - towns[townIndexes[j]]);// поток обратно
 
 			it first;
 			it second = waysGraph[i][j][0];
@@ -557,30 +565,40 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 			}
 
 			waysCount++;
-			overMult += nowDistance / minDistance;
+			overMult += nowDistance * waysFlow / minDistance;
 		}
 	}
-	overMult /= waysCount;
+	overMult /= sumOfPriority;
 	
 	return overMult;
 }
 
 // находит количество мостов и максимально длинный цикл - самые стрессоопасные элементы графа
-pair<it, it> AgentGraphAnalyser::calculateResistance() {
+ft AgentGraphAnalyser::calculateResistance() {
 	it bridgeCount = 0;
 	it maxCycle = 0;
+	vector<int> stressed(graph.size(), 0);
+	
+	ft sumOfPriority = 0;
+	for (int i = 0; i < towns.size(); i++) {
+		sumOfPriority += towns[i];
+	}
+
 	// выбираем все возможные рёбра. Удаляем это ребро и пытается найти путь из i в j. Если путь можно найти, то получается, что мы имеем цикл, иначе мост
 	for (int i = 0; i < graph.size(); i++) {
 		for (it j : graph[i]) {
 			if (i >= j) {
 				continue;
 			}
+			ft nowSum = sumOfPriority - towns[i];
 			vector<int> visited(graph.size(), 0); visited[i] = 1;
 			queue<pair<it, it>> vertex;
 			// заранее проходимся по всем рёбрам из i, чтобы исключить условие на проверку ребра i j
 			for (it k : graph[i]) {
 				if (k != j) {
-					vertex.push(make_pair(k, 1)); visited[k] = 1;
+					vertex.push(make_pair(k, 1));
+					visited[k] = 1;
+					nowSum -= towns[k];
 				}
 			}
 			
@@ -599,6 +617,7 @@ pair<it, it> AgentGraphAnalyser::calculateResistance() {
 					if (!visited[k]) {
 						vertex.push(make_pair(k, size + 1));
 						visited[k] = 1;
+						nowSum -= towns[k];
 					}
 				}
 			}
@@ -609,13 +628,27 @@ pair<it, it> AgentGraphAnalyser::calculateResistance() {
 			}
 			// иначе граф уже не связный и значит i j - мост
 			else {
-				bridgeCount++;
+				// если мы прошли меньшую часть из компонент связностей, то все посещённые вершины считаем в зоне риска, иначе все непосещённые
+				bool smallerPart = nowSum > sumOfPriority / 2;
+				for (int k = 0; k < visited.size(); k++) {
+					if (smallerPart == visited[k]) {
+						stressed[k] = 1;
+					}
+				}
+				
 			}
 		}
 	}
 
-	// добавляем +1 потому, что мы считали циклы без 1 ребра
-	return make_pair(bridgeCount, maxCycle+1);
+	ft sumOfStressedPriority = 0;
+	for (int i = 0; i < towns.size(); i++) {
+		if (stressed[i]) {
+			sumOfStressedPriority += towns[i];
+		}
+	}
+
+	// добавляем +1 потому, что все метрики больше 1
+	return 1+ sumOfStressedPriority/sumOfPriority;
 }
 
 // т.к. нам интересует только то, чобы сеть _могла_ работать ещё долгое время без дополнительных путей, то среди потока нас интересует лишь

@@ -178,7 +178,7 @@ public:
 	void startSimulation(vector<ft> startPosition);
 
 
-	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings);
+	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings, int number);
 
 private:
 
@@ -221,7 +221,7 @@ public:
 
 	ft calculateOverDistance();
 
-	pair<it, it> calculateResistance();
+	ft calculateResistance();
 
 	ft calculateDeltaFlow();
 
