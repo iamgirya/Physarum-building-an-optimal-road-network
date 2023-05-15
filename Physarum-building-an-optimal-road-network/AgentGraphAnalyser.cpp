@@ -31,7 +31,7 @@ bool AgentGraphAnalyser::canConnectEdges(int i) {
 	return tmpLength <= minRezultVectorLength;
 }
 
-vector<it> AgentGraphAnalyser::checkRomb(int index) {
+vector<it> AgentGraphAnalyser::checkRect(int index) {
 	if (graph[index].size() <= 2) {
 		return vector<it>();
 	}
@@ -58,7 +58,6 @@ vector<it> AgentGraphAnalyser::checkRomb(int index) {
 	return vector<it>();
 }
 
-//преобразует множество точек в нормальный граф
 void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	// TODO можно избавиться от такой вложенности пар с помощью ещё одного вектора
@@ -152,11 +151,6 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 	this->exitPoints = exitPoints;
 }
 
-// Решает 4 проблемы артефактов:
-// одинокие - вершины с 1 ребром или без них;
-// ломаные - линия, разбитая на несколько ребёр, что нужно соединить в одно;
-// треугольники - вершина, что соединена только с двумя вершинами, что уже соединены;
-// ромбы - четыре вершины, которые вместе образуют четырёх угольник.
 void AgentGraphAnalyser::minimizeGraph() {
 	// если нужно что-то удалить, то запоминаем номер
 	vector<it> vertexToDelete;
@@ -217,7 +211,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 			// ромб, Причём i-я вершина может быть городом
 			{
 				
-				vector<it> rombVertex = checkRomb(i);
+				vector<it> rombVertex = checkRect(i);
 				if (!rombVertex.empty()) {
 					// если обе диалогнали есть
 					if (findEdge(i, rombVertex[2])) {
@@ -346,7 +340,6 @@ void AgentGraphAnalyser::minimizeGraph() {
 	this->exitPoints = newExitPoints;
 }
 
-// строит граф кратчайших путей для каждого из townIndexes. Для каждого i и j хранится кратчайший между ними путь. Для самой себя или до недостижимой вершины он хранит пустой путь
 void AgentGraphAnalyser::buildWays() {
 	waysGraph.clear();
 	if (weigthGraph.empty()) {
@@ -429,9 +422,6 @@ void AgentGraphAnalyser::buildWays() {
 	this->waysGraph = ways;
 }
 
-// Для каждой пары генераторов находим кратчайший маршрут между ними
-// Пересоздаём таблицу смежности, но с параметром потока.
-// Для каждого маршрута проходимся по нему и добавляем поток между данными генераторами
 void AgentGraphAnalyser::buildFlow() {
 	this->flowGraph.clear();
 	if (waysGraph.empty()) {
@@ -446,11 +436,6 @@ void AgentGraphAnalyser::buildFlow() {
 		}
 	}
 
-	ft sumOfPriority = 0;
-	for (int i = 0; i < towns.size(); i++) {
-		sumOfPriority += towns[i];
-	}
-
 	for (int i = 0; i < waysGraph.size(); i++) {
 		// проходимся лишь по одной копии пути
 		for (int j = i+1; j < waysGraph[i].size(); j++) {
@@ -461,8 +446,8 @@ void AgentGraphAnalyser::buildFlow() {
 			it first;
 			it second = waysGraph[i][j][0];
 			
-			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority - towns[townIndexes[i]]);// поток из i в j
-			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority - towns[townIndexes[j]]);// поток обратно
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// поток из i в j
+			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority() - towns[townIndexes[j]]);// поток обратно
 			for (int k = 1; k < waysGraph[i][j].size(); k++) {
 				first = second;
 				second = waysGraph[i][j][k];
@@ -476,7 +461,6 @@ void AgentGraphAnalyser::buildFlow() {
 	this->flowGraph = flowGraph;
 }
 
-// Создаём матрицу с весом рёбер, где вес - расстояние между вершинами
 void AgentGraphAnalyser::buildWeigth() {
 	weigthGraph.clear();
 	weigthGraph = vector<vector<ft>>(graph.size(), vector<ft>(graph.size(), -1));
@@ -490,7 +474,6 @@ void AgentGraphAnalyser::buildWeigth() {
 	this->weigthGraph = weigthGraph;
 }
 
-// Вычисляет значение во сколько раз длина дорог превышает минимально возможную
 ft AgentGraphAnalyser::calculateWeigth() {
 	if (weigthGraph.empty()) {
 		buildWeigth();
@@ -534,15 +517,9 @@ ft AgentGraphAnalyser::calculateWeigth() {
 	return result;;
 }
 
-// вычисляет во сколько раз в среднем пути стали длиннее, в сравнении с полным графом
 ft AgentGraphAnalyser::calculateOverDistance() {
 	if (waysGraph.empty()) {
 		buildWays();
-	}
-
-	ft sumOfPriority = 0;
-	for (int i = 0; i < towns.size(); i++) {
-		sumOfPriority += towns[i];
 	}
 
 	ft waysCount = 0; ft overMult = 0;
@@ -552,8 +529,8 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 			ft minDistance = distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
 			ft nowDistance = 0;
 
-			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority - towns[townIndexes[i]]);// поток из i в j
-			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority - towns[townIndexes[j]]);// поток обратно
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// поток из i в j
+			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority() - towns[townIndexes[j]]);// поток обратно
 
 			it first;
 			it second = waysGraph[i][j][0];
@@ -568,21 +545,14 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 			overMult += nowDistance * waysFlow / minDistance;
 		}
 	}
-	overMult /= sumOfPriority;
+	overMult /= sumOfPriority();
 	
 	return overMult;
 }
 
-// находит количество мостов и максимально длинный цикл - самые стрессоопасные элементы графа
 ft AgentGraphAnalyser::calculateResistance() {
-	it bridgeCount = 0;
-	it maxCycle = 0;
+	//it maxCycle = 0;
 	vector<int> stressed(graph.size(), 0);
-	
-	ft sumOfPriority = 0;
-	for (int i = 0; i < towns.size(); i++) {
-		sumOfPriority += towns[i];
-	}
 
 	// выбираем все возможные рёбра. Удаляем это ребро и пытается найти путь из i в j. Если путь можно найти, то получается, что мы имеем цикл, иначе мост
 	for (int i = 0; i < graph.size(); i++) {
@@ -590,7 +560,7 @@ ft AgentGraphAnalyser::calculateResistance() {
 			if (i >= j) {
 				continue;
 			}
-			ft nowSum = sumOfPriority - towns[i];
+			ft nowSum = sumOfPriority() - towns[i];
 			vector<int> visited(graph.size(), 0); visited[i] = 1;
 			queue<pair<it, it>> vertex;
 			// заранее проходимся по всем рёбрам из i, чтобы исключить условие на проверку ребра i j
@@ -601,8 +571,7 @@ ft AgentGraphAnalyser::calculateResistance() {
 					nowSum -= towns[k];
 				}
 			}
-			
-			// длину можно вычислить без полного перебора с помощью жадности прохода в ширину
+
 			it index;
 			it size;
 			while (vertex.size()) {
@@ -610,10 +579,10 @@ ft AgentGraphAnalyser::calculateResistance() {
 				size = vertex.front().second; vertex.pop();
 				
 				for (it k : graph[index]) {
-					if (k == j) {
+					/*if (k == j) {
 						visited[j] = 1;
-						goto endWhile;
-					}
+						goto endwhile;
+					}*/
 					if (!visited[k]) {
 						vertex.push(make_pair(k, size + 1));
 						visited[k] = 1;
@@ -621,21 +590,31 @@ ft AgentGraphAnalyser::calculateResistance() {
 					}
 				}
 			}
-			endWhile:
-			// если смогли прийти в j вершину, значит есть цикл
-			if (visited[j]) {
-				maxCycle = max(maxCycle, size + 1);
+			//endWhile:
+
+			bool isConnected = true;
+			for (int k = 0; k < graph.size(); k++) {
+				if (!visited[k]) {
+					isConnected = false;
+					break;
+				}
 			}
-			// иначе граф уже не связный и значит i j - мост
-			else {
+			//// если смогли прийти в j вершину, значит есть цикл
+			//if (visited[j]) {
+			//	maxCycle = max(maxCycle, size + 1);
+			//}
+			//// иначе граф уже не связный и значит i j - мост
+			//else
+
+			if (!isConnected)
+			{
 				// если мы прошли меньшую часть из компонент связностей, то все посещённые вершины считаем в зоне риска, иначе все непосещённые
-				bool smallerPart = nowSum > sumOfPriority / 2;
+				bool smallerPart = nowSum > sumOfPriority() / 2;
 				for (int k = 0; k < visited.size(); k++) {
 					if (smallerPart == visited[k]) {
 						stressed[k] = 1;
 					}
 				}
-				
 			}
 		}
 	}
@@ -648,12 +627,9 @@ ft AgentGraphAnalyser::calculateResistance() {
 	}
 
 	// добавляем +1 потому, что все метрики больше 1
-	return 1+ sumOfStressedPriority/sumOfPriority;
+	return 1 + sumOfStressedPriority/ sumOfPriority();
 }
 
-// т.к. нам интересует только то, чобы сеть _могла_ работать ещё долгое время без дополнительных путей, то среди потока нас интересует лишь
-// одно число - максимальный поток на одном из рёбер. Ибо в случае роста потоков, скорее всего, это ребро будет главной проблемой
-// Так что мы вычисляем максимум потока для ребра полного графа и этим числов делим максимум потока нынешнего графа.
 ft AgentGraphAnalyser::calculateDeltaFlow() {
 	if (flowGraph.empty()) {
 		buildFlow();
@@ -687,50 +663,17 @@ ft AgentGraphAnalyser::calculateDeltaFlow() {
 	return result;
 }
 
-// Суммируем весь поток и делим на количество рёбер.
-// Проходимся по каждому ребру и вычисляем квадрат разницы его потока и значения выше, суммируем и находим корень
-ft AgentGraphAnalyser::calculateOmega() {
-	if (flowGraph.empty()) {
-		buildFlow();
-	}
-
-	ft countOfEdge = 0;
-	ft sumOfFlow = 0;
-	for (int i = 0; i < graph.size(); i++) {
-		for (int j : graph[i]) {
-			if (i < j) {
-				sumOfFlow += flowGraph[i][j];
-				countOfEdge++;
-			}
-		}
-	}
-
-	ft averageFlow = sumOfFlow / countOfEdge;
-
-	ft result = 0;
-	for (int i = 0; i < graph.size(); i++) {
-		for (int j : graph[i]) {
-			if (i < j) {
-				result += pow(flowGraph[i][j] - averageFlow, 2);
-			}
-		}
-	}
-	result = sqrt(result);
-
-	return result;
-}
-
 bool AgentGraphAnalyser::checkConnected() {
-	int countVertex = graph.size() -1;
-	vector<bool> visited(graph.size(), false);
+	it countVertex = graph.size() -1;
+	vector<int> visited(graph.size(), 0);
 
 	queue<it> q;
-	q.push(0); visited[0] = true;
+	q.push(0); visited[0] = 1;
 	while (q.size()) {
 		it i = q.front(); q.pop();
 		for (it j : graph[i]) {
 			if (!visited[j]) {
-				visited[j] = true;
+				visited[j] = 1;
 				q.push(j);
 				countVertex--;
 			}
@@ -738,4 +681,14 @@ bool AgentGraphAnalyser::checkConnected() {
 	}
 
 	return countVertex == 0;
+}
+
+ft AgentGraphAnalyser::sumOfPriority() {
+	if (_sumOfPriority == -1) {
+		_sumOfPriority = 0;
+		for (int i = 0; i < towns.size(); i++) {
+			_sumOfPriority += towns[i];
+		}
+	}
+	return _sumOfPriority;
 }
