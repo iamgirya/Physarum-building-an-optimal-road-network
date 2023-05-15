@@ -16,7 +16,9 @@ bool Generator::isNear(vector<it>& position, it team) {
 
 void Generator::push(ft angle) {
 	ft newAngle = angle + (rand() % 2 == 0 ? -1 : 1) * someAngle;
-	generatorsQueue.push(newAngle);
+	if (generatorsQueue.size() < 5000) {
+		generatorsQueue.push(newAngle);
+	}
 }
 
 vector<SlimeAgent*> Generator::generate() {

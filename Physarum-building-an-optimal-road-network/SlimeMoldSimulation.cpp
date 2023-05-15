@@ -152,7 +152,7 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 					vector <ft> fds = {fds1, fds2, fds3, ft(fds4.first), ft(fds4.second), };
 					
 					for (int yui = 0; yui < fds.size(); yui++) {
-						if (fds[yui] < savicc[yui][0]) {
+						if (fds[yui] < savicc[yui][yui]) {
 							savicc[yui][0] = fds[0];
 							savicc[yui][1] = fds[1];
 							savicc[yui][2] = fds[2];
