@@ -35,7 +35,7 @@ vector<it> AgentGraphAnalyser::checkRomb(int index) {
 	if (graph[index].size() <= 2) {
 		return vector<it>();
 	}
-	vector<it> rezult;
+	vector<it> result;
 	for (int i = 0; i < graph[index].size(); i++) {
 		for (int j = i+1; j < graph[index].size(); j++) {
 			it first = graph[index][i];
@@ -46,10 +46,10 @@ vector<it> AgentGraphAnalyser::checkRomb(int index) {
 					// и у этих двух вершин есть смежна€ с ними вершина
 					if (third != index && findEdge(second, third)) {
 						// то это ромб с вершинами index, i, j, k
-						rezult.push_back(first);
-						rezult.push_back(second);
-						rezult.push_back(third);
-						return rezult;
+						result.push_back(first);
+						result.push_back(second);
+						result.push_back(third);
+						return result;
 					}
 				}
 			}
@@ -520,18 +520,18 @@ ft AgentGraphAnalyser::calculateWeigth() {
 		}
 	}
 
-	ft rezult = 0;
+	ft result = 0;
 	for (int i = 0; i < graph.size(); i++) {
 		for (int j : graph[i]) {
 			if (i < j) {
-				rezult += weigthGraph[i][j];
+				result += weigthGraph[i][j];
 			}
 		}
 	}
-	rezult /= minWeigth;
+	result /= minWeigth;
 
 
-	return rezult;;
+	return result;;
 }
 
 // вычисл€ет во сколько раз в среднем пути стали длиннее, в сравнении с полным графом
@@ -618,28 +618,40 @@ pair<it, it> AgentGraphAnalyser::calculateResistance() {
 	return make_pair(bridgeCount, maxCycle+1);
 }
 
-// „астное сумм потока и приоритетов. ¬о сколько раз поток выше, чем минимальный
+// т.к. нам интересует только то, чобы сеть _могла_ работать ещЄ долгое врем€ без дополнительных путей, то среди потока нас интересует лишь
+// одно число - максимальный поток на одном из рЄбер. »бо в случае роста потоков, скорее всего, это ребро будет главной проблемой
+// “ак что мы вычисл€ем максимум потока дл€ ребра полного графа и этим числов делим максимум потока нынешнего графа.
 ft AgentGraphAnalyser::calculateDeltaFlow() {
 	if (flowGraph.empty()) {
 		buildFlow();
 	}
 
-	ft sumOfPriority = 0;
+	ft maxPriority = max(towns[0], towns[1]);
+	ft secondMaxPriority = min(towns[0], towns[1]);
 	for (int i = 0; i < towns.size(); i++) {
-		sumOfPriority += towns[i];
+		if (towns[i] > maxPriority) {
+			secondMaxPriority = maxPriority;
+			maxPriority = towns[i];
+		}
+		else if (towns[i] > secondMaxPriority) {
+			secondMaxPriority = towns[i];
+		}
 	}
+	ft minMaxEdgeFlow = maxPriority + secondMaxPriority;
 
-	ft sumOfFlow = 0;
+	ft maxEdgeFlow = 0;
 	for (int i = 0; i < graph.size(); i++) {
 		for (int j : graph[i]) {
 			if (i < j) {
-				sumOfFlow += flowGraph[i][j];
+				if (flowGraph[i][j] > maxEdgeFlow) {
+					maxEdgeFlow = flowGraph[i][j];
+				}
 			}
 		}
 	}
 
-	ft rezult = sumOfFlow / sumOfPriority;
-	return rezult;
+	ft result = maxEdgeFlow / minMaxEdgeFlow;
+	return result;
 }
 
 // —уммируем весь поток и делим на количество рЄбер.
@@ -662,17 +674,17 @@ ft AgentGraphAnalyser::calculateOmega() {
 
 	ft averageFlow = sumOfFlow / countOfEdge;
 
-	ft rezult = 0;
+	ft result = 0;
 	for (int i = 0; i < graph.size(); i++) {
 		for (int j : graph[i]) {
 			if (i < j) {
-				rezult += pow(flowGraph[i][j] - averageFlow, 2);
+				result += pow(flowGraph[i][j] - averageFlow, 2);
 			}
 		}
 	}
-	rezult = sqrt(rezult);
+	result = sqrt(result);
 
-	return rezult;
+	return result;
 }
 
 bool AgentGraphAnalyser::checkConnected() {

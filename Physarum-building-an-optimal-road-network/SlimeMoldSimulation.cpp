@@ -96,6 +96,8 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 }
 
 vector<vector<ft>> saveTmp;
+vector<vector<ft>> savicc;
+bool isFirst = true;
 
 void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 	if (updateSettingsFromFile(true)) {
@@ -133,18 +135,60 @@ void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
 				outputInBmpGraph(tmp.exitPoints, tmp.graph, false);
 				tmp.minimizeGraph();
 				outputInBmpGraph(tmp.exitPoints, tmp.graph, true);
+				if (isFirst) {
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					savicc.push_back({ 9999, 9999, 9999, 9999, 9999 });
+					isFirst = false;
+				}
 				if (tmp.checkConnected()) {
 					auto fds1 = tmp.calculateWeigth();
 					auto fds2 = tmp.calculateDeltaFlow();
 					auto fds3 = tmp.calculateOverDistance();
 					auto fds4 = tmp.calculateResistance();
-					cout << fds1 << endl;
-					cout << fds2 << endl;
-					cout << fds3 << endl;
-					cout << fds4.first << endl;
-					cout << fds4.second << endl;
+					vector <ft> fds = {fds1, fds2, fds3, ft(fds4.first), ft(fds4.second), };
+					
+					for (int yui = 0; yui < fds.size(); yui++) {
+						if (fds[yui] < savicc[yui][0]) {
+							savicc[yui][0] = fds[0];
+							savicc[yui][1] = fds[1];
+							savicc[yui][2] = fds[2];
+							savicc[yui][3] = fds[3];
+							savicc[yui][4] = fds[4];
+						
+							cout << yui << endl;
+							cout << fds1 << endl;
+							cout << fds2 << endl;
+							cout << fds3 << endl;
+							cout << fds4.first << endl;
+							cout << fds4.second << endl;
+							cout << endl;
+						}
+					}
+
+					if (fds[0] * fds[1] * fds[2] < savicc[5][0] * savicc[5][1] * savicc[5][2]) {
+						int yui = 5;
+						savicc[yui][0] = fds[0];
+						savicc[yui][1] = fds[1];
+						savicc[yui][2] = fds[2];
+						savicc[yui][3] = fds[3];
+						savicc[yui][4] = fds[4];
+
+						cout << yui << endl;
+						cout << fds1 << endl;
+						cout << fds2 << endl;
+						cout << fds3 << endl;
+						cout << fds4.first << endl;
+						cout << fds4.second << endl;
+						cout << endl;
+					}
+					
+					
 					saveTmp.push_back({ fds1 , fds2 , fds3, ft(fds4.first), ft(fds4.second) });
-					cout << endl;
+					
 				}
 			}
 		}

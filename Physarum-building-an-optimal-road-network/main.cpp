@@ -67,10 +67,10 @@ int main()
 				tmp.graph[j].push_back(i);
 			}
 		}
-		tmp.towns.push_back(2);
+		tmp.towns.push_back(3);
 		tmp.townIndexes.push_back(i);
 	}
-	tmp.towns[9] = 5;
+	tmp.towns[9] = 6;
 	tmp.towns[23] = 1;
 	tmp.towns[22] = 1;
 	tmp.towns[19] = 1;
