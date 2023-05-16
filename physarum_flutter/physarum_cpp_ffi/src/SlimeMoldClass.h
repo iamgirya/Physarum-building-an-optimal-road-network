@@ -35,11 +35,6 @@ extern "C" {
     class SlimeMoldSimulation;
     class Location;
     class AgentGraphAnalyser;
-    class FlutterAdapter;
-
-    FFI_PLUGIN_EXPORT int sum(int a, int b);
-
-    FFI_PLUGIN_EXPORT int sum_long_running(int a, int b);
 
     class SlimeAgent {
     public:
@@ -271,11 +266,7 @@ extern "C" {
 
         // Создаём матрицу с весом рёбер, где вес - расстояние между вершинами
         void buildWeigth();
-    };
 
-    class FlutterAdapter {
-    public:
-        vector<vector<it>> execute();
     };
 
     class SlimeMoldSimulation {
@@ -311,4 +302,12 @@ extern "C" {
         void outputInBmp(bool);
 
     };
+
+    //Flutter Adapter part
+
+    FFI_PLUGIN_EXPORT void execute(int a, int b);
+    
+    FFI_PLUGIN_EXPORT int sum(int a, int b);
+
+    FFI_PLUGIN_EXPORT int sum_long_running(int a, int b);
 }

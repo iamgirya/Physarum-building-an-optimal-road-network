@@ -1,7 +1,12 @@
 #include "SlimeMoldClass.h"
 
-// TODO добавить ввод параметров через флаттер. В том числе и параметров анализатора
-vector<vector<it>> FlutterAdapter::execute() {
+FFI_PLUGIN_EXPORT int sum(int a, int b) { return a + b; }
+
+FFI_PLUGIN_EXPORT int sum_long_running(int a, int b) {
+  return a + b + int(PI);
+}
+
+FFI_PLUGIN_EXPORT void execute(int a, int b) {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
 	sim.setUp(80, 0, 6, 45, 45, 1, 3, 1.5, 0, 1);
 	sim.placeGenerators({ 
@@ -57,5 +62,4 @@ vector<vector<it>> FlutterAdapter::execute() {
 		
 
 	sim.startSimulation(1000);
-	return sim.analyser.bestGraph;
 }

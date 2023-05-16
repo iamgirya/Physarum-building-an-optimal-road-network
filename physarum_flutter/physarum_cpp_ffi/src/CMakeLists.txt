@@ -6,8 +6,6 @@ cmake_minimum_required(VERSION 3.10)
 project(physarum_cpp_ffi_library VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(physarum_cpp_ffi SHARED
-  "physarum_cpp_ffi.cpp"
-  
   "AgentGraphAnalyser.cpp"
   "FlutterAdapter.cpp"
   "Generator.cpp"

@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     sumResult = physarum_cpp_ffi.sum(1, 2);
     sumAsyncResult = physarum_cpp_ffi.sumAsync(3, 4);
+    physarum_cpp_ffi.execute(1, 2);
   }
 
   @override
