@@ -1,4 +1,4 @@
-#include "physarum_cpp_ffi.h"
+#include "SlimeMoldClass.h"
 
 // A very short-lived native function.
 //

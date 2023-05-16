@@ -73,10 +73,9 @@ private:
 	const ft addOnGenerator = 5;
 	const ft addOnDeath = -1.8;
 
-	template<typename T>
-	vector<T> vSum(vector<T>& x, vector<T>& y);
-	template<typename T>
-	vector<T> vMult(vector<T>& x, vector<vector<T>>& r);
+	vector<ft> vSum(vector<ft>& x, vector<ft>& y);
+
+	vector<ft> vMult(vector<ft>& x, vector<vector<ft>>& r);
 	// определяет направление поворота
 	it activateSensors();
 	// поворот векторов скорости и сенсоров

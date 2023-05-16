@@ -7,10 +7,19 @@ project(physarum_cpp_ffi_library VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(physarum_cpp_ffi SHARED
   "physarum_cpp_ffi.cpp"
+  
+  "AgentGraphAnalyser.cpp"
+  "FlutterAdapter.cpp"
+  "Generator.cpp"
+  "Location.cpp"
+  "SimulationInOutput.cpp"
+  "SlimeAgent.cpp"
+  "SlimeAgentsFabric.cpp"
+  "SlimeMoldSimulation.cpp"
 )
 
 set_target_properties(physarum_cpp_ffi PROPERTIES
-  PUBLIC_HEADER physarum_cpp_ffi.h
+  PUBLIC_HEADER SlimeMoldClass.h
   OUTPUT_NAME "physarum_cpp_ffi"
 )
 

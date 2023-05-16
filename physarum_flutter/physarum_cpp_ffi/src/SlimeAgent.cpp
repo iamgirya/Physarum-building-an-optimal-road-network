@@ -16,9 +16,9 @@ void SlimeAgent::setUp(ft startAngle, it teamIndex, it timeToLife, vector<ft> po
 	this->teamIndex = teamIndex;
 	this->startAngle = make_pair(startAngle, moveVector);
 }
-//движение
+//РґРІРёР¶РµРЅРёРµ
 void SlimeAgent::moveTurn() {
-	// если движение успешно
+	// РµСЃР»Рё РґРІРёР¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ
 	if (move()) {
 		makeDeposit();
 	}
@@ -27,15 +27,15 @@ void SlimeAgent::moveTurn() {
 	}
 }
 
-//сканирование
+//СЃРєР°РЅРёСЂРѕРІР°РЅРёРµ
 void SlimeAgent::skanTurn() {
-	// -1 - поворот налево, 0 - сохранение направления, 1 - поворот направо
+	// -1 - РїРѕРІРѕСЂРѕС‚ РЅР°Р»РµРІРѕ, 0 - СЃРѕС…СЂР°РЅРµРЅРёРµ РЅР°РїСЂР°РІР»РµРЅРёСЏ, 1 - РїРѕРІРѕСЂРѕС‚ РЅР°РїСЂР°РІРѕ
 	it rotateSide = activateSensors();
 	if (rotateSide != 0) {
 		rotate(rotateSide == 1);
 	}
 }
-// функция хода
+// С„СѓРЅРєС†РёСЏ С…РѕРґР°
 void SlimeAgent::makeFullTurn() {
 	moveTurn();
 	skanTurn();
@@ -73,7 +73,7 @@ vector<ft> SlimeAgent::vMult(vector<ft>& x, vector<vector<ft>>& r) {
 	}
 	return rezult;
 }
-// определяет направление поворота
+// РѕРїСЂРµРґРµР»СЏРµС‚ РЅР°РїСЂР°РІР»РµРЅРёРµ РїРѕРІРѕСЂРѕС‚Р°
 it SlimeAgent::activateSensors() {
 	it lw, cw, rw;
 	vector<it> pixelSensorPosition;
@@ -82,7 +82,7 @@ it SlimeAgent::activateSensors() {
 	tmp = vSum(positionVector, leftSensorVector);
 	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		lw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		lw = it(location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]]);
 	}
 	else {
 		lw = 0;
@@ -91,7 +91,7 @@ it SlimeAgent::activateSensors() {
 	tmp = vSum(positionVector, centerSensorVector);
 	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		cw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		cw = it(location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]]);
 	}
 	else {
 		cw = 0;
@@ -100,7 +100,7 @@ it SlimeAgent::activateSensors() {
 	tmp = vSum(positionVector, rigthSensorVector);
 	pixelSensorPosition = location->getPixelOnCoord(tmp);
 	if (!pixelSensorPosition.empty()) {
-		rw = location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]];
+		rw = it(location->trailMap[pixelSensorPosition[0]][pixelSensorPosition[1]]);
 	}
 	else {
 		rw = 0;
@@ -126,10 +126,10 @@ it SlimeAgent::activateSensors() {
 		return 0;
 	}
 }
-// поворот векторов скорости и сенсоров
+// РїРѕРІРѕСЂРѕС‚ РІРµРєС‚РѕСЂРѕРІ СЃРєРѕСЂРѕСЃС‚Рё Рё СЃРµРЅСЃРѕСЂРѕРІ
 void SlimeAgent::rotate(bool isRigth) {
 	if (isRigth) {
-		//TODO: в статическую переменную это
+		//TODO: РІ СЃС‚Р°С‚РёС‡РµСЃРєСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ СЌС‚Рѕ
 		moveVector = vMult(moveVector, SlimeAgent::rightRotationMatrix);
 		leftSensorVector = vMult(leftSensorVector, SlimeAgent::rightRotationMatrix);
 		centerSensorVector = vMult(centerSensorVector, SlimeAgent::rightRotationMatrix);
@@ -142,7 +142,7 @@ void SlimeAgent::rotate(bool isRigth) {
 		rigthSensorVector = vMult(rigthSensorVector, SlimeAgent::leftRotationMatrix);
 	}
 }
-//сдвиг и установка пикселя, если это возможно
+//СЃРґРІРёРі Рё СѓСЃС‚Р°РЅРѕРІРєР° РїРёРєСЃРµР»СЏ, РµСЃР»Рё СЌС‚Рѕ РІРѕР·РјРѕР¶РЅРѕ
 bool SlimeAgent::move() {
 	vector<ft> newPosition = vSum(positionVector, moveVector);
 	vector<it> newPixel = location->getPixelOnCoord(newPosition);
@@ -160,8 +160,8 @@ bool SlimeAgent::move() {
 		return true;
 	}
 }
-// нанесение следа на карту
+// РЅР°РЅРµСЃРµРЅРёРµ СЃР»РµРґР° РЅР° РєР°СЂС‚Сѓ
 void SlimeAgent::makeDeposit() {
-	//TODO сделать статикой
+	//TODO СЃРґРµР»Р°С‚СЊ СЃС‚Р°С‚РёРєРѕР№
 	location->trailMap[pixelVector[0]][pixelVector[1]] += SlimeAgent::depositPerStep;
 }
