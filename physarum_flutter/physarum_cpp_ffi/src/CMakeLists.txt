@@ -3,10 +3,10 @@
 # the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
 
-project(physarum_cpp_ffi_library VERSION 0.0.1 LANGUAGES C)
+project(physarum_cpp_ffi_library VERSION 0.0.1 LANGUAGES CXX)
 
 add_library(physarum_cpp_ffi SHARED
-  "physarum_cpp_ffi.c"
+  "physarum_cpp_ffi.cpp"
 )
 
 set_target_properties(physarum_cpp_ffi PROPERTIES
