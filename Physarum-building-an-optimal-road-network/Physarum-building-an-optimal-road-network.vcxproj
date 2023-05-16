@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AgentGraphAnalyser.cpp" />
+    <ClCompile Include="FlutterAdapter.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Location.cpp" />
     <ClCompile Include="main.cpp" />

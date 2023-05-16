@@ -39,6 +39,9 @@
     <ClCompile Include="AgentGraphAnalyser.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="FlutterAdapter.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="settings.txt">

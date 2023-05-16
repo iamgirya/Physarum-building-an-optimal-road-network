@@ -9,7 +9,6 @@ bool AgentGraphAnalyser::findEdge(int index, int vertex) {
 }
 
 bool AgentGraphAnalyser::canConnectEdges(int i) {
-	static ft minRezultVectorLength = -1;
 	if (minRezultVectorLength == -1) {
 		minRezultVectorLength = sqrt(pow(1 - cos(minEdgeAngle / 180 * PI), 2) + pow(sin(minEdgeAngle / 180 * PI), 2));
 	}
@@ -59,6 +58,7 @@ vector<it> AgentGraphAnalyser::checkRect(int index) {
 }
 
 void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
+	clear();
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	// TODO можно избавиться от такой вложенности пар с помощью ещё одного вектора
 	vector<pair<pair<it,it>, it>> position;
@@ -691,4 +691,34 @@ ft AgentGraphAnalyser::sumOfPriority() {
 		}
 	}
 	return _sumOfPriority;
+}
+
+void AgentGraphAnalyser::clear() {
+	_sumOfPriority = -1;
+	minRezultVectorLength = -1;
+	waysGraph.clear();
+	weigthGraph.clear();
+	flowGraph.clear();
+	graph.clear();
+	exitPoints.clear();
+	towns.clear();
+	townIndexes.clear();
+}
+
+void AgentGraphAnalyser::calculateMetrics() {
+	if (!checkConnected()) {
+		return;
+	}
+	vector <ft> metrics = { calculateWeigth(), calculateDeltaFlow(), calculateOverDistance(), calculateResistance() };
+	ft nowMetricsSum = metrics[0] * metrics[1] * metrics[2] * metrics[3];
+
+	if (bestGraph.empty() || nowMetricsSum < metricsSum) {
+		metricsSum = nowMetricsSum;
+		bestGraph = vector<vector<it>>(graph.size());
+		bestExitPoints = vector<pair<it, it>>(exitPoints.size());
+		bestTowns = vector<it>(towns.size());
+		copy(towns.begin(), towns.end(), bestTowns.begin());
+		copy(exitPoints.begin(), exitPoints.end(), bestExitPoints.begin());
+		copy(graph.begin(), graph.end(), bestGraph.begin());
+	}
 }

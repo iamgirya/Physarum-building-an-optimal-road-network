@@ -27,6 +27,7 @@ class SlimeAgent;
 class SlimeMoldSimulation;
 class Location;
 class AgentGraphAnalyser;
+class FlutterAdapter;
 
 class SlimeAgent {
 public:
@@ -164,37 +165,6 @@ private:
 	it ySize;
 };
 
-class SlimeMoldSimulation {
-public:
-	it population;
-	vector<SlimeAgent*> particles;
-	Location location;
-	SlimeAgentFactory factory;
-
-	SlimeMoldSimulation(it xSize, it ySize);
-
-	void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
-
-	void startSimulation(vector<ft> startPosition);
-
-	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings, int number);
-
-private:
-
-	void makeStep();
-
-	void outputInConsoleTrayMap();
-
-	void outputInConsoleAgentMap();
-
-	void outputInFileAgentMap();
-
-	bool updateSettingsFromFile(bool);
-
-	void outputInBmp(bool);
-
-};
-
 //втора€ часть
 // TODO потом все методы и приколы нужно нормально расположить и св€з€ть друг за другом
 class AgentGraphAnalyser {
@@ -211,6 +181,15 @@ public:
 	vector<it> towns;
 	// индексы точек с не нулевым приоритетом
 	vector<it> townIndexes;
+
+	// лучший, согласно метрикам, граф
+	vector<vector<it>> bestGraph;
+	vector<pair<it, it>> bestExitPoints;
+	vector<it> bestTowns;
+	ft metricsSum;
+
+	// перезапустить
+	void clear();
 
 	//преобразует множество точек в нормальный граф
 	void makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators);
@@ -237,10 +216,14 @@ public:
 	// “ак что мы вычисл€ем максимум потока дл€ ребра полного графа и этим числом делим максимум потока нынешнего графа.
 	ft calculateDeltaFlow();
 
+	// вычисл€ет все метрики и сохран€ет лучший граф
+	void calculateMetrics();
+
 	// проверить св€зность
 	bool checkConnected();
 private:
-	
+	// минимальна€ величина вектора разницы, чтобы считать, что два ребрра можно сложить в одно
+	ft minRezultVectorLength = -1;
 	// геттер суммы приоритетов каждого города
 	ft sumOfPriority(); ft _sumOfPriority = -1;
 	// матрица весов
@@ -277,4 +260,43 @@ private:
 
 	// —оздаЄм матрицу с весом рЄбер, где вес - рассто€ние между вершинами
 	void buildWeigth();
+};
+
+class FlutterAdapter {
+public:
+	vector<vector<it>> execute();
+};
+
+class SlimeMoldSimulation {
+public:
+	it population;
+	vector<SlimeAgent*> particles;
+	Location location;
+	SlimeAgentFactory factory;
+	AgentGraphAnalyser analyser;
+
+	SlimeMoldSimulation(it xSize, it ySize);
+
+	void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
+
+	void placeGenerators(vector<pair<ft, ft>>, vector<ft>);
+
+	void startSimulation(it);
+
+	void outputInBmpGraph(vector<pair<it, it>>& points, vector<vector<it>>& graph, bool isChangedSettings, int number);
+
+private:
+
+	void makeStep();
+
+	void outputInConsoleTrayMap();
+
+	void outputInConsoleAgentMap();
+
+	void outputInFileAgentMap();
+
+	bool updateSettingsFromFile(bool);
+
+	void outputInBmp(bool);
+
 };

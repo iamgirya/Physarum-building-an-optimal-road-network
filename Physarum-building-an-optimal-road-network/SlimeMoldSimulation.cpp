@@ -6,6 +6,12 @@ SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 	population = 0;
 	location = Location(xSize, ySize);
 	factory = SlimeAgentFactory();
+	analyser = AgentGraphAnalyser();
+	// TODO параметры вынести в настройку
+	analyser.edgesRange = 16;
+	analyser.vertexRange = 8;
+	analyser.minVertexMass = 4;
+	analyser.minEdgeAngle = 15;
 }
 
 void SlimeMoldSimulation::makeStep() {
@@ -95,112 +101,23 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 	this->location.isCanMultiAgent = isCanMultiAgent;
 }
 
-vector<vector<ft>> savicc;
-bool isFirst = true;
-int saveNumber = 0;
+void SlimeMoldSimulation::placeGenerators(vector<pair<ft, ft>> positions, vector<ft> agentsPerSec) {
+	for (int i = 0; i < positions.size(); i++) {
+		Generator* tmpGenerator = new Generator({ positions[i].first, positions[i].second}, agentsPerSec[i], i, &factory);
+		location.generators.push_back(tmpGenerator);
+	}
+}
 
-void SlimeMoldSimulation::startSimulation(vector<ft> startPosition) {
-	if (updateSettingsFromFile(true)) {
-		it count = 0;
-		std::random_device rd;
-		std::mt19937 g(rd());
-		ft timeForOneIteration1, timeForOneIteration2;
-		ft sumTime = 0;
-		while (true) {
-			timeForOneIteration1 = omp_get_wtime();
-
-			makeStep(); // 450 // 340 - если параллельно
-			
-			timeForOneIteration2 = omp_get_wtime();
-
-			count++;
-			timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-			//cout << count << endl << timeForOneIteration1 << endl;
-			sumTime += timeForOneIteration1;
-			//cout << sumTime/count << endl; // 12
-
-			shuffle(particles.begin(), particles.end(), g); // 3
-			if (count % 100 == 0) {
-				bool isUpdated = updateSettingsFromFile(false);
-				outputInBmp(isUpdated); // 130 - txt // 5 - bmp
-			}
-			if (count % 100 == 0) {
-				//дебаг код
-				auto tmp = AgentGraphAnalyser();
-				tmp.edgesRange = 16;
-				tmp.vertexRange = 8;
-				tmp.minVertexMass = 4;
-				tmp.minEdgeAngle = 15;
-				tmp.makeGraph(particles, location.generators);
-				outputInBmpGraph(tmp.exitPoints, tmp.graph, false, -1);
-				tmp.minimizeGraph();
-				outputInBmpGraph(tmp.exitPoints, tmp.graph, true, -1);
-				if (isFirst) {
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					savicc.push_back({ 9999, 9999, 9999, 9999 });
-					isFirst = false;
-				}
-				if (tmp.checkConnected()) {
-					auto fds1 = tmp.calculateWeigth();
-					auto fds2 = tmp.calculateDeltaFlow();
-					auto fds3 = tmp.calculateOverDistance();
-					auto fds4 = tmp.calculateResistance();
-					vector <ft> fds = {fds1, fds2, fds3, fds4 };
-					
-					for (int yui = 0; yui < fds.size(); yui++) {
-						if (fds[yui] < savicc[yui][yui]) {
-							savicc[yui][0] = fds[0];
-							savicc[yui][1] = fds[1];
-							savicc[yui][2] = fds[2];
-							savicc[yui][3] = fds[3];
-						
-							cout << yui << endl;
-							cout << fds1 << endl;
-							cout << fds2 << endl;
-							cout << fds3 << endl;
-							cout << fds4 << endl;
-							cout << endl;
-						}
-					}
-
-					if (fds[0] * fds[1] * fds[2] < savicc[4][0] * savicc[4][1] * savicc[4][2]) {
-						int yui = 4;
-						savicc[yui][0] = fds[0];
-						savicc[yui][1] = fds[1];
-						savicc[yui][2] = fds[2];
-						savicc[yui][3] = fds[3];
-
-						cout << yui << endl;
-						cout << fds1 << endl;
-						cout << fds2 << endl;
-						cout << fds3 << endl;
-						cout << fds4 << endl;
-						cout << endl;
-
-						outputInBmpGraph(tmp.exitPoints, tmp.graph, true, yui);
-					}
-					if (fds[0] * fds[1] * fds[2] * fds[3] < savicc[5][0] * savicc[5][1] * savicc[5][2] * savicc[5][3]) {
-						int yui = 5;
-						savicc[yui][0] = fds[0];
-						savicc[yui][1] = fds[1];
-						savicc[yui][2] = fds[2];
-						savicc[yui][3] = fds[3];
-
-						cout << yui << endl;
-						cout << fds1 << endl;
-						cout << fds2 << endl;
-						cout << fds3 << endl;
-						cout << fds4 << endl;
-						cout << endl;
-
-						outputInBmpGraph(tmp.exitPoints, tmp.graph, true, yui);
-					}
-				}
-			}
+void SlimeMoldSimulation::startSimulation(it stepCount) {
+	std::random_device rd;
+	std::mt19937 g(rd());
+	while (stepCount--) {
+		makeStep();
+		shuffle(particles.begin(), particles.end(), g);
+		if (stepCount % 100 == 0) {
+			analyser.makeGraph(particles, location.generators);
+			analyser.minimizeGraph();
+			analyser.calculateMetrics();
 		}
 	}
 }
