@@ -1,10 +1,13 @@
 # Run with `flutter pub run ffigen --config ffigen.yaml`.
+# flutter pub run ffigen --config ffigen.yaml
 name: PhysarumCppFfiBindings
 description: |
   Bindings for `src/physarum_cpp_ffi.h`.
 
   Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
 output: 'lib/physarum_cpp_ffi_bindings_generated.dart'
+llvm-path:
+  - 'C:\Develop\LLVM'
 headers:
   entry-points:
     - 'src/physarum_cpp_ffi.h'
