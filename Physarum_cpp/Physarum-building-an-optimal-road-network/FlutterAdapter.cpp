@@ -1,5 +1,6 @@
 #include "SlimeMoldClass.h"
 
+// TODO добавить ввод параметров через флаттер. В том числе и параметров анализатора
 vector<vector<it>> FlutterAdapter::execute() {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
 	sim.setUp(80, 0, 6, 45, 45, 1, 3, 1.5, 0, 1);
