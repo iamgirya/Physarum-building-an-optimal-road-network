@@ -3,36 +3,10 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'physarum_cpp_ffi_bindings_generated.dart';
+import 'physarum_core.dart';
+import 'physarum_flutter_adapter_model.dart';
 
-const String _libName = 'physarum_cpp_ffi';
-
-final DynamicLibrary _dylib = () {
-  if (Platform.isMacOS || Platform.isIOS) {
-    return DynamicLibrary.open('$_libName.framework/$_libName');
-  }
-  if (Platform.isAndroid || Platform.isLinux) {
-    return DynamicLibrary.open('lib$_libName.so');
-  }
-  if (Platform.isWindows) {
-    return DynamicLibrary.open('$_libName.dll');
-  }
-  throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
-}();
-
-final PhysarumCppFfiBindings _bindings = PhysarumCppFfiBindings(_dylib);
-
-//functions
-
-Future<SlimeMoldNetwork> executeAsync(int a, int b) async {
-  final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
-  final int requestId = _nextSumRequestId++;
-  final _ExecuteRequest request = _ExecuteRequest(requestId, a, b);
-  final Completer<SlimeMoldNetwork> completer = Completer<SlimeMoldNetwork>();
-  _sumRequests[requestId] = completer;
-  helperIsolateSendPort.send(request);
-  return completer.future;
-}
+// TODO Какой же это говнокод. Обещаю исправить
 
 /// Counter to identify [_ExecuteRequest]s and [_ExecuteResponse]s.
 int _nextSumRequestId = 0;
@@ -59,7 +33,7 @@ class _ExecuteResponse {
 }
 
 /// Mapping from [_ExecuteRequest] `id`s to the completers corresponding to the correct future of the pending request.
-final Map<int, Completer<SlimeMoldNetwork>> _sumRequests =
+final Map<int, Completer<SlimeMoldNetwork>> _executeRequests =
     <int, Completer<SlimeMoldNetwork>>{};
 
 /// The SendPort belonging to the helper isolate.
@@ -81,8 +55,9 @@ Future<SendPort> _helperIsolateSendPort = () async {
       }
       if (data is _ExecuteResponse) {
         // The helper isolate sent us a response to a request we sent.
-        final Completer<SlimeMoldNetwork> completer = _sumRequests[data.id]!;
-        _sumRequests.remove(data.id);
+        final Completer<SlimeMoldNetwork> completer =
+            _executeRequests[data.id]!;
+        _executeRequests.remove(data.id);
         completer.complete(data.result);
         return;
       }
@@ -95,7 +70,7 @@ Future<SendPort> _helperIsolateSendPort = () async {
       ..listen((dynamic data) {
         // On the helper isolate listen to requests and respond to them.
         if (data is _ExecuteRequest) {
-          final SlimeMoldNetwork result = _bindings.execute(data.a, data.b);
+          final SlimeMoldNetwork result = bindings.execute(data.a, data.b);
           final _ExecuteResponse response = _ExecuteResponse(data.id, result);
           sendPort.send(response);
           return;
@@ -111,3 +86,38 @@ Future<SendPort> _helperIsolateSendPort = () async {
   // can start sending requests.
   return completer.future;
 }();
+
+extension ExecuteFunc on PhysarumCppFfiBindings {
+  Future<SlimeMoldNetwork> executeAsync(int a, int b) async {
+    final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
+    final int requestId = _nextSumRequestId++;
+    final _ExecuteRequest request = _ExecuteRequest(requestId, a, b);
+    final Completer<SlimeMoldNetwork> completer = Completer<SlimeMoldNetwork>();
+    _executeRequests[requestId] = completer;
+    helperIsolateSendPort.send(request);
+    return completer.future;
+  }
+
+  SlimeMoldNetwork execute(int stepCount, int b) {
+    final execute = lookup<NativeFunction<NativeGetGraph>>('execute')
+        .asFunction<FFIGetGraph>();
+    final struct = execute(stepCount, b).ref;
+
+    SlimeMoldNetwork result = SlimeMoldNetwork();
+    for (int i = 0; i < struct.length; i++) {
+      // точки
+      result.exitPoints.add(
+          [struct.exitPointsX.ref.data[i], struct.exitPointsY.ref.data[i]]);
+      // города
+      result.towns.add(struct.towns.ref.data[i]);
+      // граф
+      result.graph.add([]);
+      final subArray = struct.graph.ref.data[i];
+      for (int j = 0; j < subArray.length; j++) {
+        result.graph[i].add(subArray.data[j]);
+      }
+    }
+
+    return result;
+  }
+}

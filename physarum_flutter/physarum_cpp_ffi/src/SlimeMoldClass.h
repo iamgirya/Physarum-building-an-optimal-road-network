@@ -277,6 +277,8 @@ extern "C" {
         SlimeAgentFactory factory;
         AgentGraphAnalyser analyser;
 
+        SlimeMoldSimulation();
+
         SlimeMoldSimulation(it xSize, it ySize);
 
         void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
@@ -325,6 +327,10 @@ extern "C" {
         IntArray *towns;
         int length;
     } SlimeMoldNetwork;
+
+    void restartSimulation();
+
+    SlimeMoldNetwork *parseDimulationToNetwork();
 
     FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int a, int b);
 }

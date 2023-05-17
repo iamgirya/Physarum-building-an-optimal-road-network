@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:physarum_cpp_ffi/physarum_cpp_ffi.dart' as physarum_cpp_ffi;
+import 'package:physarum_cpp_ffi/physarum_core.dart' as physarum_cpp_ffi;
+import 'package:physarum_cpp_ffi/physarum_cpp_execute_func.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +24,12 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     sumResult = 1;
     sumAsyncResult = Future(() => 2);
-    final tes = physarum_cpp_ffi.executeAsync(1000, 2).then((test) {
+    final tes = physarum_cpp_ffi.bindings.executeAsync(1000, 1).then((test) {
+      print(test.graph);
+      print(test.exitPoints);
+      print(test.towns);
+    });
+    final tes1 = physarum_cpp_ffi.bindings.executeAsync(500, 0).then((test) {
       print(test.graph);
       print(test.exitPoints);
       print(test.towns);

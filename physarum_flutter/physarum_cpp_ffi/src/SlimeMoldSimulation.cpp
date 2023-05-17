@@ -1,5 +1,7 @@
 #include "SlimeMoldClass.h"
 
+SlimeMoldSimulation::SlimeMoldSimulation() {}
+
 SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 	srand(it(time(NULL)));
 
