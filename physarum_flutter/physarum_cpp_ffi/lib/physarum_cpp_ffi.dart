@@ -5,23 +5,8 @@ import 'dart:isolate';
 
 import 'physarum_cpp_ffi_bindings_generated.dart';
 
-int sum(int a, int b) => _bindings.sum(a, b);
-
-SlimeMoldNetwork execute(int a, int b) => _bindings.execute(a, b);
-
-Future<int> sumAsync(int a, int b) async {
-  final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
-  final int requestId = _nextSumRequestId++;
-  final _SumRequest request = _SumRequest(requestId, a, b);
-  final Completer<int> completer = Completer<int>();
-  _sumRequests[requestId] = completer;
-  helperIsolateSendPort.send(request);
-  return completer.future;
-}
-
 const String _libName = 'physarum_cpp_ffi';
 
-/// The dynamic library in which the symbols for [PhysarumCppFfiBindings] can be found.
 final DynamicLibrary _dylib = () {
   if (Platform.isMacOS || Platform.isIOS) {
     return DynamicLibrary.open('$_libName.framework/$_libName');
@@ -35,35 +20,47 @@ final DynamicLibrary _dylib = () {
   throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
 }();
 
-/// The bindings to the native functions in [_dylib].
 final PhysarumCppFfiBindings _bindings = PhysarumCppFfiBindings(_dylib);
+
+//functions
+
+Future<SlimeMoldNetwork> executeAsync(int a, int b) async {
+  final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
+  final int requestId = _nextSumRequestId++;
+  final _ExecuteRequest request = _ExecuteRequest(requestId, a, b);
+  final Completer<SlimeMoldNetwork> completer = Completer<SlimeMoldNetwork>();
+  _sumRequests[requestId] = completer;
+  helperIsolateSendPort.send(request);
+  return completer.future;
+}
+
+/// Counter to identify [_ExecuteRequest]s and [_ExecuteResponse]s.
+int _nextSumRequestId = 0;
 
 /// A request to compute `sum`.
 ///
 /// Typically sent from one isolate to another.
-class _SumRequest {
+class _ExecuteRequest {
   final int id;
   final int a;
   final int b;
 
-  const _SumRequest(this.id, this.a, this.b);
+  const _ExecuteRequest(this.id, this.a, this.b);
 }
 
 /// A response with the result of `sum`.
 ///
 /// Typically sent from one isolate to another.
-class _SumResponse {
+class _ExecuteResponse {
   final int id;
-  final int result;
+  final SlimeMoldNetwork result;
 
-  const _SumResponse(this.id, this.result);
+  const _ExecuteResponse(this.id, this.result);
 }
 
-/// Counter to identify [_SumRequest]s and [_SumResponse]s.
-int _nextSumRequestId = 0;
-
-/// Mapping from [_SumRequest] `id`s to the completers corresponding to the correct future of the pending request.
-final Map<int, Completer<int>> _sumRequests = <int, Completer<int>>{};
+/// Mapping from [_ExecuteRequest] `id`s to the completers corresponding to the correct future of the pending request.
+final Map<int, Completer<SlimeMoldNetwork>> _sumRequests =
+    <int, Completer<SlimeMoldNetwork>>{};
 
 /// The SendPort belonging to the helper isolate.
 Future<SendPort> _helperIsolateSendPort = () async {
@@ -82,9 +79,9 @@ Future<SendPort> _helperIsolateSendPort = () async {
         completer.complete(data);
         return;
       }
-      if (data is _SumResponse) {
+      if (data is _ExecuteResponse) {
         // The helper isolate sent us a response to a request we sent.
-        final Completer<int> completer = _sumRequests[data.id]!;
+        final Completer<SlimeMoldNetwork> completer = _sumRequests[data.id]!;
         _sumRequests.remove(data.id);
         completer.complete(data.result);
         return;
@@ -97,9 +94,9 @@ Future<SendPort> _helperIsolateSendPort = () async {
     final ReceivePort helperReceivePort = ReceivePort()
       ..listen((dynamic data) {
         // On the helper isolate listen to requests and respond to them.
-        if (data is _SumRequest) {
-          final int result = _bindings.sum_long_running(data.a, data.b);
-          final _SumResponse response = _SumResponse(data.id, result);
+        if (data is _ExecuteRequest) {
+          final SlimeMoldNetwork result = _bindings.execute(data.a, data.b);
+          final _ExecuteResponse response = _ExecuteResponse(data.id, result);
           sendPort.send(response);
           return;
         }

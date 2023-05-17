@@ -1,12 +1,5 @@
 #include "SlimeMoldClass.h"
 
-FFI_PLUGIN_EXPORT int sum(int a, int b) { return a + b; }
-
-FFI_PLUGIN_EXPORT int sum_long_running(int a, int b) {
-  return a + b + int(PI);
-}
-
-// эту хрень сделай в отдельном изоляте
 FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int stepCount, int b) {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
 	sim.setUp(80, 0, 6, 45, 45, 1, 3, 1.5, 0, 1);

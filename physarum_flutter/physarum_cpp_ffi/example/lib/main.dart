@@ -21,12 +21,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    sumResult = physarum_cpp_ffi.sum(1, 2);
-    sumAsyncResult = physarum_cpp_ffi.sumAsync(3, 4);
-    final test = physarum_cpp_ffi.execute(1000, 2);
-    print(test.graph);
-    print(test.exitPoints);
-    print(test.towns);
+    sumResult = 1;
+    sumAsyncResult = Future(() => 2);
+    final tes = physarum_cpp_ffi.executeAsync(1000, 2).then((test) {
+      print(test.graph);
+      print(test.exitPoints);
+      print(test.towns);
+    });
   }
 
   @override
