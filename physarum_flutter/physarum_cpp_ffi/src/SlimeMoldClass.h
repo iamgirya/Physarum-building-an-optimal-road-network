@@ -269,6 +269,27 @@ extern "C" {
 
     };
 
+    // массив
+    typedef struct {
+        int *data;
+        int length;
+    } IntArray;
+
+    //массив массивов
+    typedef struct {
+        IntArray *data;
+        int length;
+    } IntArrayArray;
+
+    // структура выходного графа
+    typedef struct {
+        IntArrayArray *graph;
+        IntArray *exitPointsX;
+        IntArray *exitPointsY;
+        IntArray *towns;
+        int length;
+    } SlimeMoldNetwork;
+
     class SlimeMoldSimulation {
     public:
         it population;
@@ -305,7 +326,7 @@ extern "C" {
 
     //Flutter Adapter part
 
-    FFI_PLUGIN_EXPORT void execute(int a, int b);
+    FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int a, int b);
     
     FFI_PLUGIN_EXPORT int sum(int a, int b);
 

@@ -6,7 +6,8 @@ FFI_PLUGIN_EXPORT int sum_long_running(int a, int b) {
   return a + b + int(PI);
 }
 
-FFI_PLUGIN_EXPORT void execute(int a, int b) {
+// эту хрень сделай в отдельном изоляте
+FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int stepCount, int b) {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
 	sim.setUp(80, 0, 6, 45, 45, 1, 3, 1.5, 0, 1);
 	sim.placeGenerators({ 
@@ -61,5 +62,53 @@ FFI_PLUGIN_EXPORT void execute(int a, int b) {
 		});
 		
 
-	sim.startSimulation(1000);
+	sim.startSimulation(stepCount);
+
+	// parsing time!
+	int sizeOfNetwork = sim.analyser.bestGraph.size();
+	auto *result = (SlimeMoldNetwork *) malloc(sizeof(SlimeMoldNetwork));
+	result->length = sizeOfNetwork;
+
+	// exitPoints
+    auto *pointsX = (IntArray *) malloc(sizeof(IntArray));
+	pointsX->length = sizeOfNetwork;
+	pointsX->data = (int32_t *) malloc(pointsX->length * sizeof(int32_t));
+	for (int j = 0; j < pointsX->length; j++) {
+		pointsX->data[j] = sim.analyser.bestExitPoints[j].first;
+	}
+	result->exitPointsX = pointsX;
+
+	auto *pointsY = (IntArray *) malloc(sizeof(IntArray));
+	pointsY->length = sizeOfNetwork;
+	pointsY->data = (int32_t *) malloc(pointsY->length * sizeof(int32_t));
+	for (int j = 0; j < pointsY->length; j++) {
+		pointsY->data[j] = sim.analyser.bestExitPoints[j].second;
+	}
+	result->exitPointsY = pointsY;
+
+	// towns
+	auto *exitTowns = (IntArray *) malloc(sizeof(IntArray));
+	exitTowns->length = sizeOfNetwork;
+	exitTowns->data = (int32_t *) malloc(exitTowns->length * sizeof(int32_t));
+	for (int j = 0; j < exitTowns->length; j++) {
+		exitTowns->data[j] = sim.analyser.bestTowns[j];
+	}
+	result->towns = exitTowns;
+
+	// graph
+	auto *exitGraph = (IntArrayArray *) malloc(sizeof(IntArrayArray));
+	exitGraph->length = sizeOfNetwork;
+	exitGraph->data = (IntArray *) malloc(exitGraph->length * sizeof(IntArray));
+	for (int i = 0; i < exitGraph->length; i++) {
+		auto *exitGraphPart = (IntArray *) malloc(sizeof(IntArray));
+		exitGraphPart->length = sim.analyser.bestGraph[i].size();
+		exitGraphPart->data = (int32_t *) malloc(exitGraphPart->length * sizeof(int32_t));
+		for (int j = 0; j < exitGraphPart->length; j++) {
+			exitGraphPart->data[j] = sim.analyser.bestGraph[i][j];
+		}
+		exitGraph->data[i] = *exitGraphPart;
+	}
+	result->graph = exitGraph;
+
+    return result;
 }

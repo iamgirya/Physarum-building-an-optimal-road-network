@@ -7,7 +7,7 @@ import 'physarum_cpp_ffi_bindings_generated.dart';
 
 int sum(int a, int b) => _bindings.sum(a, b);
 
-void execute(int a, int b) => _bindings.execute(a, b);
+SlimeMoldNetwork execute(int a, int b) => _bindings.execute(a, b);
 
 Future<int> sumAsync(int a, int b) async {
   final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
