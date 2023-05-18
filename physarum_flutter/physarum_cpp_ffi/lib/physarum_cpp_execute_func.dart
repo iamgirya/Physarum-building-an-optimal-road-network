@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'physarum_core.dart';
@@ -70,7 +69,7 @@ Future<SendPort> _helperIsolateSendPort = () async {
       ..listen((dynamic data) {
         // On the helper isolate listen to requests and respond to them.
         if (data is _ExecuteRequest) {
-          final SlimeMoldNetwork result = bindings.execute(data.a, data.b);
+          final SlimeMoldNetwork result = bindings._execute(data.a, data.b);
           final _ExecuteResponse response = _ExecuteResponse(data.id, result);
           sendPort.send(response);
           return;
@@ -98,7 +97,7 @@ extension ExecuteFunc on PhysarumCppFfiBindings {
     return completer.future;
   }
 
-  SlimeMoldNetwork execute(int stepCount, int b) {
+  SlimeMoldNetwork _execute(int stepCount, int b) {
     final execute = lookup<NativeFunction<NativeGetGraph>>('execute')
         .asFunction<FFIGetGraph>();
     final struct = execute(stepCount, b).ref;

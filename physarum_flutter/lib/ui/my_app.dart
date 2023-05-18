@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/ui/main_screen/main_screen_page.dart';
+import 'package:physarum_flutter/features/main_screen/main_screen_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

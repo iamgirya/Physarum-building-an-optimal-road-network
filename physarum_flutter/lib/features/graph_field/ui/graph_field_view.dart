@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_graph.dart';
+import 'package:physarum_flutter/features/graph_field/graph_field_state.dart';
 import 'package:physarum_flutter/features/graph_field/graph_field_manager.dart';
 
-import 'graph_painter.dart';
+import 'package:physarum_flutter/features/graph_field/ui/graph_painter.dart';
 
 class GraphDrawField extends ConsumerStatefulWidget {
   final double sizeOfPixel;
@@ -24,24 +24,28 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
   Widget build(BuildContext context) {
     final manager = ref.watch(graphFieldManager);
     final painter = GraphPainter(
-        ref.watch(graphsFieldGraphStateHolder), widget.sizeOfPixel);
+      ref.watch(graphsFieldGraphStateHolder),
+      widget.sizeOfPixel,
+    );
     return SizedBox(
       height: widget.sizeOfField * widget.sizeOfPixel,
       width: widget.sizeOfField * widget.sizeOfPixel,
       child: Stack(
         children: [
-          GestureDetector(
-            onTapDown: (touchData) {
-              manager.onTap(touchData.localPosition);
-            },
-            onSecondaryTapDown: (touchData) {
-              manager.onSecondTap(touchData.localPosition);
-            },
-          ),
           CustomPaint(
             painter: painter,
-            size: Size(widget.sizeOfField * widget.sizeOfPixel,
-                widget.sizeOfField * widget.sizeOfPixel),
+            size: Size(
+              widget.sizeOfField * widget.sizeOfPixel,
+              widget.sizeOfField * widget.sizeOfPixel,
+            ),
+          ),
+          GestureDetector(
+            onTapDown: (touchData) {
+              manager.onTap(touchData.localPosition, widget.sizeOfPixel);
+            },
+            onSecondaryTapDown: (touchData) {
+              manager.onSecondTap(touchData.localPosition, widget.sizeOfPixel);
+            },
           ),
         ],
       ),

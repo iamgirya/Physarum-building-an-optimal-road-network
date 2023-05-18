@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 
 const String _libName = 'physarum_cpp_ffi';
 

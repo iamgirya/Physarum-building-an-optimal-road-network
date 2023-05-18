@@ -14,17 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-Graph _$GraphFromJson(Map<String, dynamic> json) {
-  return _Graph.fromJson(json);
-}
-
 /// @nodoc
 mixin _$Graph {
   List<int> get towns => throw _privateConstructorUsedError;
-  List<List<int>> get exitPoints => throw _privateConstructorUsedError;
+  List<Pair> get exitPoints => throw _privateConstructorUsedError;
   List<List<int>> get graph => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $GraphCopyWith<Graph> get copyWith => throw _privateConstructorUsedError;
 }
@@ -34,8 +29,7 @@ abstract class $GraphCopyWith<$Res> {
   factory $GraphCopyWith(Graph value, $Res Function(Graph) then) =
       _$GraphCopyWithImpl<$Res, Graph>;
   @useResult
-  $Res call(
-      {List<int> towns, List<List<int>> exitPoints, List<List<int>> graph});
+  $Res call({List<int> towns, List<Pair> exitPoints, List<List<int>> graph});
 }
 
 /// @nodoc
@@ -63,7 +57,7 @@ class _$GraphCopyWithImpl<$Res, $Val extends Graph>
       exitPoints: null == exitPoints
           ? _value.exitPoints
           : exitPoints // ignore: cast_nullable_to_non_nullable
-              as List<List<int>>,
+              as List<Pair>,
       graph: null == graph
           ? _value.graph
           : graph // ignore: cast_nullable_to_non_nullable
@@ -78,8 +72,7 @@ abstract class _$$_GraphCopyWith<$Res> implements $GraphCopyWith<$Res> {
       __$$_GraphCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {List<int> towns, List<List<int>> exitPoints, List<List<int>> graph});
+  $Res call({List<int> towns, List<Pair> exitPoints, List<List<int>> graph});
 }
 
 /// @nodoc
@@ -97,15 +90,15 @@ class __$$_GraphCopyWithImpl<$Res> extends _$GraphCopyWithImpl<$Res, _$_Graph>
   }) {
     return _then(_$_Graph(
       towns: null == towns
-          ? _value._towns
+          ? _value.towns
           : towns // ignore: cast_nullable_to_non_nullable
               as List<int>,
       exitPoints: null == exitPoints
-          ? _value._exitPoints
+          ? _value.exitPoints
           : exitPoints // ignore: cast_nullable_to_non_nullable
-              as List<List<int>>,
+              as List<Pair>,
       graph: null == graph
-          ? _value._graph
+          ? _value.graph
           : graph // ignore: cast_nullable_to_non_nullable
               as List<List<int>>,
     ));
@@ -113,42 +106,18 @@ class __$$_GraphCopyWithImpl<$Res> extends _$GraphCopyWithImpl<$Res, _$_Graph>
 }
 
 /// @nodoc
-@JsonSerializable()
-class _$_Graph with DiagnosticableTreeMixin implements _Graph {
+
+class _$_Graph extends _Graph with DiagnosticableTreeMixin {
   const _$_Graph(
-      {required final List<int> towns,
-      required final List<List<int>> exitPoints,
-      required final List<List<int>> graph})
-      : _towns = towns,
-        _exitPoints = exitPoints,
-        _graph = graph;
+      {required this.towns, required this.exitPoints, required this.graph})
+      : super._();
 
-  factory _$_Graph.fromJson(Map<String, dynamic> json) =>
-      _$$_GraphFromJson(json);
-
-  final List<int> _towns;
   @override
-  List<int> get towns {
-    if (_towns is EqualUnmodifiableListView) return _towns;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_towns);
-  }
-
-  final List<List<int>> _exitPoints;
+  final List<int> towns;
   @override
-  List<List<int>> get exitPoints {
-    if (_exitPoints is EqualUnmodifiableListView) return _exitPoints;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_exitPoints);
-  }
-
-  final List<List<int>> _graph;
+  final List<Pair> exitPoints;
   @override
-  List<List<int>> get graph {
-    if (_graph is EqualUnmodifiableListView) return _graph;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_graph);
-  }
+  final List<List<int>> graph;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -170,46 +139,37 @@ class _$_Graph with DiagnosticableTreeMixin implements _Graph {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_Graph &&
-            const DeepCollectionEquality().equals(other._towns, _towns) &&
+            const DeepCollectionEquality().equals(other.towns, towns) &&
             const DeepCollectionEquality()
-                .equals(other._exitPoints, _exitPoints) &&
-            const DeepCollectionEquality().equals(other._graph, _graph));
+                .equals(other.exitPoints, exitPoints) &&
+            const DeepCollectionEquality().equals(other.graph, graph));
   }
 
-  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_towns),
-      const DeepCollectionEquality().hash(_exitPoints),
-      const DeepCollectionEquality().hash(_graph));
+      const DeepCollectionEquality().hash(towns),
+      const DeepCollectionEquality().hash(exitPoints),
+      const DeepCollectionEquality().hash(graph));
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$_GraphCopyWith<_$_Graph> get copyWith =>
       __$$_GraphCopyWithImpl<_$_Graph>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$_GraphToJson(
-      this,
-    );
-  }
 }
 
-abstract class _Graph implements Graph {
+abstract class _Graph extends Graph {
   const factory _Graph(
       {required final List<int> towns,
-      required final List<List<int>> exitPoints,
+      required final List<Pair> exitPoints,
       required final List<List<int>> graph}) = _$_Graph;
-
-  factory _Graph.fromJson(Map<String, dynamic> json) = _$_Graph.fromJson;
+  const _Graph._() : super._();
 
   @override
   List<int> get towns;
   @override
-  List<List<int>> get exitPoints;
+  List<Pair> get exitPoints;
   @override
   List<List<int>> get graph;
   @override
