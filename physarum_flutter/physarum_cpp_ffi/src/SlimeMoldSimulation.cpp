@@ -18,14 +18,10 @@ SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 
 void SlimeMoldSimulation::makeStep() {
 	int i; ft timeForOneIteration1, timeForOneIteration2, timeForOneIteration3;
-	timeForOneIteration1 = omp_get_wtime();
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
 	}
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 	vector<SlimeAgent*> stillAlive;
 #pragma omp parallel
 	{
@@ -43,17 +39,11 @@ void SlimeMoldSimulation::makeStep() {
 		stillAlive.insert(stillAlive.end(), stillAlivePrivate.begin(), stillAlivePrivate.end());
 	}
 	particles = stillAlive;
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->skanTurn();
 	}
 	// 30 ms
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 #pragma omp parallel
 	{
 		vector<SlimeAgent*> newPart;
@@ -64,17 +54,8 @@ void SlimeMoldSimulation::makeStep() {
 			particles.insert(particles.end(), newPart.begin(), newPart.end());
 		}
 	}
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 	location.castDiffusion(); // 15 ms
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 	location.castDecay();
-	timeForOneIteration2 = omp_get_wtime();
-	timeForOneIteration1 = timeForOneIteration2 - timeForOneIteration1;
-	timeForOneIteration1 = omp_get_wtime();
 }
 
 void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent) {
