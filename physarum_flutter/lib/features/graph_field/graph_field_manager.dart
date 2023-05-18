@@ -7,12 +7,12 @@ import 'package:physarum_flutter/models/pair.dart';
 
 final graphFieldManager = Provider<GraphFieldManager>((ref) {
   return GraphFieldManager(
-    graphHolder: ref.watch(graphsFieldGraphStateHolder.notifier),
+    graphHolder: ref.read(graphsFieldGraphStateHolder.notifier),
   );
 });
 
 class GraphFieldManager {
-  final StateController<Graph> graphHolder;
+  final GraphNotifier graphHolder;
   GraphFieldManager({
     required this.graphHolder,
   });
@@ -28,7 +28,6 @@ class GraphFieldManager {
     if (searchResult != -1) {
       graphHolder.update((state) => state..towns[searchResult] += 1);
     } else {
-      graphHolder.state = Graph(towns: [], exitPoints: [], graph: []);
       graphHolder.update(
         (state) => graph
           ..exitPoints.add(newPoint)
@@ -58,6 +57,6 @@ class GraphFieldManager {
   }
 
   void setNewGraph(Graph newGraph) {
-    graphHolder.state = newGraph;
+    graphHolder.update((state) => newGraph);
   }
 }

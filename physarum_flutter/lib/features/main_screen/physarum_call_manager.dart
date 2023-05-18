@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_cpp_ffi/physarum_core.dart' as ffi;
 import 'package:physarum_cpp_ffi/physarum_cpp_execute_func.dart';
@@ -15,7 +13,7 @@ final physarumManager = Provider<PhysarumManager>((ref) {
 });
 
 class PhysarumManager {
-  static const int iterationPerStep = 1000;
+  static const int iterationPerStep = 100;
   final GraphFieldManager graphFieldManager;
   PhysarumManager({
     required this.graphFieldManager,
@@ -24,7 +22,7 @@ class PhysarumManager {
   Future<void> onExecuteButtonTap() async {
     final network = await ffi.bindings.executeAsync(iterationPerStep, 1);
     graphFieldManager.setNewGraph(_parseNetworkToGraph(network));
-    int count = 5;
+    int count = 50;
     _callNextStep(count);
   }
 

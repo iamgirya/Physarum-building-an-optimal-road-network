@@ -23,8 +23,9 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
   @override
   Widget build(BuildContext context) {
     final manager = ref.watch(graphFieldManager);
+    final graph = ref.watch(graphsFieldGraphStateHolder);
     final painter = GraphPainter(
-      ref.watch(graphsFieldGraphStateHolder),
+      graph,
       widget.sizeOfPixel,
     );
     return SizedBox(

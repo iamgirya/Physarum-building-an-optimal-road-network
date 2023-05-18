@@ -1,5 +1,7 @@
 import 'dart:ffi' as ffi;
 
+// TODO на генерики переписать массивы
+
 final class IntArray extends ffi.Struct {
   external ffi.Pointer<ffi.Int32> data;
 

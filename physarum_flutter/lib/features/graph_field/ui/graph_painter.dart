@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:physarum_flutter/models/graph_model.dart';
+import 'package:physarum_flutter/models/pair.dart';
 
 class GraphPainter extends CustomPainter {
   GraphPainter(this.graph, this.sizeOfPixel);
@@ -13,8 +14,29 @@ class GraphPainter extends CustomPainter {
     final Rect backgroundRect = Offset.zero & size;
     canvas.drawRect(
       backgroundRect,
-      Paint()..color = Colors.blue,
+      Paint()..color = Colors.black,
     );
+
+    // graph
+    final Color edgeColor = Colors.red;
+    for (int h = 0; h < graph.graph.length; h++) {
+      for (int k = 0; k < graph.graph[h].length; k++) {
+        Pair first = graph.exitPoints[h];
+        Pair second = graph.exitPoints[graph.graph[h][k]];
+
+        canvas.drawLine(
+          Offset(
+            first.first * pointSize.width + sizeOfPixel / 2,
+            first.second * pointSize.height + sizeOfPixel / 2,
+          ),
+          Offset(
+            second.first * pointSize.width + sizeOfPixel / 2,
+            second.second * pointSize.height + sizeOfPixel / 2,
+          ),
+          Paint()..color = edgeColor,
+        );
+      }
+    }
 
     // points
     for (int i = 0; i < graph.exitPoints.length; i++) {
