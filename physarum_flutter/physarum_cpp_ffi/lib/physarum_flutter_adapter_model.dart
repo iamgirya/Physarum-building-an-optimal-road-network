@@ -1,5 +1,8 @@
 import 'dart:ffi' as ffi;
 
+typedef NativeExecute = ffi.Void Function(ffi.Int, ffi.Int);
+typedef FFIExecute = void Function(int, int);
+
 // TODO на генерики переписать массивы
 
 final class IntArray extends ffi.Struct {
@@ -31,7 +34,3 @@ class SlimeMoldNetwork {
   List<List<int>> exitPoints = [];
   List<List<int>> graph = [];
 }
-
-typedef NativeGetGraph = ffi.Pointer<SlimeMoldNetworkFFI> Function(
-    ffi.Int, ffi.Int);
-typedef FFIGetGraph = ffi.Pointer<SlimeMoldNetworkFFI> Function(int, int);

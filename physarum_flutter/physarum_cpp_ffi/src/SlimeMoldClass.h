@@ -330,7 +330,9 @@ extern "C" {
 
     void restartSimulation();
 
-    SlimeMoldNetwork *parseDimulationToNetwork();
+    SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints);
 
-    FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int a, int b);
+    FFI_PLUGIN_EXPORT void execute(int stepCount, int isNeedRestart);
+
+    FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest);
 }

@@ -25,20 +25,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     sumResult = 1;
     sumAsyncResult = Future(() => 2);
-    physarum_cpp_ffi.bindings.executeAsync(1000, 1).then((test) {
-      if (kDebugMode) {
-        print(test.graph);
-        print(test.exitPoints);
-        print(test.towns);
-      }
-    });
-    physarum_cpp_ffi.bindings.executeAsync(500, 0).then((test) {
-      if (kDebugMode) {
-        print(test.graph);
-        print(test.exitPoints);
-        print(test.towns);
-      }
-    });
+    physarum_cpp_ffi.bindings.executeAsync(1000, 1);
+    physarum_cpp_ffi.bindings.executeAsync(500, 0);
   }
 
   @override

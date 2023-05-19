@@ -58,9 +58,9 @@ void restartSimulation() {
 	);
 }
 
-SlimeMoldNetwork *parseDimulationToNetwork() {
+SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints) {
 	// parsing time!
-	int sizeOfNetwork = sim.analyser.bestGraph.size();
+	int sizeOfNetwork = graph.size();
 	auto *result = (SlimeMoldNetwork *) malloc(sizeof(SlimeMoldNetwork));
 	result->length = sizeOfNetwork;
 
@@ -69,7 +69,7 @@ SlimeMoldNetwork *parseDimulationToNetwork() {
 	pointsX->length = sizeOfNetwork;
 	pointsX->data = (int32_t *) malloc(pointsX->length * sizeof(int32_t));
 	for (int j = 0; j < pointsX->length; j++) {
-		pointsX->data[j] = sim.analyser.bestExitPoints[j].first;
+		pointsX->data[j] = exitPoints[j].first;
 	}
 	result->exitPointsX = pointsX;
 
@@ -77,7 +77,7 @@ SlimeMoldNetwork *parseDimulationToNetwork() {
 	pointsY->length = sizeOfNetwork;
 	pointsY->data = (int32_t *) malloc(pointsY->length * sizeof(int32_t));
 	for (int j = 0; j < pointsY->length; j++) {
-		pointsY->data[j] = sim.analyser.bestExitPoints[j].second;
+		pointsY->data[j] = exitPoints[j].second;
 	}
 	result->exitPointsY = pointsY;
 
@@ -86,7 +86,7 @@ SlimeMoldNetwork *parseDimulationToNetwork() {
 	exitTowns->length = sizeOfNetwork;
 	exitTowns->data = (int32_t *) malloc(exitTowns->length * sizeof(int32_t));
 	for (int j = 0; j < exitTowns->length; j++) {
-		exitTowns->data[j] = sim.analyser.bestTowns[j];
+		exitTowns->data[j] = towns[j];
 	}
 	result->towns = exitTowns;
 
@@ -96,10 +96,10 @@ SlimeMoldNetwork *parseDimulationToNetwork() {
 	exitGraph->data = (IntArray *) malloc(exitGraph->length * sizeof(IntArray));
 	for (int i = 0; i < exitGraph->length; i++) {
 		auto *exitGraphPart = (IntArray *) malloc(sizeof(IntArray));
-		exitGraphPart->length = sim.analyser.bestGraph[i].size();
+		exitGraphPart->length = graph[i].size();
 		exitGraphPart->data = (int32_t *) malloc(exitGraphPart->length * sizeof(int32_t));
 		for (int j = 0; j < exitGraphPart->length; j++) {
-			exitGraphPart->data[j] = sim.analyser.bestGraph[i][j];
+			exitGraphPart->data[j] = graph[i][j];
 		}
 		exitGraph->data[i] = *exitGraphPart;
 	}
@@ -108,12 +108,18 @@ SlimeMoldNetwork *parseDimulationToNetwork() {
 	return result;
 }
 
-FFI_PLUGIN_EXPORT SlimeMoldNetwork *execute(int stepCount, int isNeedRestart) {
+FFI_PLUGIN_EXPORT void execute(int stepCount, int isNeedRestart) {
 	if (isNeedRestart) {
 		restartSimulation();
 	}
 
 	sim.startSimulation(stepCount);
+}
 
-    return parseDimulationToNetwork();
+FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest) {
+	if (isNeedBest) {
+		return parseSimulationToNetwork(sim.analyser.bestGraph, sim.analyser.bestTowns, sim.analyser.bestExitPoints);
+	} else {
+		return parseSimulationToNetwork(sim.analyser.graph, sim.analyser.towns, sim.analyser.exitPoints);
+	}
 }

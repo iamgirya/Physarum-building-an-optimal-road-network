@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:physarum_cpp_ffi/get_graph_func.dart';
 import 'package:physarum_cpp_ffi/physarum_core.dart' as ffi;
 import 'package:physarum_cpp_ffi/physarum_cpp_execute_func.dart';
 import 'package:physarum_cpp_ffi/physarum_flutter_adapter_model.dart';
@@ -31,7 +32,7 @@ class PhysarumManager {
 
   void onStopTap() async {
     // защита на случай, если пользователь нажмёт сброс, стоп и старп.
-    if (mainScreenState.state.isNeedRestart) {
+    if (!mainScreenState.state.isNeedRestart) {
       mainScreenState.update((state) => state.copyWith(isAlgoWorking: false));
     }
   }
@@ -65,12 +66,12 @@ class PhysarumManager {
 
   Future<void> _callNextStep(int stepCount, bool isLaunch) async {
     // вычисляем новую сеть
-    final network =
-        await ffi.bindings.executeAsync(iterationPerStep, isLaunch ? 1 : 0);
+    await ffi.bindings.executeAsync(iterationPerStep, isLaunch ? 1 : 0);
     if (mainScreenState.state.isAlgoWorking &&
         !mainScreenState.state.isNeedRestart) {
-      graphFieldManager.setNewGraph(_parseNetworkToGraph(network));
-
+      final bestNetwork = ffi.bindings.getGraph(true);
+      final nowNetwork = ffi.bindings.getGraph(false);
+      graphFieldManager.setNewGraph(_parseNetworkToGraph(bestNetwork));
       // вычисляем сколько шагов осталось
       stepCount--;
       mainScreenState.state.stepCountTextEditingController.text =
