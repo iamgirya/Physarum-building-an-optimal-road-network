@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:physarum_flutter/features/setting_panel/vertex_list_view.dart';
+import 'package:physarum_flutter/features/setting_panel/settings_list_widget.dart';
+import 'package:physarum_flutter/features/setting_panel/vertex_list_widget.dart';
 
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({super.key});
@@ -24,9 +25,7 @@ class SettingsPanel extends StatelessWidget {
         body: const TabBarView(
           children: [
             VertexList(),
-            Center(
-              child: Text('1'),
-            ),
+            SettingsList(),
           ],
         ),
       ),

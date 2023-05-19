@@ -19,6 +19,7 @@ final physarumManager = Provider<PhysarumManager>((ref) {
 
 class PhysarumManager {
   static const int iterationPerStep = 10;
+  // TODO зачем эти манагеры общаются, нужно заменить его на два стейт холдера
   final GraphFieldManager graphFieldManager;
   final StateController<MainScreenState> mainScreenState;
   PhysarumManager({

@@ -28,7 +28,8 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
       ),
       child: Column(
         children: [
-          SizedBox(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             width: 200,
             child: TextField(
               controller: state.stepCountTextEditingController,
@@ -81,16 +82,6 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
           Text(state.metricFlow == -1
               ? '-'
               : state.metricFlow.toStringAsFixed(3)),
-          const SizedBox(
-            height: 5,
-          ),
-          MainScreenButton(
-            onPressed: (context) {
-              manager.onStopTap();
-              Scaffold.of(context).openEndDrawer();
-            },
-            title: 'Настроить',
-          ),
           const SizedBox(
             height: 15,
           ),
