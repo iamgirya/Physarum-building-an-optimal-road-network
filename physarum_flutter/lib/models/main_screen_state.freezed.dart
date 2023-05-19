@@ -20,6 +20,10 @@ mixin _$MainScreenState {
   bool get isNeedRestart => throw _privateConstructorUsedError;
   TextEditingController get stepCountTextEditingController =>
       throw _privateConstructorUsedError;
+  double get metricWeigth => throw _privateConstructorUsedError;
+  double get metricDistance => throw _privateConstructorUsedError;
+  double get metricResistance => throw _privateConstructorUsedError;
+  double get metricFlow => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MainScreenStateCopyWith<MainScreenState> get copyWith =>
@@ -35,7 +39,11 @@ abstract class $MainScreenStateCopyWith<$Res> {
   $Res call(
       {bool isAlgoWorking,
       bool isNeedRestart,
-      TextEditingController stepCountTextEditingController});
+      TextEditingController stepCountTextEditingController,
+      double metricWeigth,
+      double metricDistance,
+      double metricResistance,
+      double metricFlow});
 }
 
 /// @nodoc
@@ -54,6 +62,10 @@ class _$MainScreenStateCopyWithImpl<$Res, $Val extends MainScreenState>
     Object? isAlgoWorking = null,
     Object? isNeedRestart = null,
     Object? stepCountTextEditingController = null,
+    Object? metricWeigth = null,
+    Object? metricDistance = null,
+    Object? metricResistance = null,
+    Object? metricFlow = null,
   }) {
     return _then(_value.copyWith(
       isAlgoWorking: null == isAlgoWorking
@@ -68,6 +80,22 @@ class _$MainScreenStateCopyWithImpl<$Res, $Val extends MainScreenState>
           ? _value.stepCountTextEditingController
           : stepCountTextEditingController // ignore: cast_nullable_to_non_nullable
               as TextEditingController,
+      metricWeigth: null == metricWeigth
+          ? _value.metricWeigth
+          : metricWeigth // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricDistance: null == metricDistance
+          ? _value.metricDistance
+          : metricDistance // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricResistance: null == metricResistance
+          ? _value.metricResistance
+          : metricResistance // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricFlow: null == metricFlow
+          ? _value.metricFlow
+          : metricFlow // ignore: cast_nullable_to_non_nullable
+              as double,
     ) as $Val);
   }
 }
@@ -83,7 +111,11 @@ abstract class _$$_MainScreenStateCopyWith<$Res>
   $Res call(
       {bool isAlgoWorking,
       bool isNeedRestart,
-      TextEditingController stepCountTextEditingController});
+      TextEditingController stepCountTextEditingController,
+      double metricWeigth,
+      double metricDistance,
+      double metricResistance,
+      double metricFlow});
 }
 
 /// @nodoc
@@ -100,6 +132,10 @@ class __$$_MainScreenStateCopyWithImpl<$Res>
     Object? isAlgoWorking = null,
     Object? isNeedRestart = null,
     Object? stepCountTextEditingController = null,
+    Object? metricWeigth = null,
+    Object? metricDistance = null,
+    Object? metricResistance = null,
+    Object? metricFlow = null,
   }) {
     return _then(_$_MainScreenState(
       isAlgoWorking: null == isAlgoWorking
@@ -114,6 +150,22 @@ class __$$_MainScreenStateCopyWithImpl<$Res>
           ? _value.stepCountTextEditingController
           : stepCountTextEditingController // ignore: cast_nullable_to_non_nullable
               as TextEditingController,
+      metricWeigth: null == metricWeigth
+          ? _value.metricWeigth
+          : metricWeigth // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricDistance: null == metricDistance
+          ? _value.metricDistance
+          : metricDistance // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricResistance: null == metricResistance
+          ? _value.metricResistance
+          : metricResistance // ignore: cast_nullable_to_non_nullable
+              as double,
+      metricFlow: null == metricFlow
+          ? _value.metricFlow
+          : metricFlow // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
@@ -124,7 +176,11 @@ class _$_MainScreenState extends _MainScreenState {
   _$_MainScreenState(
       {required this.isAlgoWorking,
       required this.isNeedRestart,
-      required this.stepCountTextEditingController})
+      required this.stepCountTextEditingController,
+      required this.metricWeigth,
+      required this.metricDistance,
+      required this.metricResistance,
+      required this.metricFlow})
       : super._();
 
   @override
@@ -133,10 +189,18 @@ class _$_MainScreenState extends _MainScreenState {
   final bool isNeedRestart;
   @override
   final TextEditingController stepCountTextEditingController;
+  @override
+  final double metricWeigth;
+  @override
+  final double metricDistance;
+  @override
+  final double metricResistance;
+  @override
+  final double metricFlow;
 
   @override
   String toString() {
-    return 'MainScreenState(isAlgoWorking: $isAlgoWorking, isNeedRestart: $isNeedRestart, stepCountTextEditingController: $stepCountTextEditingController)';
+    return 'MainScreenState(isAlgoWorking: $isAlgoWorking, isNeedRestart: $isNeedRestart, stepCountTextEditingController: $stepCountTextEditingController, metricWeigth: $metricWeigth, metricDistance: $metricDistance, metricResistance: $metricResistance, metricFlow: $metricFlow)';
   }
 
   @override
@@ -151,12 +215,27 @@ class _$_MainScreenState extends _MainScreenState {
             (identical(other.stepCountTextEditingController,
                     stepCountTextEditingController) ||
                 other.stepCountTextEditingController ==
-                    stepCountTextEditingController));
+                    stepCountTextEditingController) &&
+            (identical(other.metricWeigth, metricWeigth) ||
+                other.metricWeigth == metricWeigth) &&
+            (identical(other.metricDistance, metricDistance) ||
+                other.metricDistance == metricDistance) &&
+            (identical(other.metricResistance, metricResistance) ||
+                other.metricResistance == metricResistance) &&
+            (identical(other.metricFlow, metricFlow) ||
+                other.metricFlow == metricFlow));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isAlgoWorking, isNeedRestart,
-      stepCountTextEditingController);
+  int get hashCode => Object.hash(
+      runtimeType,
+      isAlgoWorking,
+      isNeedRestart,
+      stepCountTextEditingController,
+      metricWeigth,
+      metricDistance,
+      metricResistance,
+      metricFlow);
 
   @JsonKey(ignore: true)
   @override
@@ -169,8 +248,11 @@ abstract class _MainScreenState extends MainScreenState {
   factory _MainScreenState(
       {required final bool isAlgoWorking,
       required final bool isNeedRestart,
-      required final TextEditingController
-          stepCountTextEditingController}) = _$_MainScreenState;
+      required final TextEditingController stepCountTextEditingController,
+      required final double metricWeigth,
+      required final double metricDistance,
+      required final double metricResistance,
+      required final double metricFlow}) = _$_MainScreenState;
   _MainScreenState._() : super._();
 
   @override
@@ -179,6 +261,14 @@ abstract class _MainScreenState extends MainScreenState {
   bool get isNeedRestart;
   @override
   TextEditingController get stepCountTextEditingController;
+  @override
+  double get metricWeigth;
+  @override
+  double get metricDistance;
+  @override
+  double get metricResistance;
+  @override
+  double get metricFlow;
   @override
   @JsonKey(ignore: true)
   _$$_MainScreenStateCopyWith<_$_MainScreenState> get copyWith =>

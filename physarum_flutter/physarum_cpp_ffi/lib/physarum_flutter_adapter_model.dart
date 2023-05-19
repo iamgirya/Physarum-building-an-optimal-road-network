@@ -12,6 +12,13 @@ final class IntArray extends ffi.Struct {
   external int length;
 }
 
+final class DoubleArray extends ffi.Struct {
+  external ffi.Pointer<ffi.Double> data;
+
+  @ffi.Int32()
+  external int length;
+}
+
 final class IntArrayArray extends ffi.Struct {
   external ffi.Pointer<IntArray> data;
 

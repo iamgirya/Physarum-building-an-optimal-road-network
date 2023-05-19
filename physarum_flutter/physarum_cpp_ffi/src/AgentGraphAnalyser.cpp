@@ -714,6 +714,10 @@ void AgentGraphAnalyser::calculateMetrics() {
 
 	if (bestGraph.empty() || nowMetricsSum < metricsSum) {
 		metricsSum = nowMetricsSum;
+		metricWeigth = metrics[0];
+		metricOverDistance = metrics[1];
+		metricResistance = metrics[2];
+		metricDeltaFlow = metrics[3];
 		bestGraph = vector<vector<it>>(graph.size());
 		bestExitPoints = vector<pair<it, it>>(exitPoints.size());
 		bestTowns = vector<it>(towns.size());

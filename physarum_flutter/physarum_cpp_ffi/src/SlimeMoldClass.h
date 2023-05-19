@@ -193,6 +193,10 @@ extern "C" {
         vector<pair<it, it>> bestExitPoints;
         vector<it> bestTowns;
         ft metricsSum;
+        ft metricWeigth;
+        ft metricOverDistance;
+        ft metricResistance;
+        ft metricDeltaFlow;
 
         // перезапустить
         void clear();
@@ -313,6 +317,11 @@ extern "C" {
         int length;
     } IntArray;
 
+    typedef struct {
+        double *data;
+        int length;
+    } DoubleArray;
+
     //массив массивов
     typedef struct {
         IntArray *data;
@@ -335,4 +344,6 @@ extern "C" {
     FFI_PLUGIN_EXPORT void execute(int stepCount, int isNeedRestart);
 
     FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest);
+
+    FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics();
 }

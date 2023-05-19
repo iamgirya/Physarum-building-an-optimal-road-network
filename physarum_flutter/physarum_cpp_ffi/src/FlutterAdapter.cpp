@@ -123,3 +123,18 @@ FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest) {
 		return parseSimulationToNetwork(sim.analyser.graph, sim.analyser.towns, sim.analyser.exitPoints);
 	}
 }
+
+FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics() {
+	auto *metrics = (DoubleArray *) malloc(sizeof(DoubleArray));
+	if (sim.analyser.bestGraph.size()) {
+		metrics->length = 4;
+		metrics->data = (double *) malloc(metrics->length * sizeof(double));
+		metrics->data[0] = sim.analyser.metricWeigth;
+		metrics->data[1] = sim.analyser.metricOverDistance;
+		metrics->data[2] = sim.analyser.metricResistance;
+		metrics->data[3] = sim.analyser.metricDeltaFlow;
+	} else {
+		metrics->length = 0;
+	}
+	return metrics;
+}

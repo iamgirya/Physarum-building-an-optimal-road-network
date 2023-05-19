@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_cpp_ffi/get_graph_func.dart';
+import 'package:physarum_cpp_ffi/get_best_metrics_func.dart';
 import 'package:physarum_cpp_ffi/physarum_core.dart' as ffi;
 import 'package:physarum_cpp_ffi/physarum_cpp_execute_func.dart';
 import 'package:physarum_cpp_ffi/physarum_flutter_adapter_model.dart';
@@ -26,7 +27,15 @@ class PhysarumManager {
   });
 
   void onRestartTap() async {
-    mainScreenState.update((state) => state.copyWith(isNeedRestart: true));
+    mainScreenState.update(
+      (state) => state.copyWith(
+        isNeedRestart: true,
+        metricWeigth: -1,
+        metricDistance: -1,
+        metricResistance: -1,
+        metricFlow: -1,
+      ),
+    );
     graphFieldManager.setNowGraph(Graph.empty());
     graphFieldManager.setBestGraph(Graph.empty());
   }
@@ -75,6 +84,18 @@ class PhysarumManager {
 
       final nowNetwork = ffi.bindings.getGraph(false);
       graphFieldManager.setNowGraph(_parseNetworkToGraph(nowNetwork));
+
+      final metrics = ffi.bindings.getBestMetrics();
+      if (metrics.isNotEmpty) {
+        mainScreenState.update(
+          (state) => state.copyWith(
+            metricWeigth: metrics[0],
+            metricDistance: metrics[1],
+            metricResistance: metrics[2],
+            metricFlow: metrics[3],
+          ),
+        );
+      }
       // вычисляем сколько шагов осталось
       stepCount--;
       mainScreenState.state.stepCountTextEditingController.text =
