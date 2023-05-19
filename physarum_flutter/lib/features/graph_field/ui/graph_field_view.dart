@@ -32,32 +32,37 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
       graph,
       widget.sizeOfPixel,
     );
-    return SizedBox(
-      height: widget.sizeOfField * widget.sizeOfPixel,
-      width: widget.sizeOfField * widget.sizeOfPixel,
-      child: Stack(
-        children: [
-          CustomPaint(
-            painter: painter,
-            size: Size(
-              widget.sizeOfField * widget.sizeOfPixel,
-              widget.sizeOfField * widget.sizeOfPixel,
-            ),
+    return Column(
+      children: [
+        Text(widget.isBest ? 'Лучший результат' : 'Нынешний граф'),
+        SizedBox(
+          height: widget.sizeOfField * widget.sizeOfPixel,
+          width: widget.sizeOfField * widget.sizeOfPixel,
+          child: Stack(
+            children: [
+              CustomPaint(
+                painter: painter,
+                size: Size(
+                  widget.sizeOfField * widget.sizeOfPixel,
+                  widget.sizeOfField * widget.sizeOfPixel,
+                ),
+              ),
+              if (!widget.isBest)
+                GestureDetector(
+                  onTapDown: (touchData) {
+                    manager.onTap(touchData.localPosition, widget.sizeOfPixel);
+                  },
+                  onSecondaryTapDown: (touchData) {
+                    manager.onSecondTap(
+                      touchData.localPosition,
+                      widget.sizeOfPixel,
+                    );
+                  },
+                ),
+            ],
           ),
-          if (!widget.isBest)
-            GestureDetector(
-              onTapDown: (touchData) {
-                manager.onTap(touchData.localPosition, widget.sizeOfPixel);
-              },
-              onSecondaryTapDown: (touchData) {
-                manager.onSecondTap(
-                  touchData.localPosition,
-                  widget.sizeOfPixel,
-                );
-              },
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
