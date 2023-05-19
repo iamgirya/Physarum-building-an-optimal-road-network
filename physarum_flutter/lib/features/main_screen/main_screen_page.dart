@@ -5,6 +5,7 @@ import 'package:physarum_flutter/features/graph_field/ui/graph_field_view.dart';
 import 'package:physarum_flutter/features/main_screen/graph_edit_drawer_view.dart';
 import 'package:physarum_flutter/features/main_screen/main_screen_manager.dart';
 import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
+import 'package:physarum_flutter/features/setting_panel/setting_panel_view.dart';
 
 class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key});
@@ -91,8 +92,10 @@ class _MainPageState extends ConsumerState<MainPage> {
               const SizedBox(
                 width: 15,
               ),
-              Container(
+              const SizedBox(
                 width: 600,
+                height: 600,
+                child: SettingsPanel(),
               )
             ],
           ),

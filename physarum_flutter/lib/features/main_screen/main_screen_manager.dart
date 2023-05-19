@@ -28,6 +28,7 @@ class PhysarumManager {
   void onRestartTap() async {
     mainScreenState.update((state) => state.copyWith(isNeedRestart: true));
     graphFieldManager.setNowGraph(Graph.empty());
+    graphFieldManager.setBestGraph(Graph.empty());
   }
 
   void onStopTap() async {

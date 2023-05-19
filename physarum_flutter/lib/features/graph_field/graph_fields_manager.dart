@@ -21,40 +21,44 @@ class GraphFieldManager {
   });
 
   void onTap(Offset coords, double sizeOfPixel) {
-    final newPoint = Pair(
-      (coords.dx ~/ sizeOfPixel),
-      (coords.dy ~/ sizeOfPixel),
-    );
-
-    final graph = nowGraphHolder.state;
-    final searchResult = nowGraphHolder.state.exitPoints.indexOf(newPoint);
-    if (searchResult != -1) {
-      nowGraphHolder.update((state) => state..towns[searchResult] += 1);
-    } else {
-      nowGraphHolder.update(
-        (state) => graph
-          ..exitPoints.add(newPoint)
-          ..towns.add(1),
+    if (!nowGraphHolder.state.isGraphBuilded) {
+      final newPoint = Pair(
+        (coords.dx ~/ sizeOfPixel),
+        (coords.dy ~/ sizeOfPixel),
       );
+
+      final graph = nowGraphHolder.state;
+      final searchResult = nowGraphHolder.state.exitPoints.indexOf(newPoint);
+      if (searchResult != -1) {
+        nowGraphHolder.update((state) => state..towns[searchResult] += 1);
+      } else {
+        nowGraphHolder.update(
+          (state) => graph
+            ..exitPoints.add(newPoint)
+            ..towns.add(1),
+        );
+      }
     }
   }
 
   void onSecondTap(Offset coords, double sizeOfPixel) {
-    final oldPoint = Pair(
-      (coords.dx ~/ sizeOfPixel),
-      (coords.dy ~/ sizeOfPixel),
-    );
+    if (!nowGraphHolder.state.isGraphBuilded) {
+      final oldPoint = Pair(
+        (coords.dx ~/ sizeOfPixel),
+        (coords.dy ~/ sizeOfPixel),
+      );
 
-    final searchResult = nowGraphHolder.state.exitPoints.indexOf(oldPoint);
-    if (searchResult != -1) {
-      if (nowGraphHolder.state.towns[searchResult] == 1) {
-        nowGraphHolder.update(
-          (state) => state
-            ..exitPoints.removeAt(searchResult)
-            ..towns.removeAt(searchResult),
-        );
-      } else {
-        nowGraphHolder.update((state) => state..towns[searchResult] -= 1);
+      final searchResult = nowGraphHolder.state.exitPoints.indexOf(oldPoint);
+      if (searchResult != -1) {
+        if (nowGraphHolder.state.towns[searchResult] == 1) {
+          nowGraphHolder.update(
+            (state) => state
+              ..exitPoints.removeAt(searchResult)
+              ..towns.removeAt(searchResult),
+          );
+        } else {
+          nowGraphHolder.update((state) => state..towns[searchResult] -= 1);
+        }
       }
     }
   }

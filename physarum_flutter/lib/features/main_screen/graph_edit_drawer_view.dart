@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_flutter/features/graph_field/ui/graph_field_view.dart';
 
-import 'package:physarum_flutter/features/main_screen/main_screen_manager.dart';
 import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
 
 class GraphEditDrawer extends ConsumerStatefulWidget {
