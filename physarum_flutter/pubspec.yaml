@@ -13,6 +13,7 @@ dependencies:
   physarum_cpp_ffi:
     path: physarum_cpp_ffi/
 
+  window_manager: ^0.3.2
   json_annotation: ^4.8.0
   freezed_annotation: ^2.2.0
   theme_tailor_annotation: ^1.0.3

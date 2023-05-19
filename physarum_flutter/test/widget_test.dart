@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:physarum_flutter/main.dart';
 import 'package:physarum_flutter/ui/my_app.dart';
 
 void main() {

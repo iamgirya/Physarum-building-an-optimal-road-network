@@ -24,11 +24,12 @@ class _MainPageState extends ConsumerState<MainPage> {
       ),
       body: Center(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const GraphDrawField(
               sizeOfField: 200,
               sizeOfPixel: 3,
+              isBest: false,
             ),
             const SizedBox(
               width: 15,
@@ -69,6 +70,14 @@ class _MainPageState extends ConsumerState<MainPage> {
                   child: const Text('Сбросить'),
                 ),
               ],
+            ),
+            const SizedBox(
+              width: 15,
+            ),
+            const GraphDrawField(
+              sizeOfField: 200,
+              sizeOfPixel: 3,
+              isBest: true,
             ),
           ],
         ),

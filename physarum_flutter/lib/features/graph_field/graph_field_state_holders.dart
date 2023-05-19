@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:physarum_flutter/models/graph_model.dart';
 
-final graphsFieldGraphStateHolder =
+final nowGraphsFieldGraphStateHolder =
+    NotifierProvider<GraphNotifier, Graph>(() => GraphNotifier());
+
+final bestGraphsFieldGraphStateHolder =
     NotifierProvider<GraphNotifier, Graph>(() => GraphNotifier());
 
 class GraphNotifier extends Notifier<Graph> {

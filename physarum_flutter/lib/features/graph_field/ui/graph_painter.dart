@@ -18,7 +18,7 @@ class GraphPainter extends CustomPainter {
     );
 
     // graph
-    final Color edgeColor = Colors.red;
+    const Color edgeColor = Colors.red;
     for (int h = 0; h < graph.graph.length; h++) {
       for (int k = 0; k < graph.graph[h].length; k++) {
         Pair first = graph.exitPoints[h];

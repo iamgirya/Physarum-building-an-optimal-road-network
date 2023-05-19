@@ -3,7 +3,7 @@ import 'package:physarum_cpp_ffi/get_graph_func.dart';
 import 'package:physarum_cpp_ffi/physarum_core.dart' as ffi;
 import 'package:physarum_cpp_ffi/physarum_cpp_execute_func.dart';
 import 'package:physarum_cpp_ffi/physarum_flutter_adapter_model.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_manager.dart';
+import 'package:physarum_flutter/features/graph_field/graph_fields_manager.dart';
 import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
 import 'package:physarum_flutter/models/graph_model.dart';
 import 'package:physarum_flutter/models/main_screen_state.dart';
@@ -11,7 +11,7 @@ import 'package:physarum_flutter/models/pair.dart';
 
 final physarumManager = Provider<PhysarumManager>((ref) {
   return PhysarumManager(
-    graphFieldManager: ref.watch(graphFieldManager),
+    graphFieldManager: ref.watch(graphFieldsManager),
     mainScreenState: ref.watch(mainScreenStateHolder.notifier),
   );
 });
@@ -27,7 +27,7 @@ class PhysarumManager {
 
   void onRestartTap() async {
     mainScreenState.update((state) => state.copyWith(isNeedRestart: true));
-    graphFieldManager.setNewGraph(Graph.empty());
+    graphFieldManager.setNowGraph(Graph.empty());
   }
 
   void onStopTap() async {
@@ -70,8 +70,10 @@ class PhysarumManager {
     if (mainScreenState.state.isAlgoWorking &&
         !mainScreenState.state.isNeedRestart) {
       final bestNetwork = ffi.bindings.getGraph(true);
+      graphFieldManager.setBestGraph(_parseNetworkToGraph(bestNetwork));
+
       final nowNetwork = ffi.bindings.getGraph(false);
-      graphFieldManager.setNewGraph(_parseNetworkToGraph(bestNetwork));
+      graphFieldManager.setNowGraph(_parseNetworkToGraph(nowNetwork));
       // вычисляем сколько шагов осталось
       stepCount--;
       mainScreenState.state.stepCountTextEditingController.text =
