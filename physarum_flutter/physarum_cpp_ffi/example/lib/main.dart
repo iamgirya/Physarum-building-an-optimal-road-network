@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:physarum_cpp_ffi/ffi_core.dart' as physarum_cpp_ffi;
-import 'package:physarum_cpp_ffi/execute_func.dart';
-
 void main() {
   runApp(const MyApp());
 }

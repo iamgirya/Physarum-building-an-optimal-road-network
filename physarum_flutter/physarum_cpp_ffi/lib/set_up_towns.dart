@@ -24,9 +24,6 @@ extension SetUpTownsFunc on PhysarumCppFfiBindings {
       positionY.ref.data[i] = points[i][1];
       townsPriority.ref.data[i] = towns[i];
     }
-    final t1 = positionX.ref;
-    final t2 = positionY.ref;
-    final t3 = townsPriority.ref;
 
     execute(positionX, positionY, townsPriority);
     arena.releaseAll();

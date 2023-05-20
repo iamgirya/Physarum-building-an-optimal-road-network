@@ -7,7 +7,6 @@ import 'package:physarum_cpp_ffi/flutter_adapter_model.dart';
 import 'package:physarum_cpp_ffi/set_up_settings.dart';
 import 'package:physarum_cpp_ffi/set_up_towns.dart';
 import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/features/graph_field/graph_fields_manager.dart';
 import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
 import 'package:physarum_flutter/features/setting_panel/simulation_setting_state_holder.dart';
 import 'package:physarum_flutter/models/graph_model.dart';
@@ -145,8 +144,12 @@ class PhysarumManager {
       graph = Graph.empty();
       for (int i = 0; i < networkOrGraph.exitPoints.length; i++) {
         graph.towns.add(networkOrGraph.towns[i]);
-        graph.exitPoints.add(Pair(
-            networkOrGraph.exitPoints[i][0], networkOrGraph.exitPoints[i][1]));
+        graph.exitPoints.add(
+          Pair(
+            networkOrGraph.exitPoints[i][0],
+            networkOrGraph.exitPoints[i][1],
+          ),
+        );
         graph.graph.add(networkOrGraph.graph[i]);
       }
     } else if (networkOrGraph is Graph) {

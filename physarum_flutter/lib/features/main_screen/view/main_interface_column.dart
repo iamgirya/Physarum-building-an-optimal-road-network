@@ -58,30 +58,36 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
           ),
           const Spacer(),
           const Text('Вес:'),
-          Text(state.metricWeigth == -1
-              ? '-'
-              : state.metricWeigth.toStringAsFixed(3)),
+          Text(
+            state.metricWeigth == -1
+                ? '-'
+                : state.metricWeigth.toStringAsFixed(3),
+          ),
           const SizedBox(
             height: 5,
           ),
           const Text('Дистанция'),
-          Text(state.metricDistance == -1
-              ? '-'
-              : state.metricDistance.toStringAsFixed(3)),
+          Text(
+            state.metricDistance == -1
+                ? '-'
+                : state.metricDistance.toStringAsFixed(3),
+          ),
           const SizedBox(
             height: 5,
           ),
           const Text('Устойчивость'),
-          Text(state.metricResistance == -1
-              ? '-'
-              : state.metricResistance.toStringAsFixed(3)),
+          Text(
+            state.metricResistance == -1
+                ? '-'
+                : state.metricResistance.toStringAsFixed(3),
+          ),
           const SizedBox(
             height: 5,
           ),
           const Text('Поток'),
-          Text(state.metricFlow == -1
-              ? '-'
-              : state.metricFlow.toStringAsFixed(3)),
+          Text(
+            state.metricFlow == -1 ? '-' : state.metricFlow.toStringAsFixed(3),
+          ),
           const SizedBox(
             height: 15,
           ),

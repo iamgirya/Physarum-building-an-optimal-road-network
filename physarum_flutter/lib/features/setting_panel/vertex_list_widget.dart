@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/features/graph_field/graph_fields_manager.dart';
-import 'package:physarum_flutter/features/main_screen/view/main_screen_button.dart';
-import 'package:physarum_flutter/features/setting_panel/setting_manager.dart';
 
 class VertexList extends ConsumerStatefulWidget {
   const VertexList({super.key});
@@ -16,7 +13,6 @@ class _VertexListState extends ConsumerState<VertexList> {
   @override
   Widget build(BuildContext context) {
     // TODO сделать настройку вершин через менюшку
-    final manager = ref.watch(settingsManager);
     final graph = ref.watch(nowGraphsFieldGraphStateHolder);
     return graph.isGraphBuilded
         ? const _IsAlgoWorkingMessage()
