@@ -21,7 +21,7 @@ extension SetUpSimulationFunc on PhysarumCppFfiBindings {
                   Bool,
                   Double,
                   Double,
-                  Int,
+                  Double,
                   Double,
                 )>>('setUpSimulation')
         .asFunction<
@@ -40,10 +40,11 @@ extension SetUpSimulationFunc on PhysarumCppFfiBindings {
               bool,
               double,
               double,
-              int,
+              double,
               double,
             )>();
 
+    // лучше false возвращать, чем так
     execute(
       settings['locationX']?.toInt() ?? 200,
       settings['locationY']?.toInt() ?? 200,
@@ -60,7 +61,7 @@ extension SetUpSimulationFunc on PhysarumCppFfiBindings {
       (settings['isCanMultiAgent'] != 0),
       settings['edgesRange']?.toDouble() ?? 16,
       settings['vertexRange']?.toDouble() ?? 8,
-      settings['minVertexMass']?.toInt() ?? 4,
+      settings['minVertexMass']?.toDouble() ?? 4,
       settings['minEdgeAngle']?.toDouble() ?? 15,
     );
   }

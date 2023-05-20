@@ -2,59 +2,7 @@
 
 SlimeMoldSimulation sim;
 
-void restartSimulation() {
-	sim.placeGenerators({ 
-		make_pair(8,121),
-		make_pair(35, 126),
-		make_pair(35, 94),
-		make_pair(59, 65),
-		make_pair(20, 49),
-		make_pair(45, 6),
-		make_pair(82, 19),
-		make_pair(98, 31),
-		make_pair(82, 67),
-		make_pair(72, 101),
-		make_pair(95, 77),
-		make_pair(123, 49),
-		make_pair(146, 36),
-		make_pair(182, 44),
-		make_pair(153, 69),
-		make_pair(191, 78),
-		make_pair(135, 83),
-		make_pair(158, 123),
-		make_pair(105, 114),
-		make_pair(122, 111),
-		make_pair(96, 153),
-		make_pair(83, 126),
-		make_pair(127, 183),
-		make_pair(153, 190) }, {
-		1,
-		3,
-		3,
-		3,
-		1,
-		3,
-		3,
-		3,
-		3,
-		6,
-		3,
-		3,
-		3,
-		1,
-		3,
-		1,
-		3,
-		1,
-		3,
-		1,
-		3,
-		3,
-		1,
-		1
-		}
-	);
-}
+
 
 FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
 	vector <it> generatorsPriotiry;
@@ -63,12 +11,13 @@ FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
 		generatorsPoint.push_back(make_pair(x->data[i], y->data[i]));
 		generatorsPriotiry.push_back(towns->data[i]);
 	}
-	
+
 	sim.placeGenerators(generatorsPoint, generatorsPriotiry);
 }
 
-FFI_PLUGIN_EXPORT void setUpSimulation(it xSize, it ySize, it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, it minVertexMass, ft minEdgeAngle){
+FFI_PLUGIN_EXPORT void setUpSimulation(it xSize, it ySize, it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, ft minVertexMass, ft minEdgeAngle) {
 	sim = SlimeMoldSimulation(xSize, ySize);
+	
 	sim.setUp(timeToLive, startPopulation, sensorOffsetDistance, sensorAngle, rotateAngle, stepSize, depositPerStep, decayFactor, isPeriodicBoundary, isCanMultiAgent, edgesRange, vertexRange, minVertexMass, minEdgeAngle);
 }
 
