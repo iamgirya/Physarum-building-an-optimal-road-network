@@ -1,14 +1,10 @@
 import 'dart:ffi';
 
-import 'physarum_core.dart';
-import 'physarum_flutter_adapter_model.dart';
+import 'ffi_core.dart';
+import 'flutter_adapter_model.dart';
 
 extension GetGraphFunc on PhysarumCppFfiBindings {
   SlimeMoldNetwork getGraph(bool isNeedBest) {
-    return _getGraph(isNeedBest);
-  }
-
-  SlimeMoldNetwork _getGraph(bool isNeedBest) {
     final execute =
         lookup<NativeFunction<Pointer<SlimeMoldNetworkFFI> Function(Bool)>>(
                 'getGraph')

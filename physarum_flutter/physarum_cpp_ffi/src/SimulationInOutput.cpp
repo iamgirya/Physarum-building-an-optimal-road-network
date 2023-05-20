@@ -45,7 +45,8 @@ bool SlimeMoldSimulation::updateSettingsFromFile(bool isStart) {
 			bool isNeedToUpdateAgents = population != 0 && (sensorOffsetDistance != sensorOffsetDistance || factory.sensorAngle != sensorsAngle || stepSize != stepSize);
 			bool isNeedToResizePopulation = population != newPopulation;
 
-			setUp(timeToLive, newPopulation, sensorOffsetDistance, sensorsAngle, rotationAngle, stepSize, depositPerStep, decayFactor, isPeriodicBoundary, isCanMultiAgent);
+			// TODO ввод вывод через файл нужно обновить для новых 4-х параметров. Или удалить его
+			setUp(timeToLive, newPopulation, sensorOffsetDistance, sensorsAngle, rotationAngle, stepSize, depositPerStep, decayFactor, isPeriodicBoundary, isCanMultiAgent, 0, 0, 0, 0);
 
 			if (isNeedToResizePopulation) {
 				if (particles.size() < newPopulation) {

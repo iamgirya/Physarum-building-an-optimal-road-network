@@ -285,9 +285,9 @@ extern "C" {
 
         SlimeMoldSimulation(it xSize, it ySize);
 
-        void setUp(it ttl, it sp, ft sod, ft sa, ft ra, ft ss, ft dps, ft dec, bool ipb, bool icma);
+        void setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, it minVertexMass, ft minEdgeAngle);
 
-        void placeGenerators(vector<pair<ft, ft>>, vector<ft>);
+        void placeGenerators(vector<pair<it, it>>, vector<it>);
 
         void startSimulation(it);
 
@@ -341,9 +341,14 @@ extern "C" {
 
     SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints);
 
-    FFI_PLUGIN_EXPORT void execute(int stepCount, int isNeedRestart);
+    FFI_PLUGIN_EXPORT void execute(int stepCount);
 
     FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest);
 
     FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics();
+
+    FFI_PLUGIN_EXPORT void setUpSimulation(it xSize, it ySize, it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, it minVertexMass, ft minEdgeAngle);
+
+    FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns);
+
 }

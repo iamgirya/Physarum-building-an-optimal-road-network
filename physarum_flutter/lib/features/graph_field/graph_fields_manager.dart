@@ -62,12 +62,4 @@ class GraphFieldManager {
       }
     }
   }
-
-  void setNowGraph(Graph newGraph) {
-    nowGraphHolder.update((state) => newGraph);
-  }
-
-  void setBestGraph(Graph newGraph) {
-    bestGraphHolder.update((state) => newGraph);
-  }
 }

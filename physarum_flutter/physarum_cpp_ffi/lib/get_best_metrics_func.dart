@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
-import 'physarum_core.dart';
-import 'physarum_flutter_adapter_model.dart';
+import 'ffi_core.dart';
+import 'flutter_adapter_model.dart';
 
 extension GetBestMetricsFunc on PhysarumCppFfiBindings {
   /// 0 - вес
@@ -9,10 +9,6 @@ extension GetBestMetricsFunc on PhysarumCppFfiBindings {
   /// 2 - устойчивость
   /// 3 - избыток потока
   List<double> getBestMetrics() {
-    return _getBestMetrics();
-  }
-
-  List<double> _getBestMetrics() {
     final execute = lookup<NativeFunction<Pointer<DoubleArray> Function()>>(
             'getBestMetrics')
         .asFunction<Pointer<DoubleArray> Function()>();

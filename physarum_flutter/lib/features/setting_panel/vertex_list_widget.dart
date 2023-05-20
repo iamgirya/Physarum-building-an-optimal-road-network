@@ -54,10 +54,6 @@ class _VertexListState extends ConsumerState<VertexList> {
                   itemCount: graph.towns.length,
                 ),
               ),
-              MainScreenButton(
-                onPressed: (_) => manager.onSaveSetting(),
-                title: 'Установить',
-              ),
             ],
           );
   }

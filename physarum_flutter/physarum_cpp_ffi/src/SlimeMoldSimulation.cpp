@@ -9,11 +9,6 @@ SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 	location = Location(xSize, ySize);
 	factory = SlimeAgentFactory();
 	analyser = AgentGraphAnalyser();
-	// TODO параметры вынести в настройку
-	analyser.edgesRange = 16;
-	analyser.vertexRange = 8;
-	analyser.minVertexMass = 4;
-	analyser.minEdgeAngle = 15;
 }
 
 void SlimeMoldSimulation::makeStep() {
@@ -58,7 +53,7 @@ void SlimeMoldSimulation::makeStep() {
 	location.castDecay();
 }
 
-void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent) {
+void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, it minVertexMass, ft minEdgeAngle) {
 
 	rotationAngle = it(rotationAngle) % 360;
 	rotationAngle = rotationAngle * PI / 180;
@@ -82,11 +77,17 @@ void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffs
 	this->location.decayFactor = decayFactor;
 	this->location.isPeriodicBoundary = isPeriodicBoundary;
 	this->location.isCanMultiAgent = isCanMultiAgent;
+
+	// параметры анализатора
+	this->analyser.edgesRange = edgesRange;
+	this->analyser.vertexRange = vertexRange;
+	this->analyser.minVertexMass = minVertexMass;
+	this->analyser.minEdgeAngle = minEdgeAngle;
 }
 
-void SlimeMoldSimulation::placeGenerators(vector<pair<ft, ft>> positions, vector<ft> agentsPerSec) {
+void SlimeMoldSimulation::placeGenerators(vector<pair<it, it>> positions, vector<it> agentsPerSec) {
 	for (int i = 0; i < positions.size(); i++) {
-		Generator* tmpGenerator = new Generator({ positions[i].first, positions[i].second}, agentsPerSec[i], i, &factory);
+		Generator* tmpGenerator = new Generator({ ft(positions[i].first), ft(positions[i].second)}, ft(agentsPerSec[i]), i, &factory);
 		location.generators.push_back(tmpGenerator);
 	}
 }

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_cpp_ffi/physarum_core.dart' as ffi;
 import 'package:physarum_flutter/features/setting_panel/simulation_setting_state_holder.dart';
 import 'package:physarum_flutter/models/settings_state.dart';
 

@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'physarum_core.dart';
-import 'physarum_flutter_adapter_model.dart';
+import 'package:physarum_cpp_ffi/ffi_core.dart';
 
 // TODO Какой же это говнокод. Обещаю исправить
+typedef NativeExecute = Void Function(Int);
+typedef FFIExecute = void Function(int);
 
 /// Counter to identify [_ExecuteRequest]s and [_ExecuteResponse]s.
 int _nextSumRequestId = 0;
@@ -16,9 +17,8 @@ int _nextSumRequestId = 0;
 class _ExecuteRequest {
   final int id;
   final int stepCount;
-  final int isNeedRestart;
 
-  const _ExecuteRequest(this.id, this.stepCount, this.isNeedRestart);
+  const _ExecuteRequest(this.id, this.stepCount);
 }
 
 /// A response with the result of `sum`.
@@ -66,7 +66,7 @@ Future<SendPort> _helperIsolateSendPort = () async {
       ..listen((dynamic data) {
         // On the helper isolate listen to requests and respond to them.
         if (data is _ExecuteRequest) {
-          bindings._execute(data.stepCount, data.isNeedRestart);
+          bindings._execute(data.stepCount);
           final _ExecuteResponse response = _ExecuteResponse(data.id);
           sendPort.send(response);
           return;
@@ -84,19 +84,19 @@ Future<SendPort> _helperIsolateSendPort = () async {
 }();
 
 extension ExecuteFunc on PhysarumCppFfiBindings {
-  Future<void> executeAsync(int a, int b) async {
+  Future<void> executeAsync(int stepCount) async {
     final SendPort helperIsolateSendPort = await _helperIsolateSendPort;
     final int requestId = _nextSumRequestId++;
-    final _ExecuteRequest request = _ExecuteRequest(requestId, a, b);
+    final _ExecuteRequest request = _ExecuteRequest(requestId, stepCount);
     final Completer<void> completer = Completer<void>();
     _executeRequests[requestId] = completer;
     helperIsolateSendPort.send(request);
     return completer.future;
   }
 
-  void _execute(int stepCount, int b) {
+  void _execute(int stepCount) {
     final execute = lookup<NativeFunction<NativeExecute>>('execute')
         .asFunction<FFIExecute>();
-    execute(stepCount, b);
+    execute(stepCount);
   }
 }
