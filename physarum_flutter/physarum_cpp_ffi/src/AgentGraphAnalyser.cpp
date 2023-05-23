@@ -530,7 +530,7 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 			ft nowDistance = 0;
 
 			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// поток из i в j
-			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority() - towns[townIndexes[j]]);// поток обратно
+			waysFlow += ft(towns[townIndexes[j]] * towns[townIndexes[i]]) / (sumOfPriority() - towns[townIndexes[j]]);// поток обратно
 
 			it first;
 			it second = waysGraph[i][j][0];

@@ -2,8 +2,8 @@
 
 int main()
 {
-	FlutterAdapter ada = FlutterAdapter();
-	ada.execute();
+	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
+	sim.startSimulation(2000);
 }
 
 

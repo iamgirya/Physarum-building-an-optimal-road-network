@@ -111,13 +111,17 @@ void SlimeMoldSimulation::placeGenerators(vector<pair<ft, ft>> positions, vector
 void SlimeMoldSimulation::startSimulation(it stepCount) {
 	std::random_device rd;
 	std::mt19937 g(rd());
-	while (stepCount--) {
-		makeStep();
-		shuffle(particles.begin(), particles.end(), g);
-		if (stepCount % 100 == 0) {
-			analyser.makeGraph(particles, location.generators);
-			analyser.minimizeGraph();
-			analyser.calculateMetrics();
+	if (updateSettingsFromFile(true)) {
+		while (stepCount--) {
+			makeStep();
+			shuffle(particles.begin(), particles.end(), g);
+			if (stepCount % 100 == 0) {
+				analyser.makeGraph(particles, location.generators);
+				outputInBmpGraph(analyser.exitPoints, analyser.graph, false, 1);
+				analyser.minimizeGraph();
+				outputInBmpGraph(analyser.exitPoints, analyser.graph, false, 2);
+				analyser.calculateMetrics();
+			}
 		}
 	}
 }
