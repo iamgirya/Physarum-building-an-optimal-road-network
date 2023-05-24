@@ -116,8 +116,9 @@ void SlimeMoldSimulation::startSimulation(it stepCount) {
 			makeStep();
 			shuffle(particles.begin(), particles.end(), g);
 			if (stepCount % 100 == 0) {
+				//outputInBmp(false);
 				analyser.makeGraph(particles, location.generators);
-				outputInBmpGraph(analyser.exitPoints, analyser.graph, false, 1);
+				//outputInBmpGraph(analyser.exitPoints, analyser.graph, false, 1);
 				analyser.minimizeGraph();
 				outputInBmpGraph(analyser.exitPoints, analyser.graph, false, 2);
 				analyser.calculateMetrics();
@@ -125,3 +126,30 @@ void SlimeMoldSimulation::startSimulation(it stepCount) {
 		}
 	}
 }
+
+/*
+8 121 1
+35 126 3
+35 94 3
+59 65 3
+20 49 1
+45 6 3
+82 19 3
+98 31 3
+82 67 3
+72 101 6
+95 77 3
+123 49 3
+146 36 3
+182 44 1
+153 69 3
+191 78 1
+135 83 3
+158 123 1
+105 114 3
+122 111 1
+96 153 3
+83 126 3
+127 183 1
+153 190 1
+*/

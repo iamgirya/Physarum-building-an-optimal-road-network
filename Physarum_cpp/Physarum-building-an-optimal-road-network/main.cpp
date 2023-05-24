@@ -3,7 +3,7 @@
 int main()
 {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
-	sim.startSimulation(2000);
+	sim.startSimulation(20000);
 }
 
 

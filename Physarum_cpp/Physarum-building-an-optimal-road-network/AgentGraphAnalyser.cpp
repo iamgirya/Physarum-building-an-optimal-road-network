@@ -710,6 +710,15 @@ void AgentGraphAnalyser::calculateMetrics() {
 		return;
 	}
 	vector <ft> metrics = { calculateWeigth(), calculateDeltaFlow(), calculateOverDistance(), calculateResistance() };
+	//debug
+	if (true) {
+		cout << metrics[0] << endl;
+		cout << metrics[1] << endl;
+		cout << metrics[2] << endl;
+		cout << metrics[3] << endl;
+		cout << endl;
+	}
+
 	ft nowMetricsSum = metrics[0] * metrics[1] * metrics[2] * metrics[3];
 
 	if (bestGraph.empty() || nowMetricsSum < metricsSum) {
@@ -720,5 +729,14 @@ void AgentGraphAnalyser::calculateMetrics() {
 		copy(towns.begin(), towns.end(), bestTowns.begin());
 		copy(exitPoints.begin(), exitPoints.end(), bestExitPoints.begin());
 		copy(graph.begin(), graph.end(), bestGraph.begin());
+
+		if (true) {
+			cout << 'b' << endl;
+			cout << metrics[0] << endl;
+			cout << metrics[1] << endl;
+			cout << metrics[2] << endl;
+			cout << metrics[3] << endl;
+			cout << endl;
+		}
 	}
 }

@@ -280,7 +280,7 @@ void SlimeMoldSimulation::outputInBmp(bool isChangedSettings = false) {
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
 
-	string name = "1img.bmp"; // to_string(bmpi) +
+	string name =  "0img.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
 	try {
 		fwrite(bmpfileheader, 1, 14, f);
@@ -428,7 +428,7 @@ void SlimeMoldSimulation::outputInBmpGraph(vector<pair<it,it>>& points, vector<v
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
 	
-	string name = (number == -1 ? "" : to_string(number) + to_string(bmpi)) + num + "imgGraph.bmp"; // to_string(bmpi) +
+	string name = (number == -1 ? "" : to_string(number)) + num + "imgGraph.bmp"; // to_string(bmpi) +
 	f = fopen(name.data(), "wb");
 	try {
 		fwrite(bmpfileheader, 1, 14, f);
