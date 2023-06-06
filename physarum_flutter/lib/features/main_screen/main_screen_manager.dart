@@ -97,7 +97,7 @@ class MainScreenManager {
       );
     }
 
-    await bindings.executeAsync(iterationPerStep);
+    await bindings.execute(iterationPerStep);
     if (mainScreenState.state.isAlgoWorking &&
         !mainScreenState.state.isNeedRestart) {
       final bestNetwork = bindings.getGraph(true);

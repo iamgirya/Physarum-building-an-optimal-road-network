@@ -3,10 +3,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'functions/execute.dart';
-
+// init lookup
 const String _libName = 'physarum_cpp_ffi';
-
 final DynamicLibrary _dylib = () {
   if (Platform.isMacOS || Platform.isIOS) {
     return DynamicLibrary.open('$_libName.framework/$_libName');
@@ -19,58 +17,78 @@ final DynamicLibrary _dylib = () {
   }
   throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
 }();
-
 final Pointer<T> Function<T extends NativeType>(String symbolName) lookup =
     _dylib.lookup;
 
-// TODO Какой же это говнокод. Обещаю исправить
-typedef NativeExecute = Void Function(Int);
-typedef FFIExecute = void Function(int);
+//Реализация работы с изолятами.
 
-/// Counter to identify [ExecuteRequest]s and [ExecuteResponse]s.
-int nextSumRequestId = 0;
+// Так как программа запущена в главном изоляте, а тяжеловесные вызовы функций запускаются в дополнительном,
+// необходимо наладить связь между ними.
+// В главном изоляте создаётся ReceivePort, что отвечает за две функции:
+// 1) Он получает в себя события из изолятов о том, что функция с индексом Х посчитана с результатом Y.
+// После чего он вызывает нужные Completer-ы.
+// 2) При инициализации нового изолята получает его SendPort (предварительно передав ему свой SendPort)
+// и сохраняет в главном изоляте, для последующего доступа.
+// В дополнительном изолятя имеется свой ReceivePort, который занимается только выполнением внутри себя функции
 
-/// A request to compute `sum`.
-///
-/// Typically sent from one isolate to another.
+// Событие запроса выполнения, формируемое при вызове функции в главном изоляте
+// Индекс нужен для запоминания, какой Completer должен получить результат выполнения этой функции
+// Сама функция и аргументы, чтобы её можно было запустить в изоляте вне зависимости от реализации оной
 class ExecuteRequest {
   final int id;
-  final int stepCount;
+  final Function function;
+  final Map<String, dynamic> args;
 
-  const ExecuteRequest(this.id, this.stepCount);
+  const ExecuteRequest(this.id, this.function, this.args);
 }
 
-/// A response with the result of `sum`.
-///
-/// Typically sent from one isolate to another.
+// Результат, что формируется в доп. изоляте.
+// Аналогично индекс определяет то, какой Completer должен получить result
 class ExecuteResponse {
   final int id;
+  final dynamic result;
 
-  const ExecuteResponse(this.id);
+  const ExecuteResponse(this.id, this.result);
 }
 
-/// Mapping from [ExecuteRequest] `id`s to the completers corresponding to the correct future of the pending request.
-final Map<int, Completer<void>> executeRequests = <int, Completer<void>>{};
+// Сохраняем Completer значения по индексам, чтобы изоляты работали параллельно
+final Map<int, Completer<dynamic>> executeRequests =
+    <int, Completer<dynamic>>{};
 
-/// The SendPort belonging to the helper isolate.
+// номер посылки
+int nextSumRequestId = 0;
+Future<T> executeInIsolate<T>(executeFunc, Map<String, dynamic> args) async {
+  // получаем SendPort дополнительного изолята
+  final SendPort helperIsolateSendPort1 = await helperIsolateSendPort;
+
+  // сохраняем посылку
+  final int requestId = nextSumRequestId++;
+  final ExecuteRequest request = ExecuteRequest(requestId, executeFunc, args);
+  final Completer<T> completer = Completer<T>();
+  executeRequests[requestId] = completer;
+
+  // передаём событие в очередь новому изоляту, чтобы он начал работу
+  helperIsolateSendPort1.send(request);
+
+  // возвращаем вычисленное значение, когда основной изолят обработает событие получения результата
+  return completer.future;
+}
+
+// SendPort дополнительного изолята, в который пишутся события на выполнение функции
 Future<SendPort> helperIsolateSendPort = () async {
-  // The helper isolate is going to send us back a SendPort, which we want to
-  // wait for.
+  // Так как создание изолята асинхронно, то создадим Completer, который в конечном итоге вернёт нам его SendPort
   final Completer<SendPort> completer = Completer<SendPort>();
 
-  // Receive port on the main isolate to receive messages from the helper.
-  // We receive two types of messages:
-  // 1. A port to send messages on.
-  // 2. Responses to requests we sent.
+  // ReceivePort главного изолята
   final ReceivePort receivePort = ReceivePort()
     ..listen((dynamic data) {
       if (data is SendPort) {
-        // The helper isolate sent us the port on which we can sent it requests.
+        // Возвращаем в главный изолят SendPort дополнительного
         completer.complete(data);
         return;
       }
       if (data is ExecuteResponse) {
-        // The helper isolate sent us a response to a request we sent.
+        // Получили результат, записываем его в нужный Completer
         final Completer<void> completer = executeRequests[data.id]!;
         executeRequests.remove(data.id);
         completer.complete();
@@ -79,25 +97,26 @@ Future<SendPort> helperIsolateSendPort = () async {
       throw UnsupportedError('Unsupported message type: ${data.runtimeType}');
     });
 
-  // Start the helper isolate.
+  // Создаём изолят
   await Isolate.spawn((SendPort sendPort) async {
+    // В изоляте создаём ReceivePort, который будет обрабатывать запросы на выполнение функций
     final ReceivePort helperReceivePort = ReceivePort()
       ..listen((dynamic data) {
-        // On the helper isolate listen to requests and respond to them.
         if (data is ExecuteRequest) {
-          execute(data.stepCount);
-          final ExecuteResponse response = ExecuteResponse(data.id);
+          // выполняем функцию
+          final result = data.function(data.args);
+          final ExecuteResponse response = ExecuteResponse(data.id, result);
+          // возвращаем в SendPort главного изолята событие с результатом
           sendPort.send(response);
           return;
         }
         throw UnsupportedError('Unsupported message type: ${data.runtimeType}');
       });
 
-    // Send the port to the main isolate on which we can receive requests.
+    // после создания внутри изолята ReceivePort передаём его SendPort для сохранения оного в основном изоляте
+    // Для этого нам и нужно было передавать в изолят SendPort главного изолята
     sendPort.send(helperReceivePort.sendPort);
   }, receivePort.sendPort);
 
-  // Wait until the helper isolate has sent us back the SendPort on which we
-  // can start sending requests.
   return completer.future;
 }();
