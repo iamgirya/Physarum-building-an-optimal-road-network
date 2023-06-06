@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:physarum_flutter/support/settings_data.dart';
+import '../support/settings_data.dart';
 
 part 'settings_state.freezed.dart';
 

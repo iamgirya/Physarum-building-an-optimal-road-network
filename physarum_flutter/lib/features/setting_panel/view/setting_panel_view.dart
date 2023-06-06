@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:physarum_flutter/features/setting_panel/settings_list_widget.dart';
-import 'package:physarum_flutter/features/setting_panel/vertex_list_widget.dart';
+
+import 'settings_list_widget.dart';
+import 'vertex_list_widget.dart';
 
 class SettingsPanel extends StatelessWidget {
   const SettingsPanel({super.key});

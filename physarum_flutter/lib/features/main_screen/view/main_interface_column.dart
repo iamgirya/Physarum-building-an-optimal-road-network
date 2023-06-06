@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/main_screen/view/main_screen_button.dart';
-import 'package:physarum_flutter/features/main_screen/main_screen_manager.dart';
+import 'main_screen_button.dart';
+import '../main_screen_manager.dart';
 
-import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
+import '../main_screen_state_holder.dart';
 
 class MainInterfaceColumn extends ConsumerStatefulWidget {
   const MainInterfaceColumn({super.key});

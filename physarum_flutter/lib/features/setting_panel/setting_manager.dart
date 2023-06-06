@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/features/setting_panel/simulation_setting_state_holder.dart';
-import 'package:physarum_flutter/models/settings_state.dart';
+import '../graph_field/graph_field_state_holders.dart';
+import 'simulation_setting_state_holder.dart';
+import '../../models/settings_state.dart';
 
 final settingsManager = Provider<SettingsManager>((ref) {
   return SettingsManager(

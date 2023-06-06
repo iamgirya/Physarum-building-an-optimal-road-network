@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_fields_manager.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
+import '../graph_fields_manager.dart';
+import '../graph_field_state_holders.dart';
 
-import 'package:physarum_flutter/features/graph_field/ui/graph_painter.dart';
+import 'graph_painter.dart';
 
 class GraphDrawField extends ConsumerStatefulWidget {
   final double sizeOfPixel;

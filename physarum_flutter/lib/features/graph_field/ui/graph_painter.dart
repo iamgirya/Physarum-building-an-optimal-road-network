@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:physarum_flutter/models/graph_model.dart';
-import 'package:physarum_flutter/models/pair.dart';
+import '../../../models/graph_model.dart';
+import '../../../models/pair.dart';
 
 class GraphPainter extends CustomPainter {
   GraphPainter(this.graph, this.sizeOfPixel);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:physarum_flutter/features/main_screen/main_screen_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'features/main_screen/view/main_screen_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {

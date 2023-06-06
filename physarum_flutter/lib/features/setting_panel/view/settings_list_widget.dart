@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/features/main_screen/view/main_screen_button.dart';
-import 'package:physarum_flutter/features/setting_panel/setting_manager.dart';
-import 'package:physarum_flutter/features/setting_panel/simulation_setting_state_holder.dart';
-import 'package:physarum_flutter/support/settings_data.dart';
+import '../../graph_field/graph_field_state_holders.dart';
+import '../../main_screen/view/main_screen_button.dart';
+import '../setting_manager.dart';
+import '../simulation_setting_state_holder.dart';
+import '../../../support/settings_data.dart';
 
 class SettingsList extends ConsumerStatefulWidget {
   const SettingsList({super.key});

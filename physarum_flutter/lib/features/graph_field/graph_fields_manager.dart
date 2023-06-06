@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/models/pair.dart';
+import 'graph_field_state_holders.dart';
+import '../../models/pair.dart';
 
 final graphFieldsManager = Provider<GraphFieldManager>((ref) {
   return GraphFieldManager(

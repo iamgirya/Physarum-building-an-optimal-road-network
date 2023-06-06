@@ -6,13 +6,13 @@ import 'package:physarum_cpp_ffi/execute_func.dart';
 import 'package:physarum_cpp_ffi/flutter_adapter_model.dart';
 import 'package:physarum_cpp_ffi/set_up_settings.dart';
 import 'package:physarum_cpp_ffi/set_up_towns.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
-import 'package:physarum_flutter/features/main_screen/main_screen_state_holder.dart';
-import 'package:physarum_flutter/features/setting_panel/simulation_setting_state_holder.dart';
-import 'package:physarum_flutter/models/graph_model.dart';
-import 'package:physarum_flutter/models/main_screen_state.dart';
-import 'package:physarum_flutter/models/pair.dart';
-import 'package:physarum_flutter/models/settings_state.dart';
+import '../graph_field/graph_field_state_holders.dart';
+import 'main_screen_state_holder.dart';
+import '../setting_panel/simulation_setting_state_holder.dart';
+import '../../models/graph_model.dart';
+import '../../models/main_screen_state.dart';
+import '../../models/pair.dart';
+import '../../models/settings_state.dart';
 
 final physarumManager = Provider<PhysarumManager>((ref) {
   return PhysarumManager(

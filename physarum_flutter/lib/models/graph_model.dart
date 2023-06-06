@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
-import 'package:physarum_flutter/models/pair.dart';
+import 'pair.dart';
 
 part 'graph_model.freezed.dart';
 

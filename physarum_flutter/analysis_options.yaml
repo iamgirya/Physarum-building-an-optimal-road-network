@@ -9,4 +9,4 @@ analyzer:
 linter:
   rules:
     - require_trailing_commas
-    - always_use_package_imports
+    - prefer_relative_imports

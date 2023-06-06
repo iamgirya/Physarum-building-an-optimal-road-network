@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_flutter/features/graph_field/graph_field_state_holders.dart';
+import '../../graph_field/graph_field_state_holders.dart';
 
 class VertexList extends ConsumerStatefulWidget {
   const VertexList({super.key});

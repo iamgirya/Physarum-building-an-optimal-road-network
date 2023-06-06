@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:physarum_flutter/features/graph_field/ui/graph_field_view.dart';
-import 'package:physarum_flutter/features/main_screen/view/graph_edit_drawer.dart';
-import 'package:physarum_flutter/features/main_screen/view/main_interface_column.dart';
-import 'package:physarum_flutter/features/setting_panel/setting_panel_view.dart';
+import '../../graph_field/ui/graph_field_view.dart';
+import 'graph_edit_drawer.dart';
+import 'main_interface_column.dart';
+
+import '../../setting_panel/view/setting_panel_view.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
