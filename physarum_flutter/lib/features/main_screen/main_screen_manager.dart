@@ -1,11 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_cpp_ffi/get_graph_func.dart';
-import 'package:physarum_cpp_ffi/get_best_metrics_func.dart';
-import 'package:physarum_cpp_ffi/ffi_core.dart' as ffi;
-import 'package:physarum_cpp_ffi/execute_func.dart';
 import 'package:physarum_cpp_ffi/flutter_adapter_model.dart';
-import 'package:physarum_cpp_ffi/set_up_settings.dart';
-import 'package:physarum_cpp_ffi/set_up_towns.dart';
+import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
 import 'main_screen_state_holder.dart';
 import '../setting_panel/simulation_setting_state_holder.dart';
@@ -14,8 +9,8 @@ import '../../models/main_screen_state.dart';
 import '../../models/pair.dart';
 import '../../models/settings_state.dart';
 
-final physarumManager = Provider<PhysarumManager>((ref) {
-  return PhysarumManager(
+final mainScreenManager = Provider<MainScreenManager>((ref) {
+  return MainScreenManager(
     mainScreenState: ref.watch(mainScreenStateHolder.notifier),
     bestGraphHolder: ref.watch(bestGraphsFieldGraphStateHolder.notifier),
     nowGraphHolder: ref.watch(nowGraphsFieldGraphStateHolder.notifier),
@@ -23,13 +18,13 @@ final physarumManager = Provider<PhysarumManager>((ref) {
   );
 });
 
-class PhysarumManager {
+class MainScreenManager {
   static const int iterationPerStep = 10;
   final StateController<MainScreenState> mainScreenState;
   final GraphNotifier bestGraphHolder;
   final GraphNotifier nowGraphHolder;
   final StateController<SettingsState> settingsState;
-  PhysarumManager({
+  MainScreenManager({
     required this.mainScreenState,
     required this.bestGraphHolder,
     required this.nowGraphHolder,
@@ -90,11 +85,11 @@ class PhysarumManager {
 
   Future<void> _callNextStep(int stepCount, bool isLaunch) async {
     if (isLaunch) {
-      ffi.bindings.setUpSimulation(
+      bindings.setUpSimulation(
         settingsState.state.settingsControllers
             .map((key, value) => MapEntry(key, num.parse(value.text))),
       );
-      ffi.bindings.setUpTowns(
+      bindings.setUpTowns(
         nowGraphHolder.state.exitPoints
             .map((e) => [e.first, e.second])
             .toList(),
@@ -102,16 +97,16 @@ class PhysarumManager {
       );
     }
 
-    await ffi.bindings.executeAsync(iterationPerStep);
+    await bindings.executeAsync(iterationPerStep);
     if (mainScreenState.state.isAlgoWorking &&
         !mainScreenState.state.isNeedRestart) {
-      final bestNetwork = ffi.bindings.getGraph(true);
+      final bestNetwork = bindings.getGraph(true);
       _setGraphFromNetwork(bestNetwork, isBest: true);
 
-      final nowNetwork = ffi.bindings.getGraph(false);
+      final nowNetwork = bindings.getGraph(false);
       _setGraphFromNetwork(nowNetwork, isBest: false);
 
-      final metrics = ffi.bindings.getBestMetrics();
+      final metrics = bindings.getBestMetrics();
       if (metrics.isNotEmpty) {
         mainScreenState.update(
           (state) => state.copyWith(

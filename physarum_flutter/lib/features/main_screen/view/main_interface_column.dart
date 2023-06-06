@@ -16,7 +16,7 @@ class MainInterfaceColumn extends ConsumerStatefulWidget {
 class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
   @override
   Widget build(BuildContext context) {
-    final manager = ref.watch(physarumManager);
+    final manager = ref.watch(mainScreenManager);
     final state = ref.watch(mainScreenStateHolder);
     return Container(
       margin: const EdgeInsets.only(top: 15),
