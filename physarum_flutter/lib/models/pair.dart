@@ -1,4 +1,4 @@
-class Pair extends Comparable<Pair> {
+class Pair implements Comparable<Pair> {
   final int first;
   final int second;
   Pair(this.first, this.second);

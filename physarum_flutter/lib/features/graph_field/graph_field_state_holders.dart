@@ -12,7 +12,6 @@ class GraphNotifier extends Notifier<Graph> {
   @override
   Graph build() => Graph.empty();
 
-// не пиздеть
 // ignore: avoid_public_notifier_properties
   @override
   Graph get state => super.state;
