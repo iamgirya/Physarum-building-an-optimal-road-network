@@ -1,5 +1,4 @@
 #include "SlimeMoldClass.h"
-#include "Windows.h"
 
 SlimeMoldSimulation::SlimeMoldSimulation() {}
 
@@ -100,7 +99,7 @@ void SlimeMoldSimulation::startSimulation(it stepCount) {
 	double count = 0;
 
 	while (stepCount--) {
-		double time1 = omp_get_wtime();
+		//double time1 = omp_get_wtime();
 		makeStep();
 		shuffle(particles.begin(), particles.end(), g);
 		if (stepCount % 100 == 0) {
@@ -108,9 +107,9 @@ void SlimeMoldSimulation::startSimulation(it stepCount) {
 			analyser.minimizeGraph();
 			analyser.calculateMetrics();
 		}
-		double time2 = omp_get_wtime();
-		count++;
-		sumTime += time2 - time1;
-		cout << sumTime/ count << endl;
+		//double time2 = omp_get_wtime();
+		//count++;
+		//sumTime += time2 - time1;
+		//cout << sumTime/ count << endl;
 	}
 }

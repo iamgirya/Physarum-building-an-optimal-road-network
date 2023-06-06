@@ -21,4 +21,9 @@ set_target_properties(physarum_cpp_ffi PROPERTIES
   OUTPUT_NAME "physarum_cpp_ffi"
 )
 
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(physarum_cpp_ffi PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 target_compile_definitions(physarum_cpp_ffi PUBLIC DART_SHARED_LIB)
