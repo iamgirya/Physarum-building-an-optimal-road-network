@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../graph_field/graph_field_state_holders.dart';
+import '../../graph_field/graph_fields_manager.dart';
 
-class VertexList extends ConsumerStatefulWidget {
+class VertexList extends HookConsumerWidget {
   const VertexList({super.key});
 
   @override
-  ConsumerState<VertexList> createState() => _VertexListState();
-}
-
-class _VertexListState extends ConsumerState<VertexList> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final graph = ref.watch(nowGraphsFieldGraphStateHolder);
     return graph.isGraphBuilded
         ? const SizedBox()
@@ -20,7 +17,7 @@ class _VertexListState extends ConsumerState<VertexList> {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('Индекс'),
+                  Text('Номер'),
                   Text(
                     'Координаты',
                   ),
@@ -30,16 +27,7 @@ class _VertexListState extends ConsumerState<VertexList> {
               Expanded(
                 child: ListView.separated(
                   itemBuilder: (context, i) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text(i.toString()),
-                        Text(
-                          '${graph.exitPoints[i].first}.${graph.exitPoints[i].second}',
-                        ),
-                        Text(graph.towns[i].toString()),
-                      ],
-                    );
+                    return VertexLine(i);
                   },
                   separatorBuilder: (context, i) {
                     return const SizedBox(
@@ -51,5 +39,58 @@ class _VertexListState extends ConsumerState<VertexList> {
               ),
             ],
           );
+  }
+}
+
+class VertexLine extends HookConsumerWidget {
+  const VertexLine(this.i, {super.key});
+
+  final int i;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final manager = ref.watch(graphFieldsManager);
+    final graph = ref.watch(nowGraphsFieldGraphStateHolder);
+
+    final coordsTextController = useTextEditingController(
+      text: '${graph.exitPoints[i].first} ${graph.exitPoints[i].second}',
+    );
+    final priorityTextController = useTextEditingController(
+      text: graph.towns[i].toString(),
+    );
+
+    coordsTextController.addListener(
+      () => manager.changeVectex(
+        i,
+        coordsTextController.text,
+        priorityTextController.text,
+      ),
+    );
+    priorityTextController.addListener(
+      () => manager.changeVectex(
+        i,
+        coordsTextController.text,
+        priorityTextController.text,
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Expanded(child: Center(child: Text(i.toString()))),
+        Expanded(
+          child: TextField(
+            controller: coordsTextController,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          child: TextField(
+            controller: priorityTextController,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -19,6 +19,32 @@ class GraphFieldManager {
     required this.nowGraphHolder,
   });
 
+  bool _validateCoords(String textCoords) {
+    if (RegExp(r'(\d+)\s(\d+)').hasMatch(textCoords)) {
+      final coords = textCoords.split(' ');
+      if (int.tryParse(coords[0]) != null && int.tryParse(coords[1]) != null) {
+        final x = int.parse(coords[0]);
+        final y = int.parse(coords[1]);
+        if (x < 200 && y < 200 && x >= 0 && y >= 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void changeVectex(int index, String textCoords, String priority) {
+    if (_validateCoords(textCoords) && int.tryParse(priority) != null) {
+      final coords = textCoords.split(' ');
+      nowGraphHolder.update(
+        (state) => state
+          ..towns[index] = int.parse(priority)
+          ..exitPoints[index] =
+              Pair(int.parse(coords[0]), int.parse(coords[1])),
+      );
+    }
+  }
+
   void onTap(Offset coords, double sizeOfPixel) {
     if (!nowGraphHolder.state.isGraphBuilded) {
       final newPoint = Pair(
