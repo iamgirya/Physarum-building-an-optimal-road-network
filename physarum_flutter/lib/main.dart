@@ -5,12 +5,10 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Must add this line.
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(1445, 714),
-    center: true,
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.normal,
   );

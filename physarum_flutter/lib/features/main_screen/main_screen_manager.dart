@@ -41,8 +41,8 @@ class MainScreenManager {
         metricFlow: -1,
       ),
     );
-    _setGraphFromNetwork(Graph.empty(), isBest: false);
-    _setGraphFromNetwork(Graph.empty(), isBest: true);
+    _setGraphFromNetwork(isBest: false);
+    _setGraphFromNetwork(isBest: true);
   }
 
   void onStopTap() async {
@@ -101,10 +101,10 @@ class MainScreenManager {
     if (mainScreenState.state.isAlgoWorking &&
         !mainScreenState.state.isNeedRestart) {
       final bestNetwork = bindings.getGraph(true);
-      _setGraphFromNetwork(bestNetwork, isBest: true);
+      _setGraphFromNetwork(networkOrGraph: bestNetwork, isBest: true);
 
       final nowNetwork = bindings.getGraph(false);
-      _setGraphFromNetwork(nowNetwork, isBest: false);
+      _setGraphFromNetwork(networkOrGraph: nowNetwork, isBest: false);
 
       final metrics = bindings.getBestMetrics();
       if (metrics.isNotEmpty) {
@@ -131,11 +131,12 @@ class MainScreenManager {
     }
   }
 
-  // принимает первым аргументов SlimeMoldNetwork или Graph
-  // TODO переделай на силед
-  void _setGraphFromNetwork(Object networkOrGraph, {required bool isBest}) {
+  void _setGraphFromNetwork({
+    required bool isBest,
+    SlimeMoldNetwork? networkOrGraph,
+  }) {
     Graph graph;
-    if (networkOrGraph is SlimeMoldNetwork) {
+    if (networkOrGraph != null) {
       graph = Graph.empty();
       for (int i = 0; i < networkOrGraph.exitPoints.length; i++) {
         graph.towns.add(networkOrGraph.towns[i]);
@@ -147,10 +148,8 @@ class MainScreenManager {
         );
         graph.graph.add(networkOrGraph.graph[i]);
       }
-    } else if (networkOrGraph is Graph) {
-      graph = networkOrGraph;
     } else {
-      throw TypeError();
+      graph = Graph.empty();
     }
 
     final stateHolder = isBest ? bestGraphHolder : nowGraphHolder;

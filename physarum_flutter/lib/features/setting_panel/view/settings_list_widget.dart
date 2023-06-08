@@ -21,7 +21,7 @@ class _SettingsListState extends ConsumerState<SettingsList> {
     final state = ref.watch(settingsStateHolder);
     final list = state.settingsControllers.entries.toList();
     return graph.isGraphBuilded
-        ? const _IsAlgoWorkingMessage()
+        ? const SizedBox()
         : Column(
             children: [
               Expanded(
@@ -53,18 +53,5 @@ class _SettingsListState extends ConsumerState<SettingsList> {
               ),
             ],
           );
-  }
-}
-
-class _IsAlgoWorkingMessage extends StatelessWidget {
-  const _IsAlgoWorkingMessage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Для изменения параметров нужно сбросить нынешнюю симуляцию',
-      ),
-    );
   }
 }

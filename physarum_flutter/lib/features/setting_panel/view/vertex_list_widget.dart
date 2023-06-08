@@ -12,10 +12,9 @@ class VertexList extends ConsumerStatefulWidget {
 class _VertexListState extends ConsumerState<VertexList> {
   @override
   Widget build(BuildContext context) {
-    // TODO сделать настройку вершин через менюшку
     final graph = ref.watch(nowGraphsFieldGraphStateHolder);
     return graph.isGraphBuilded
-        ? const _IsAlgoWorkingMessage()
+        ? const SizedBox()
         : Column(
             children: [
               const Row(
@@ -52,18 +51,5 @@ class _VertexListState extends ConsumerState<VertexList> {
               ),
             ],
           );
-  }
-}
-
-class _IsAlgoWorkingMessage extends StatelessWidget {
-  const _IsAlgoWorkingMessage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Для установки новых точек нужно сбросить нынешнюю симуляцию',
-      ),
-    );
   }
 }

@@ -2,7 +2,7 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
 
-// TODO на генерики переписать массивы
+// На генерики переписать массивы нельзя из-за свойств Struct
 
 final class IntArray extends ffi.Struct {
   external ffi.Pointer<ffi.Int32> data;

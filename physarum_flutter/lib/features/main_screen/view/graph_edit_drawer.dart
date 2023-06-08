@@ -17,8 +17,8 @@ class _GraphEditDrawerState extends ConsumerState<GraphEditDrawer> {
     const double width = 600;
     final state = ref.watch(mainScreenStateHolder);
     return AnimatedPositioned(
-      right: state.isAlgoWorking ? 0 : -width,
-      duration: const Duration(seconds: 1),
+      right: state.isNeedRestart ? -width : 0,
+      duration: const Duration(milliseconds: 600),
       curve: Curves.fastOutSlowIn,
       child: Container(
         alignment: Alignment.topRight,
