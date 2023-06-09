@@ -15,16 +15,16 @@ bool AgentGraphAnalyser::canConnectEdges(int i) {
 
 	it firstIndex = graph[i][0];
 	it secondIndex = graph[i][1];
-	// РЅР°С…РѕРґРёРј РІРµРєС‚РѕСЂР° СЂС‘Р±РµСЂ
+	// находим вектора рёбер
 	pair<it, it> main = exitPoints[i];
 	pair<ft, ft> firstVector = make_pair(main.first - exitPoints[firstIndex].first, main.second - exitPoints[firstIndex].second);
 	pair<ft, ft> secondVector = make_pair(exitPoints[secondIndex].first - main.first, exitPoints[secondIndex].second - main.second);
-	// РЅРѕСЂРјРёСЂСѓРµРј
+	// нормируем
 	ft tmpLength = length(firstVector);
 	firstVector = make_pair(firstVector.first / tmpLength, firstVector.second / tmpLength);
 	tmpLength = length(secondVector);
 	secondVector = make_pair(secondVector.first / tmpLength, secondVector.second / tmpLength);
-	// РїСЂРёРјРµСЂ: СѓРіР» РјРµР¶РґСѓ РґРІСѓС… СЂС‘Р±РµСЂ РЅРµ РїСЂРµРІС‹С€Р°РµС‚ 10 РіСЂР°РґСѓСЃРѕРІ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РґР»РёРЅР° СЂР°Р·РЅРёС†Рё РЅРѕСЂРјРёСЂРѕРІР°РЅРЅС‹С… РІРµРєС‚РѕСЂРѕРІ РЅРµ Р±РѕР»СЊС€Рµ 0.1737. РўР°РєРёРµ СЂС‘Р±СЂР° СЃРѕРµРґРёРЅСЏРµРј
+	// пример: угл между двух рёбер не превышает 10 градусов в случае, если длина разници нормированных векторов не больше 0.1737. Такие рёбра соединяем
 	pair<ft, ft> rezultVector = make_pair(firstVector.first - secondVector.first, firstVector.second - secondVector.second);
 	tmpLength = length(rezultVector);
 	return tmpLength <= minRezultVectorLength;
@@ -39,12 +39,12 @@ vector<it> AgentGraphAnalyser::checkRect(int index) {
 		for (int j = i+1; j < graph[index].size(); j++) {
 			it first = graph[index][i];
 			it second = graph[index][j];
-			// РµСЃР»Рё РµСЃС‚СЊ С‚Р°РєРёРµ РґРІРµ РІРµСЂС€РёРЅС‹, С‡С‚Рѕ СЃРѕРµРґРёРЅРµРЅС‹ СЂРµР±СЂРѕРј
+			// если есть такие две вершины, что соединены ребром
 			if (findEdge(first, second)) {
 				for (int third: graph[first]) {
-					// Рё Сѓ СЌС‚РёС… РґРІСѓС… РІРµСЂС€РёРЅ РµСЃС‚СЊ СЃРјРµР¶РЅР°СЏ СЃ РЅРёРјРё РІРµСЂС€РёРЅР°
+					// и у этих двух вершин есть смежная с ними вершина
 					if (third != index && findEdge(second, third)) {
-						// С‚Рѕ СЌС‚Рѕ СЂРѕРјР± СЃ РІРµСЂС€РёРЅР°РјРё index, i, j, k
+						// то это ромб с вершинами index, i, j, k
 						result.push_back(first);
 						result.push_back(second);
 						result.push_back(third);
@@ -59,8 +59,7 @@ vector<it> AgentGraphAnalyser::checkRect(int index) {
 
 void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
 	clear();
-	// РґРѕР±Р°РІР»СЏРµРј РІСЃРµ С‚РѕС‡РєРё Рё РіРµРЅРµСЂР°С‚РѕСЂС‹ РІ РѕРґРЅРёРЅ РІРµРєС‚РѕСЂ, СЂР°Р·Р»РёС‡Р°СЏ РёС… СЃ РїРѕРјРѕС‰СЊСЋ РІС‚РѕСЂРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°
-	// TODO РјРѕР¶РЅРѕ РёР·Р±Р°РІРёС‚СЊСЃСЏ РѕС‚ С‚Р°РєРѕР№ РІР»РѕР¶РµРЅРЅРѕСЃС‚Рё РїР°СЂ СЃ РїРѕРјРѕС‰СЊСЋ РµС‰С‘ РѕРґРЅРѕРіРѕ РІРµРєС‚РѕСЂР°
+	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	vector<pair<pair<it,it>, it>> position;
 	for (auto u : particles) {
 		position.push_back(make_pair(make_pair(u->pixelVector[0], u->pixelVector[1]), 0));
@@ -70,12 +69,12 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 	}
 	sort(position.begin(), position.end());
 
-	// РґРµР»Р°РµРј РёР· РІРµРєС‚РѕСЂР° РѕРґРЅРѕСЃРІСЏР·РЅС‹Р№ СЃРїРёСЃРѕРє. Р’ i-С‚РѕРј СЌР»РµРјРµРЅС‚Рµ РЅР°С…РѕРґРёС‚СЃСЏ РёРЅРґРµРєСЃ РІРµРєС‚РѕСЂР° СЃР»РµРґСѓСЋС‰РµРіРѕ Р°РєС‚РёРІРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
+	// делаем из вектора односвязный список. В i-том элементе находится индекс вектора следующего активного элемента
 	vector<it> next(position.size(), -1);
 	for (int i = 0; i < position.size()-1; i++) {
 		next[i] = i + 1;
 	}
-	// РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕС‡РµРє, РєРѕС‚РѕСЂС‹Рµ Р·Р°Р±СЂР°Р»Р° РґР°РЅРЅР°СЏ С‚РѕС‡РєР°
+	// количество точек, которые забрала данная точка
 	vector<it> pointMass(position.size(), 1);
 
 	bool hasChange = true;
@@ -87,15 +86,15 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 				pair<it, it> firstPoint = position[i].first;
 				pair<it, it> secondPoint = position[j].first;
 				bool isNeedDelete = false;
-				//Р±Р»Р°РіРѕРґР°СЂСЏ СЃРѕСЂС‚РёСЂРѕРІРєРµ РёР· n^2 РїРµСЂРµС…РѕРґРёРј РІ n*log(n) РІ СЃР»СѓС‡Р°Рµ СЃ РЅР°С€РёРјРё РіСЂР°С„Р°РјРё
+				//благодаря сортировке из n^2 переходим в n*log(n) в случае с нашими графами
 				if (abs(firstPoint.first - secondPoint.first) > vertexRange) {
 					break;
 				}
-				// РµСЃР»Рё С‚РѕС‡РєРё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±Р»РёР·РєРѕ, СЃС‚РёСЂР°РµРј С‚РѕС‡РєСѓ j
+				// если точки достаточно близко, стираем точку j
 				if (distance(firstPoint, secondPoint) <= vertexRange) {
-					//РµСЃР»Рё РІС‚РѕСЂР°СЏ С‚РѕС‡РєР° - РіРѕСЂРѕРґ, С‚Рѕ РјС‹ РЅРµ РјРѕР¶РµРј РµС‘ СѓР±СЂР°С‚СЊ. Р§С‚РѕР±С‹ РІ РёС‚РѕРіРµ РїРѕР»СѓС‡РёР»СЃСЏ СЃРІСЏР·РЅС‹Р№ РіСЂР°С„, РјС‹ РїСЂРѕСЃС‚Рѕ РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ СЌС‚РѕР№ С‚РѕС‡РєРё. РџСЂРѕР±Р»РµРјР° Р»РёС€СЊ РІ Р±РћР»СЊС€РµРј РєРѕР»РёС‡РµСЃС‚РІРµ С‚РѕС‡РµРє, РєРѕС‚РѕСЂР°СЏ СЂРµС€РёС‚СЃСЏ РІ РЅРµРєСЃС‚ С„СѓРЅРєС†РёРё
+					//если вторая точка - город, то мы не можем её убрать. Чтобы в итоге получился связный граф, мы просто останавливаем обработку этой точки. Проблема лишь в бОльшем количестве точек, которая решится в некст функции
 					if (position[j].second) {
-						// РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕР±Рµ С‚РѕС‡РєРё СЃС‚РѕСЏС‚ РІ РѕРґРЅРѕРј РјРµСЃС‚Рµ, С‚Рѕ РёС… СЃС‚РѕРёС‚ РїРѕРјРµРЅСЏС‚СЊ РјРµСЃС‚Р°РјРё, РїРѕСЃР»Рµ С‡РµРіРѕ СЃР»РёС‚СЊ РІРѕРµРґРёРЅРѕ.
+						// в случае, если обе точки стоят в одном месте, то их стоит поменять местами, после чего слить воедино.
 						if (firstPoint.first == secondPoint.first && firstPoint.second == secondPoint.second) {
 							it tmp = position[j].second;
 							position[j].second = position[i].second;
@@ -129,8 +128,6 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 		}
 	}
 
-	// РґРµР±Р°Рі count
-	int count = 0;
 	vector<vector<it>> exitGraph(exitPoints.size(), vector<it>());
 	for (int i = 0; i < exitPoints.size(); i++) {
 		for (int j = i + 1; j < exitPoints.size(); j++) {
@@ -141,7 +138,6 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 			if (tmpDistance <= edgesRange) {
 				exitGraph[i].push_back(j);
 				exitGraph[j].push_back(i);
-				count++;
 			}
 		}
 	}
@@ -152,11 +148,10 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 }
 
 void AgentGraphAnalyser::minimizeGraph() {
-	// РµСЃР»Рё РЅСѓР¶РЅРѕ С‡С‚Рѕ-С‚Рѕ СѓРґР°Р»РёС‚СЊ, С‚Рѕ Р·Р°РїРѕРјРёРЅР°РµРј РЅРѕРјРµСЂ
+	// если нужно что-то удалить, то запоминаем номер
 	vector<it> vertexToDelete;
-	// TODO РјРѕР¶РЅРѕ РїРµСЂРµРїРёСЃР°С‚СЊ РЅР° РѕРґРЅРѕСЃРІСЏР·РЅС‹Р№ СЃРїРёСЃРѕРє, С‡С‚РѕР±С‹ РјРµРЅСЊС€Рµ РїРѕ РїР°РјСЏС‚Рё Р±С‹Р»Рѕ
 	vector<bool> vertexWhatDeleted(exitPoints.size(), false);
-	// РІРЅР°С‡Р°Р»Рµ С‡РµРєР°РµРј РІСЃРµ РІРµСЂС€РёРЅС‹, РїРѕС‚РѕРј С‚Рµ РІРµСЂС€РёРЅС‹, С‡С‚Рѕ Р±С‹Р»Рё Р·Р°С‚СЂРѕРЅСѓС‚С‹ СѓРґР°Р»РµРЅРёРµРј, РїРѕС‚РѕРј С‚Рµ РІРµСЂС€РёРЅС‹, С‡С‚Рѕ Р±С‹Р»Рё Р·Р°С‚СЂРѕРЅСѓС‚С‹ РµС‰С‘ РѕРґРЅРёРј СѓРґР°Р»РµРЅРёРµРј...
+	// вначале чекаем все вершины, потом те вершины, что были затронуты удалением, потом те вершины, что были затронуты ещё одним удалением...
 	queue<it> vertexToCheck;
 	for (int i = 0; i < exitPoints.size(); i++) {
 		vertexToCheck.push(i);
@@ -166,7 +161,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 		int i = vertexToCheck.front(); vertexToCheck.pop();
 		if (!vertexWhatDeleted[i]) {
 			if (!towns[i]) {
-				// РѕРґРёРЅРѕРєР°СЏ РІРµСЂС€РёРЅР°
+				// одинокая вершина
 				if (graph[i].size() <= 1) {
 					vertexToDelete.push_back(i);
 					vertexWhatDeleted[i] = true;
@@ -175,7 +170,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 						vertexToCheck.push(graph[i][0]);
 					}
 				}
-				// С‚СЂРµСѓРіРѕР»СЊРЅРёРє
+				// треугольник
 				else if (graph[i].size() == 2 && findEdge(graph[i][0], graph[i][1])) {
 					it firstIndex = graph[i][0];
 					it secondIndex = graph[i][1];
@@ -188,32 +183,32 @@ void AgentGraphAnalyser::minimizeGraph() {
 					eraseEdge(secondIndex, i);
 					vertexToCheck.push(secondIndex);
 				}
-				// Р»РѕРјР°РЅР°СЏ
-				else if (graph[i].size() == 2 && canConnectEdges(i)) { 
+				// ломаная
+				else if (graph[i].size() == 2 && canConnectEdges(i)) {
 					it firstIndex = graph[i][0];
 					it secondIndex = graph[i][1];
-					// СЃРѕРµРґРёРЅСЏРµРј
+					// соединяем
 					vertexToDelete.push_back(i);
 					vertexWhatDeleted[i] = true;
-					// СѓРґР°Р»СЏРµРј СЂС‘Р±СЂР° СЃ i-Р№ РІРµСЂС€РёРЅРѕР№
+					// удаляем рёбра с i-й вершиной
 					eraseEdge(firstIndex, i);
 					eraseEdge(secondIndex, i);
-					// РµСЃР»Рё РІРµСЂС€РёРЅС‹ РЅРµ СЃРѕРµРґРёРЅРµРЅС‹, СЃРѕРµРґРёРЅСЏРµРј
+					// если вершины не соединены, соединяем
 					if (!findEdge(firstIndex, secondIndex)) {
 						graph[firstIndex].push_back(secondIndex);
 						graph[secondIndex].push_back(firstIndex);
 					}
-					// РїСЂРѕРІРµСЂРёРј СЌС‚Рё РІРµСЂС€РёРЅС‹
+					// проверим эти вершины
 					vertexToCheck.push(firstIndex);
 					vertexToCheck.push(secondIndex);
 				}
 			} 
-			// СЂРѕРјР±, РџСЂРёС‡С‘Рј i-СЏ РІРµСЂС€РёРЅР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РіРѕСЂРѕРґРѕРј
+			// ромб, Причём i-я вершина может быть городом
 			{
 				
 				vector<it> rombVertex = checkRect(i);
 				if (!rombVertex.empty()) {
-					// РµСЃР»Рё РѕР±Рµ РґРёР°Р»РѕРіРЅР°Р»Рё РµСЃС‚СЊ
+					// если обе диалогнали есть
 					if (findEdge(i, rombVertex[2])) {
 						int townCount = 0;
 						for (auto u : rombVertex) {
@@ -226,11 +221,11 @@ void AgentGraphAnalyser::minimizeGraph() {
 							continue;
 						}
 						else {
-							// РµСЃР»Рё РЅР°С…РѕРґРёРј С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РіРѕСЂРѕРґ - С„РёРєСЃРёСЂСѓРµРј РїРѕР»РѕР¶РµРЅРёРµ РІРµСЂС€РёРЅС‹
+							// если находим хотя бы один город - фиксируем положение вершины
 							bool hasTown = towns[i];
-							// РґРµР»Р°РµРј СЃРјРµР¶РЅСѓСЋ РІРµСЂС€РёРЅСѓ РёР· С‡РµС‚С‹СЂС‘С…
+							// делаем смежную вершину из четырёх
 							for (int k: rombVertex) {
-								// РѕР±СЂР°Р·СѓРµРј РІРµСЂС€РёРЅСѓ РїРѕ СЃРµСЂРµРґРёРЅРµ РёР»Рё СЃ С†РµРЅС‚СЂРѕРј РІ РіРѕСЂРѕРґРµ
+								// образуем вершину по середине или с центром в городе
 								if (!hasTown) {
 									if (towns[k]) {
 										exitPoints[i] = exitPoints[k];
@@ -244,12 +239,12 @@ void AgentGraphAnalyser::minimizeGraph() {
 								}
 								
 								for (int v: graph[k]) {
-									// СЃРѕРµРґРёРЅСЏРµРј РїРµСЂРІСѓСЋ РІРµСЂС€РёРЅСѓ СЃРѕ СЃРјРµР¶РЅС‹РјРё РІРµСЂС€РёРЅР°РјРё
+									// соединяем первую вершину со смежными вершинами
 									if (i != v && !findEdge(i, v)) {
 										graph[i].push_back(v);
 										graph[v].push_back(i);
 									}
-									// СЃС‚РёСЂР°РµРј СЂС‘Р±СЂР° Рє k-РІРµСЂС€РёРЅРµ Рё РїСЂРѕРІРµСЂСЏРµРј РІСЃРµ СЃРјРµР¶РЅС‹Рµ РІРµСЂС€РёРЅС‹.
+									// стираем рёбра к k-вершине и проверяем все смежные вершины.
 									eraseEdge(v, k);
 									vertexToCheck.push(v);
 								}
@@ -263,7 +258,7 @@ void AgentGraphAnalyser::minimizeGraph() {
 						if (towns[rombVertex[0]] && towns[rombVertex[1]]) {
 							continue;
 						}
-						// РґРµР»Р°РµРј СЃРјРµР¶РЅСѓСЋ РІРµСЂС€РёРЅСѓ РёР· РґРІСѓС…, СЃРѕРµРґРёРЅС‘РЅРЅС‹С… РґРёР°РіРѕРЅР°Р»СЊСЋ, РёР·РјРµРЅСЏСЏ РїРµСЂРІСѓСЋ Рё СѓРґР°Р»СЏСЏ РІС‚РѕСЂСѓСЋ
+						// делаем смежную вершину из двух, соединённых диагональю, изменяя первую и удаляя вторую
 						it firstIndex = -1;
 						it secondIndex = -1;
 						if (towns[rombVertex[1]]) {
@@ -274,11 +269,11 @@ void AgentGraphAnalyser::minimizeGraph() {
 							firstIndex = rombVertex[0];
 							secondIndex = rombVertex[1];
 						}
-						// РµСЃР»Рё РѕРЅРё РЅРµ РіРѕСЂРѕРґР°, С‚Рѕ РѕР±СЂР°Р·СѓРµРј РІРµСЂС€РёРЅСѓ РїРѕ СЃРµСЂРµРґРёРЅРµ
+						// если они не города, то образуем вершину по середине
 						if (!towns[firstIndex] && !towns[secondIndex]) {
 							exitPoints[firstIndex] = average(exitPoints[firstIndex], exitPoints[secondIndex]);
 						}
-						// РґР»СЏ РєР°Р¶РґРѕР№ СЃРјРµР¶РЅРѕР№ РІРµСЂС€РёРЅС‹: СЃРѕРµРґРёРЅСЏРµРј РµС‘ СЃ РїРµСЂРІРѕР№ РІРµСЂС€РёРЅРѕР№, СѓРґР°Р»СЏРµРј СЂС‘Р±СЂР° СЃРѕ РІС‚РѕСЂРѕР№ РІРµСЂС€РёРЅРѕР№ Рё РїСЂРѕРІРµСЂСЏРµРј РёС… РІ РїРѕСЃР»РµРґСЃС‚РІРёРё
+						// для каждой смежной вершины: соединяем её с первой вершиной, удаляем рёбра со второй вершиной и проверяем их в последствии
 						for (int j: graph[secondIndex]) {
 							if (firstIndex != j && !findEdge(firstIndex, j)) {
 								graph[firstIndex].push_back(j);
@@ -298,9 +293,9 @@ void AgentGraphAnalyser::minimizeGraph() {
 	}
 
 
-	// РЅСѓР¶РЅРѕ РёР· РёСЃС…РѕРґРЅРѕРіРѕ РіСЂР°С„Р° СѓРґР°Р»РёС‚СЊ РІСЃРµ РІРµСЂС€РёРЅС‹, С‡С‚Рѕ Р±С‹Р»Рё СЃР»РёС‚С‹. Р”Р»СЏ СЌС‚РѕРіРѕ РїРµСЂРµСЃРѕР±РёСЂР°РµРј РјРµРЅСЊС€РёР№ РіСЂР°С„ Рё СЃРѕС…СЂР°РЅСЏРµРј, РґР»СЏ РєР°РєРѕРіРѕ РёРЅРґРµРєСЃР° СЃРєРѕР»СЊРєРѕ СѓР¶Рµ Р±С‹Р»Рѕ СѓРґР°Р»С‘РЅРЅС‹С… РІРµСЂС€РёРЅ
-	// С‡С‚РѕР±С‹ РїРѕСЃР»Рµ РїСЂРѕСЃС‚Рѕ РІС‹С‡РµСЃС‚СЊ СЌС‚Рѕ С‡РёСЃР»Р° РёР· РЅРѕРјРµСЂР° СЂРµР±СЂР°. sort(vertexToDelete.begin(), vertexToDelete.end());
-	// СѓРґР°Р»РµРЅРёРµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ Р·Р° O(e+n)
+	// нужно из исходного графа удалить все вершины, что были слиты. Для этого пересобираем меньший граф и сохраняем, для какого индекса сколько уже было удалённых вершин
+	// чтобы после просто вычесть это числа из номера ребра. sort(vertexToDelete.begin(), vertexToDelete.end());
+	// удаление выполняется за O(e+n)
 	vector<it> shiftVector;
 	vector<vector<it>> newGraph;
 	vector<pair<it, it>> newExitPoints;
@@ -320,11 +315,11 @@ void AgentGraphAnalyser::minimizeGraph() {
 				townIndexes.push_back(newTowns.size()-1);
 			}
 		}
-		// Р·Р°РїРѕРјРёРЅР°РµРј СЃРґРІРёРі
+		// запоминаем сдвиг
 		shiftVector.push_back(lastDeleteIndex);
 	}
-	// РџСЂРёРјРµСЂ: Р±С‹Р»Рѕ СЂРµР±СЂРѕ 1-3 Рё 3-1. РЈРґР°Р»РёР»Рё РІРµСЂС€РёРЅСѓ 2. РўРµРїРµСЂСЊ СЌС‚Рѕ Р±СѓРґРµС‚ СЂРµР±СЂРѕ 1-2 2-1. Р РµР±СЂРѕ 2-1 СЃР°РјРѕ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РЅР° РјРµСЃС‚Рѕ, С‚Р°Рє РєР°Рє РјС‹ РїСЂРѕРїСѓСЃС‚РёР»Рё РїСЂРѕС€Р»СѓСЋ РІРµСЂС€РёРЅСѓ 2 РІ РЅРѕРІРѕРј РіСЂР°С„Рµ.
-	// Р РµР±СЂРѕ 1-2 РјС‹ РґРѕР»Р¶РЅС‹ СЃРґРµР»Р°С‚СЊ РёР· СЂРµР±СЂР° 1-3 С‚РµРј, С‡С‚Рѕ РёР· "3" РІС‹С‡С‚РµРј РєРѕР»-РІРѕ СѓРґР°Р»С‘РЅРЅС‹С… РґРѕ РЅРµС‘ РІРµСЂС€РёРЅ - С‚.Рµ. 1
+	// Пример: было ребро 1-3 и 3-1. Удалили вершину 2. Теперь это будет ребро 1-2 2-1. Ребро 2-1 само становится на место, так как мы пропустили прошлую вершину 2 в новом графе.
+	// Ребро 1-2 мы должны сделать из ребра 1-3 тем, что из "3" вычтем кол-во удалённых до неё вершин - т.е. 1
 	for (int i = 0; i < newGraph.size(); i++) {
 		for (int j = 0; j < newGraph[i].size(); j++) {
 			newGraph[i][j] -= shiftVector[newGraph[i][j]];
@@ -352,20 +347,18 @@ void AgentGraphAnalyser::buildWays() {
 	for (it begin_index : townIndexes) {
 		vector<vector<it>> way;
 
-		// РјРёРЅРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ. РњР°СЃСЃРёРІ Рё РѕС‡РµСЂРµРґСЊ РІРјРµСЃС‚Рµ РЅСѓР¶РЅС‹ РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё Р°Р»РіРѕСЂРёС‚РјР°. Р’ РѕС‡РµСЂРµРґСЊ Р·Р°РїРёСЃС‹РІР°РµРј РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ
+		// минимальное расстояние. Массив и очередь вместе нужны для оптимизации алгоритма. В очередь записываем отрицательные значения
 		vector<ft> d(SIZE, MAXIT); d[begin_index] = 0;
 		priority_queue<pair<ft, it>> q; q.push(make_pair(-0, begin_index));
-		// РїРѕСЃРµС‰РµРЅРЅС‹Рµ РІРµСЂС€РёРЅС‹
 		vector<it> visited(SIZE, 0);
-		// С‡РёСЃР»Рѕ - СЌС‚Рѕ РёРЅРґРµРєСЃ РІРµСЂС€РёРЅС‹, РѕС‚РєСѓРґР° РёРґС‘С‚ РїСѓС‚СЊ. Р”Р»СЏ РЅР°С‡Р°Р»СЊРЅРѕР№ РІРµСЂС€РёРЅС‹ С‡РёСЃР»Рѕ СЂР°РІРЅРѕ -1
+		// число - это индекс вершины, откуда идёт путь. Для начальной вершины число равно -1
 		vector<it> prevVertex(SIZE, -1);
 
 		it minIndex, min;
 		pair<ft, it> tmp;
-		// TODO РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ РєР°Рє-С‚Рѕ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РіРѕСЂРѕРґРѕРІ
-		// РЁР°Рі Р°Р»РіРѕСЂРёС‚РјР°
+		// Шаг алгоритма
 		do {
-			// Р±РµСЂС‘Рј РІРµСЂС€РёРЅСѓ, Рє РєРѕС‚РѕСЂРѕР№ РјРµРЅСЊС€Рµ РІСЃРµРіРѕ С‚РѕРїР°С‚СЊ Рё РєРѕС‚РѕСЂСѓСЋ РјС‹ РµС‰С‘ РЅРµ СЃРјРѕС‚СЂРµР»Рё
+			// берём вершину, к которой меньше всего топать и которую мы ещё не смотрели
 			do {
 				if (!q.empty()) {
 					tmp = q.top(); q.pop();
@@ -376,13 +369,13 @@ void AgentGraphAnalyser::buildWays() {
 			} while (visited[tmp.second]);
 			min = -tmp.first;
 			minIndex = tmp.second;
-			// РґР»СЏ РІСЃРµС… СЃРјРµР¶РЅС‹С…
+			// для всех смежных
 			for (int i : graph[minIndex])
 			{
 
-				if (!visited[i] && weigthGraph[minIndex][i] > 0) // РµСЃР»Рё -1, С‚Рѕ СЂРµР±СЂР° РЅРµС‚
+				if (!visited[i] && weigthGraph[minIndex][i] > 0) 
 				{
-					// РµСЃР»Рё РёР· СЌС‚РѕР№ РІРµСЂС€РёРЅС‹ РјРµРЅСЊС€Рµ С‚РѕРїР°С‚СЊ РІ СЃРјРµР¶РЅСѓСЋ, С‚Рѕ РїРµСЂРµСЃС‚СЂР°РёРІР°РµРј РїСѓС‚СЊ
+					// если из этой вершины меньше топать в смежную, то перестраиваем путь
 					ft tmp = min + weigthGraph[minIndex][i];
 					if (tmp < d[i])
 					{
@@ -393,24 +386,24 @@ void AgentGraphAnalyser::buildWays() {
 					}
 				}
 			}
-			// РїСЂРёС‚РѕРїР°Р»Рё РІ РІРµСЂС€РёРЅСѓ
+			// притопали в вершину
 			visited[minIndex] = 1;
-		} while (true); // РІС‹С…РѕРґ С‡РµСЂРµР· РѕС‡РµСЂРµРґСЊ
+		} while (true);
 	endAlgo:
 
 		for (int i : townIndexes) {
 
-			// РїСѓС‚СЊ РЅР°С‡РёРЅР°РµС‚СЃСЏ РІ СЃР°РјРѕР№ РІРµСЂС€РёРЅРµ
+			// путь начинается в самой вершине
 			vector<it> tmp = vector<it>(); tmp.push_back(i);
 			int nowIndex = prevVertex[i];
 
-			// РµСЃР»Рё РїСѓС‚Рё РЅРµС‚, С‚Рѕ РїСЂРµРґС‹РґСѓС‰Р°СЏ РІРµСЂС€РёРЅР° -1
+			// если пути нет, то предыдущая вершина -1
 			if (nowIndex == -1) {
 				way.push_back(vector<it>());
 				continue;
 			}
 			while (nowIndex != -1) {
-				// РµСЃР»Рё СЌС‚Рѕ Р±С‹Р»Р° РЅРµ РїРѕСЃР»РµРґРЅСЏСЏ РІРµСЂС€РёРЅР°, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РёРЅРґРµРєСЃ РїСЂРµРґС‹РґСѓС‰РµР№
+				// если это была не последняя вершина, то добавляем индекс предыдущей
 				tmp.push_back(nowIndex);
 				nowIndex = prevVertex[nowIndex];
 			}
@@ -428,7 +421,7 @@ void AgentGraphAnalyser::buildFlow() {
 		buildWays();
 	}
 
-	// РґРѕРїРѕР»РЅРµРЅРёРµ Рє weigthGraph, С‡С‚РѕР±С‹ РЅРµ РґРµР»Р°С‚СЊ РіСЂР°С„ СЃ РїР°СЂР°РјРё
+	// дополнение к weigthGraph, чтобы не делать граф с парами
 	vector<vector<ft>> flowGraph(graph.size(), vector<ft>(graph.size(), -1));
 	for (int i = 0; i < graph.size(); i++) {
 		for (int j: graph[i]) {
@@ -437,7 +430,7 @@ void AgentGraphAnalyser::buildFlow() {
 	}
 
 	for (int i = 0; i < waysGraph.size(); i++) {
-		// РїСЂРѕС…РѕРґРёРјСЃСЏ Р»РёС€СЊ РїРѕ РѕРґРЅРѕР№ РєРѕРїРёРё РїСѓС‚Рё
+		// проходимся лишь по одной копии пути
 		for (int j = i+1; j < waysGraph[i].size(); j++) {
 			if (waysGraph[i][j].empty()) {
 				continue;
@@ -446,8 +439,8 @@ void AgentGraphAnalyser::buildFlow() {
 			it first;
 			it second = waysGraph[i][j][0];
 			
-			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// РїРѕС‚РѕРє РёР· i РІ j
-			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority() - towns[townIndexes[j]]);// РїРѕС‚РѕРє РѕР±СЂР°С‚РЅРѕ
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// поток из i в j
+			waysFlow += towns[townIndexes[j]] * towns[townIndexes[i]] / (sumOfPriority() - towns[townIndexes[j]]);
 			for (int k = 1; k < waysGraph[i][j].size(); k++) {
 				first = second;
 				second = waysGraph[i][j][k];
@@ -480,7 +473,7 @@ ft AgentGraphAnalyser::calculateWeigth() {
 	}
 
 	ft minWeigth = 0;
-	// РїРµСЂРІРѕРµ С‡РёСЃР»Рѕ - РґР»РёРЅР° СЂРµР±СЂР°, РІС‚РѕСЂРѕРµ - РІРµСЂС€РёРЅР°, РєСѓРґР° РёРґС‘С‚ СЂРµР±СЂРѕ
+	// первое число - длина ребра, второе - вершина, куда идёт ребро
 	priority_queue<pair<ft, it>> edges;
 	vector<int> visited(townIndexes.size(), 0); visited[0] = 1;
 	for (it i = 1; i < townIndexes.size(); i++) {
@@ -495,7 +488,6 @@ ft AgentGraphAnalyser::calculateWeigth() {
 		minWeigth -= edge.first;
 		countOfVertex--;
 		visited[edge.second] = 1;
-		// С„Сѓ С‚Р°Рє РґРµР»Р°С‚СЊ С‡РµСЂРµР· for
 		for (it i = 1; i < townIndexes.size(); i++) {
 			if (!visited[i]) {
 				edges.push(make_pair(-distance(exitPoints[townIndexes[edge.second]], exitPoints[townIndexes[i]]), i));
@@ -524,13 +516,13 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 
 	ft waysCount = 0; ft overMult = 0;
 	for (int i = 0; i < waysGraph.size(); i++) {
-		// РїСЂРѕС…РѕРґРёРјСЃСЏ Р»РёС€СЊ РїРѕ РѕРґРЅРѕР№ РєРѕРїРёРё РїСѓС‚Рё
+		// проходимся лишь по одной копии пути
 		for (int j = i + 1; j < waysGraph[i].size(); j++) {
 			ft minDistance = distance(exitPoints[townIndexes[i]], exitPoints[townIndexes[j]]);
 			ft nowDistance = 0;
 
-			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);// РїРѕС‚РѕРє РёР· i РІ j
-			waysFlow += ft(towns[townIndexes[j]] * towns[townIndexes[i]]) / (sumOfPriority() - towns[townIndexes[j]]);// РїРѕС‚РѕРє РѕР±СЂР°С‚РЅРѕ
+			ft waysFlow = ft(towns[townIndexes[i]] * towns[townIndexes[j]]) / (sumOfPriority() - towns[townIndexes[i]]);
+			waysFlow += ft(towns[townIndexes[j]] * towns[townIndexes[i]]) / (sumOfPriority() - towns[townIndexes[j]]);
 
 			it first;
 			it second = waysGraph[i][j][0];
@@ -551,10 +543,9 @@ ft AgentGraphAnalyser::calculateOverDistance() {
 }
 
 ft AgentGraphAnalyser::calculateResistance() {
-	//it maxCycle = 0;
 	vector<int> stressed(graph.size(), 0);
 
-	// РІС‹Р±РёСЂР°РµРј РІСЃРµ РІРѕР·РјРѕР¶РЅС‹Рµ СЂС‘Р±СЂР°. РЈРґР°Р»СЏРµРј СЌС‚Рѕ СЂРµР±СЂРѕ Рё РїС‹С‚Р°РµС‚СЃСЏ РЅР°Р№С‚Рё РїСѓС‚СЊ РёР· i РІ j. Р•СЃР»Рё РїСѓС‚СЊ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё, С‚Рѕ РїРѕР»СѓС‡Р°РµС‚СЃСЏ, С‡С‚Рѕ РјС‹ РёРјРµРµРј С†РёРєР», РёРЅР°С‡Рµ РјРѕСЃС‚
+	// выбираем все возможные рёбра. Удаляем это ребро и пытается найти путь из i в j. Если путь можно найти, то получается, что мы имеем цикл, иначе мост
 	for (int i = 0; i < graph.size(); i++) {
 		for (it j : graph[i]) {
 			if (i >= j) {
@@ -563,7 +554,7 @@ ft AgentGraphAnalyser::calculateResistance() {
 			ft nowSum = sumOfPriority() - towns[i];
 			vector<int> visited(graph.size(), 0); visited[i] = 1;
 			queue<pair<it, it>> vertex;
-			// Р·Р°СЂР°РЅРµРµ РїСЂРѕС…РѕРґРёРјСЃСЏ РїРѕ РІСЃРµРј СЂС‘Р±СЂР°Рј РёР· i, С‡С‚РѕР±С‹ РёСЃРєР»СЋС‡РёС‚СЊ СѓСЃР»РѕРІРёРµ РЅР° РїСЂРѕРІРµСЂРєСѓ СЂРµР±СЂР° i j
+			// заранее проходимся по всем рёбрам из i, чтобы исключить условие на проверку ребра i j
 			for (it k : graph[i]) {
 				if (k != j) {
 					vertex.push(make_pair(k, 1));
@@ -579,10 +570,6 @@ ft AgentGraphAnalyser::calculateResistance() {
 				size = vertex.front().second; vertex.pop();
 				
 				for (it k : graph[index]) {
-					/*if (k == j) {
-						visited[j] = 1;
-						goto endwhile;
-					}*/
 					if (!visited[k]) {
 						vertex.push(make_pair(k, size + 1));
 						visited[k] = 1;
@@ -590,7 +577,6 @@ ft AgentGraphAnalyser::calculateResistance() {
 					}
 				}
 			}
-			//endWhile:
 
 			bool isConnected = true;
 			for (int k = 0; k < graph.size(); k++) {
@@ -599,16 +585,10 @@ ft AgentGraphAnalyser::calculateResistance() {
 					break;
 				}
 			}
-			//// РµСЃР»Рё СЃРјРѕРіР»Рё РїСЂРёР№С‚Рё РІ j РІРµСЂС€РёРЅСѓ, Р·РЅР°С‡РёС‚ РµСЃС‚СЊ С†РёРєР»
-			//if (visited[j]) {
-			//	maxCycle = max(maxCycle, size + 1);
-			//}
-			//// РёРЅР°С‡Рµ РіСЂР°С„ СѓР¶Рµ РЅРµ СЃРІСЏР·РЅС‹Р№ Рё Р·РЅР°С‡РёС‚ i j - РјРѕСЃС‚
-			//else
 
 			if (!isConnected)
 			{
-				// РµСЃР»Рё РјС‹ РїСЂРѕС€Р»Рё РјРµРЅСЊС€СѓСЋ С‡Р°СЃС‚СЊ РёР· РєРѕРјРїРѕРЅРµРЅС‚ СЃРІСЏР·РЅРѕСЃС‚РµР№, С‚Рѕ РІСЃРµ РїРѕСЃРµС‰С‘РЅРЅС‹Рµ РІРµСЂС€РёРЅС‹ СЃС‡РёС‚Р°РµРј РІ Р·РѕРЅРµ СЂРёСЃРєР°, РёРЅР°С‡Рµ РІСЃРµ РЅРµРїРѕСЃРµС‰С‘РЅРЅС‹Рµ
+				// если мы прошли меньшую часть из компонент связностей, то все посещённые вершины считаем в зоне риска, иначе все непосещённые
 				bool smallerPart = nowSum > sumOfPriority() / 2;
 				for (int k = 0; k < visited.size(); k++) {
 					if (smallerPart == visited[k]) {
@@ -626,7 +606,7 @@ ft AgentGraphAnalyser::calculateResistance() {
 		}
 	}
 
-	// РґРѕР±Р°РІР»СЏРµРј +1 РїРѕС‚РѕРјСѓ, С‡С‚Рѕ РІСЃРµ РјРµС‚СЂРёРєРё Р±РѕР»СЊС€Рµ 1
+	// добавляем +1 потому, что все метрики больше 1
 	return 1 + sumOfStressedPriority/ sumOfPriority();
 }
 
@@ -635,18 +615,22 @@ ft AgentGraphAnalyser::calculateDeltaFlow() {
 		buildFlow();
 	}
 
-	ft maxPriority = max(towns[0], towns[1]);
-	ft secondMaxPriority = min(towns[0], towns[1]);
+	ft maxPriority = 1;
+	ft secondMaxPriority = 1;
 	for (int i = 0; i < towns.size(); i++) {
-		if (towns[i] > maxPriority) {
-			secondMaxPriority = maxPriority;
-			maxPriority = towns[i];
-		}
-		else if (towns[i] > secondMaxPriority) {
-			secondMaxPriority = towns[i];
+		if (towns[i] >= 1) {
+			if (towns[i] > maxPriority) {
+				secondMaxPriority = maxPriority;
+				maxPriority = towns[i];
+			}
+			else if (towns[i] > secondMaxPriority) {
+				secondMaxPriority = towns[i];
+			}
 		}
 	}
-	ft minMaxEdgeFlow = maxPriority + secondMaxPriority;
+    // здесь нужно рассчитать поток между двумя этими вершинами
+	ft minMaxEdgeFlow = ft(maxPriority  * secondMaxPriority) / (sumOfPriority() - maxPriority);
+	minMaxEdgeFlow += ft(secondMaxPriority * maxPriority) / (sumOfPriority() - secondMaxPriority);
 
 	ft maxEdgeFlow = 0;
 	for (int i = 0; i < graph.size(); i++) {
@@ -660,6 +644,7 @@ ft AgentGraphAnalyser::calculateDeltaFlow() {
 	}
 
 	ft result = maxEdgeFlow / minMaxEdgeFlow;
+
 	return result;
 }
 
@@ -715,9 +700,9 @@ void AgentGraphAnalyser::calculateMetrics() {
 	if (bestGraph.empty() || nowMetricsSum < metricsSum) {
 		metricsSum = nowMetricsSum;
 		metricWeigth = metrics[0];
-		metricOverDistance = metrics[1];
-		metricResistance = metrics[2];
-		metricDeltaFlow = metrics[3];
+		metricDeltaFlow = metrics[1];
+		metricOverDistance = metrics[2];
+		metricResistance = metrics[3];
 		bestGraph = vector<vector<it>>(graph.size());
 		bestExitPoints = vector<pair<it, it>>(exitPoints.size());
 		bestTowns = vector<it>(towns.size());
