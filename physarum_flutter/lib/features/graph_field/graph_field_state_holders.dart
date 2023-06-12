@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/graph_model.dart';
+import 'models/graph_model.dart';
 
 final nowGraphsFieldGraphStateHolder =
     NotifierProvider<GraphNotifier, Graph>(() => GraphNotifier());

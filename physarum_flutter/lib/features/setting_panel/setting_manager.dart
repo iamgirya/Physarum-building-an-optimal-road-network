@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../graph_field/graph_field_state_holders.dart';
 import 'simulation_setting_state_holder.dart';
-import '../../models/settings_state.dart';
+import 'state/settings_state.dart';
 
 final settingsManager = Provider<SettingsManager>((ref) {
   return SettingsManager(

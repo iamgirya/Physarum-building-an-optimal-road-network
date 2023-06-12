@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'main_screen_button.dart';
 import '../main_screen_manager.dart';
 
-import '../main_screen_state_holder.dart';
+import '../state/main_screen_state_holder.dart';
 
 class MainInterfaceColumn extends ConsumerStatefulWidget {
   const MainInterfaceColumn({super.key});

@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
-import 'main_screen_state_holder.dart';
+import 'state/main_screen_state_holder.dart';
 import '../setting_panel/simulation_setting_state_holder.dart';
-import '../../models/graph_model.dart';
-import '../../models/main_screen_state.dart';
-import '../../models/pair.dart';
-import '../../models/settings_state.dart';
+import '../graph_field/models/graph_model.dart';
+import 'state/main_screen_state.dart';
+import '../../support/pair.dart';
+import '../setting_panel/state/settings_state.dart';
 
 final mainScreenManager = Provider<MainScreenManager>((ref) {
   return MainScreenManager(

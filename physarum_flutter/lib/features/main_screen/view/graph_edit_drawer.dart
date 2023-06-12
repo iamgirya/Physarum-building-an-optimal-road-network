@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../graph_field/ui/graph_field_view.dart';
 
-import '../main_screen_state_holder.dart';
+import '../state/main_screen_state_holder.dart';
 
 class GraphEditDrawer extends ConsumerStatefulWidget {
   const GraphEditDrawer({super.key});
