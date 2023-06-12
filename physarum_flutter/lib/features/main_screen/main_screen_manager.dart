@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_cpp_ffi/flutter_adapter_model.dart';
 import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
 import 'main_screen_state_holder.dart';
@@ -133,7 +132,7 @@ class MainScreenManager {
 
   void _setGraphFromNetwork({
     required bool isBest,
-    SlimeMoldNetwork? networkOrGraph,
+    bindings.SlimeMoldNetwork? networkOrGraph,
   }) {
     Graph graph;
     if (networkOrGraph != null) {

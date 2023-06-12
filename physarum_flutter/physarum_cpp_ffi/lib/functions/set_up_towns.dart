@@ -1,8 +1,8 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
-import 'package:physarum_cpp_ffi/flutter_adapter_model.dart';
 
 import '../ffi_core.dart';
+import '../models/arrays.dart';
 
 void setUpTowns(List<List<int>> points, List<int> towns) {
   final execute = lookup<

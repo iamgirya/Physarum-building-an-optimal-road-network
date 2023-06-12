@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import '../ffi_core.dart';
-import '../flutter_adapter_model.dart';
+import '../models/network.dart';
 
 SlimeMoldNetwork getGraph(bool isNeedBest) {
   final execute =

@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import '../ffi_core.dart';
-import '../flutter_adapter_model.dart';
+import '../models/arrays.dart';
 
 /// 0 - вес
 /// 1 - дистанция

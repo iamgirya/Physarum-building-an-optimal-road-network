@@ -31,7 +31,7 @@ class _SettingsListState extends ConsumerState<SettingsList> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          settingsName[list[i].key] ?? '!',
+                          settingsValues[list[i].key]?.name ?? '!',
                         ),
                         TextField(
                           controller: list[i].value,

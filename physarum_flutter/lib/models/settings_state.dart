@@ -13,9 +13,11 @@ class SettingsState with _$SettingsState {
   }) = _SettingsState;
 
   static SettingsState empty() => SettingsState(
-        settingsControllers: settingsDefault.map(
-          (key, value) =>
-              MapEntry(key, TextEditingController()..text = value.toString()),
+        settingsControllers: settingsValues.map(
+          (key, value) => MapEntry(
+            key,
+            TextEditingController()..text = value.defaultValue.toString(),
+          ),
         ),
       );
 }
