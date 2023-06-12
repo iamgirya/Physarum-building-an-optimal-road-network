@@ -1,13 +1,18 @@
-#include "SlimeMoldClass.h"
+﻿#include "SlimeMoldClass.h"
 
 SlimeAgentFactory::SlimeAgentFactory() {}
 
 SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex = -1) {
+	ft stepSize = settings.stepSize;
+	ft sensorOffsetDistance = settings.sensorOffsetDistance;
+	ft startTimeToLife = settings.startTimeToLife;
+	ft sensorsAngle = settings.sensorsAngle;
+
 	ft piStartAngle = startAngle / 180 * PI;
 	vector<ft> moveVector = { stepSize * cos(startAngle), stepSize * sin(startAngle) };
-	vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorAngle), sensorOffsetDistance * sin(startAngle + sensorAngle) };
+	vector<ft> lsVector = { sensorOffsetDistance * cos(startAngle + sensorsAngle), sensorOffsetDistance * sin(startAngle + sensorsAngle) };
 	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
-	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorAngle), sensorOffsetDistance * sin(startAngle - sensorAngle) };
+	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorsAngle), sensorOffsetDistance * sin(startAngle - sensorsAngle) };
 	SlimeAgent* tmp = new SlimeAgent();
 	tmp->setUp(startAngle, teamIndex, startTimeToLife, startPosition, moveVector, lsVector, csVector, rsVector, location);
 	return tmp;

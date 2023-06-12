@@ -1,4 +1,4 @@
-#include "SlimeMoldClass.h"
+﻿#include "SlimeMoldClass.h"
 
 Location::Location() {}
 
@@ -6,9 +6,10 @@ Location::Location(it x, it y) {
 	xSize = x;
 	ySize = y;
 
-	decayFactor = 0;
-	isPeriodicBoundary = 0;
-	isCanMultiAgent = 0;
+	settings = LocationSettings();
+	settings.decayFactor = 0;
+	settings.isPeriodicBoundary = 0;
+	settings.isCanMultiAgent = 0;
 
 	generators = vector<Generator*>();
 	trailMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
@@ -23,7 +24,7 @@ void Location::castDecay() {
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
 			if (trailMap[i][j] > 0) {
-				trailMap[i][j] -= decayFactor;
+				trailMap[i][j] -= settings.decayFactor;
 			}
 		}
 	}
@@ -60,7 +61,7 @@ bool Location::canMakeMove(vector <it>& xy, vector <it>& oldxy) {
 		return false;
 	}
 
-	if (!(isCanMultiAgent)) {
+	if (!(settings.isCanMultiAgent)) {
 		if (!agentMap[xy[0]][xy[1]]) {
 			agentMap[oldxy[0]][oldxy[1]] = 0;
 			agentMap[xy[0]][xy[1]] = 1;
@@ -74,7 +75,7 @@ bool Location::canMakeMove(vector <it>& xy, vector <it>& oldxy) {
 
 vector<it> Location::getPixelOnCoord(vector <ft>& xy) {
 	vector<it> rezult = { it(xy[0]), it(xy[1]) };
-	if (isPeriodicBoundary) {
+	if (settings.isPeriodicBoundary) {
 		if (rezult[0] < 0) {
 			rezult[0] += xSize;
 			xy[0] += xSize;

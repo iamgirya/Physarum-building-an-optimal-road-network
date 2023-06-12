@@ -1,4 +1,4 @@
-#include "SlimeMoldClass.h"
+﻿#include "SlimeMoldClass.h"
 
 ft SlimeAgent::depositPerStep = 0;
 vector<vector<ft>> SlimeAgent::leftRotationMatrix;

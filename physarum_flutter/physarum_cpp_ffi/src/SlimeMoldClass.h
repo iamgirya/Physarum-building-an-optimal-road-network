@@ -1,4 +1,4 @@
-#if _WIN32
+﻿#if _WIN32
 #define FFI_PLUGIN_EXPORT __declspec(dllexport)
 #else
 #define FFI_PLUGIN_EXPORT
@@ -32,12 +32,54 @@ extern "C" {
     class SlimeAgentFactory;
     class Generator;
     class SlimeAgent;
+    struct LocationSettings;
+    struct AnalyserSettings;
+    struct AgentSettings;
     class SlimeMoldSimulation;
     class Location;
     class AgentGraphAnalyser;
 
+    // настройки агентов
+    struct AgentSettings {
+        it startTimeToLife;
+        ft sensorOffsetDistance;
+        ft sensorsAngle;
+        ft stepSize;
+
+        ft depositPerStep;
+        ft rotationAngle;
+    };
+
+    // настройки локации
+    struct LocationSettings {
+        it xSize;
+        it ySize;
+        ft decayFactor;
+        bool isPeriodicBoundary;
+        bool isCanMultiAgent;
+    };
+
+    // настройки анализатора
+    struct AnalyserSettings {
+        ft weigthCoef;
+        ft overDistanceCoef;
+        ft deltaFlowCoef;
+        ft resistanceCoef;
+
+        ft edgesRange;
+        ft vertexRange;
+        it minVertexMass;
+        ft minEdgeAngle;
+    };
+
+
     class SlimeAgent {
     public:
+        //единые для всех параметры
+        static vector<vector<ft>> leftRotationMatrix;
+        static vector<vector<ft>> rightRotationMatrix;
+        static ft depositPerStep;
+
         Location* location;
         //вектор нынешней позиции
         vector<ft> positionVector;
@@ -61,11 +103,6 @@ extern "C" {
         pair<ft ,vector<ft>> startAngle;
         // вектор с пройденными клетками
         vector<vector<it>> pathVector;
-
-        //единые для всех параметры
-        static vector<vector<ft>> leftRotationMatrix;
-        static vector<vector<ft>> rightRotationMatrix;
-        static ft depositPerStep;
 
         void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, Location*);
         //движение
@@ -95,10 +132,7 @@ extern "C" {
 
     class SlimeAgentFactory {
     public:
-        it startTimeToLife;
-        ft sensorOffsetDistance;
-        ft sensorAngle;
-        ft stepSize;
+        AgentSettings settings;
 
         Location* location;
 
@@ -135,9 +169,7 @@ extern "C" {
 
     class Location {
     public:
-        ft decayFactor; //mult
-        bool isPeriodicBoundary;
-        bool isCanMultiAgent;
+        LocationSettings settings;
 
         vector<vector<ft>> trailMap;
         vector<vector<short int>> agentMap;
@@ -172,13 +204,10 @@ extern "C" {
     };
 
     //вторая часть
-    // TODO потом все методы и приколы нужно нормально расположить и связять друг за другом
     class AgentGraphAnalyser {
     public:
-        ft edgesRange;
-        ft vertexRange;
-        it minVertexMass;
-        ft minEdgeAngle;
+        AnalyserSettings settings;
+
         // списки смежности
         vector<vector<it>> graph;
         // множество точек
@@ -218,7 +247,6 @@ extern "C" {
         ft calculateOverDistance();
 
         // находит частное от деления суммы приоритета неусточивых городов на весь приоритет. Город неустойчий, если существует мост, при удалении которого город отделится от большего по приоритету компоненты связности
-        // TODO здесь закоменчено нахождение наибольшего цикла. Надо бы как-то использовать в метрике, ибо он тоже роляет
         ft calculateResistance();
 
         // т.к. нам интересует только то, чобы сеть _могла_ работать ещё долгое время без дополнительных путей, то среди потока нас интересует лишь
@@ -285,7 +313,7 @@ extern "C" {
 
         SlimeMoldSimulation(it xSize, it ySize);
 
-        void setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, ft minVertexMass, ft minEdgeAngle);
+        void setUp(AgentSettings agentSettings, LocationSettings locationSettings, AnalyserSettings analyserSettings, it startPopulation);
 
         void placeGenerators(vector<pair<it, it>>, vector<it>);
 
@@ -347,7 +375,7 @@ extern "C" {
 
     FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics();
 
-    FFI_PLUGIN_EXPORT void setUpSimulation(it xSize, it ySize, it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, ft minVertexMass, ft minEdgeAngle);
+    FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings);
 
     FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns);
 

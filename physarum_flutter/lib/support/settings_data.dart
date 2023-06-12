@@ -1,4 +1,8 @@
 const Map<String, String> settingsName = {
+  'weigthCoef': 'Коэффициент весовой метрики',
+  'overDistanceCoef': 'Коэффициент весовой метрики',
+  'deltaFlowCoef': 'Коэффициент весовой метрики',
+  'resistanceCoef': 'Коэффициент весовой метрики',
   'locationX': 'Ширина локации',
   'locationY': 'Высота локации',
   'timeToLive': 'Время жизни агента',
@@ -18,6 +22,10 @@ const Map<String, String> settingsName = {
 };
 
 const Map<String, num> settingsDefault = {
+  'weigthCoef': 1,
+  'overDistanceCoef': 1,
+  'deltaFlowCoef': 0.5,
+  'resistanceCoef': 1,
   'locationX': 200,
   'locationY': 200,
   'timeToLive': 80,

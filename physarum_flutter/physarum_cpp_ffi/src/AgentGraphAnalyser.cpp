@@ -9,6 +9,8 @@ bool AgentGraphAnalyser::findEdge(int index, int vertex) {
 }
 
 bool AgentGraphAnalyser::canConnectEdges(int i) {
+	ft minEdgeAngle = settings.minEdgeAngle;
+
 	if (minRezultVectorLength == -1) {
 		minRezultVectorLength = sqrt(pow(1 - cos(minEdgeAngle / 180 * PI), 2) + pow(sin(minEdgeAngle / 180 * PI), 2));
 	}
@@ -58,6 +60,10 @@ vector<it> AgentGraphAnalyser::checkRect(int index) {
 }
 
 void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generator*> generators) {
+	ft vertexRange = settings.vertexRange;
+	ft minVertexMass = settings.minVertexMass;
+	ft edgesRange = settings.edgesRange;
+
 	clear();
 	// добавляем все точки и генераторы в однин вектор, различая их с помощью второго параметра
 	vector<pair<pair<it,it>, it>> position;

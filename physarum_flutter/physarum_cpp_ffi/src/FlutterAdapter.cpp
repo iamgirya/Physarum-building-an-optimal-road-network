@@ -2,8 +2,6 @@
 
 SlimeMoldSimulation sim;
 
-
-
 FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
 	vector <it> generatorsPriotiry;
 	vector <pair<it,it>> generatorsPoint;
@@ -15,10 +13,11 @@ FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
 	sim.placeGenerators(generatorsPoint, generatorsPriotiry);
 }
 
-FFI_PLUGIN_EXPORT void setUpSimulation(it xSize, it ySize, it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorAngle, ft rotateAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, ft minVertexMass, ft minEdgeAngle) {
-	sim = SlimeMoldSimulation(xSize, ySize);
+FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings, it startPopulation) {
+	// пересоздаЄм симул€цию
+	sim = SlimeMoldSimulation(locationSettings->xSize, locationSettings->ySize);
 	
-	sim.setUp(timeToLive, startPopulation, sensorOffsetDistance, sensorAngle, rotateAngle, stepSize, depositPerStep, decayFactor, isPeriodicBoundary, isCanMultiAgent, edgesRange, vertexRange, minVertexMass, minEdgeAngle);
+	sim.setUp(*agentSettings, *locationSettings, *analyserSettings, startPopulation);
 }
 
 SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints) {

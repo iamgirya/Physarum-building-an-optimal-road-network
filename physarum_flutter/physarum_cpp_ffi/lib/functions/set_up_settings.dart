@@ -6,6 +6,10 @@ void setUpSimulation(Map<String, num> settings) {
   final execute = lookup<
           NativeFunction<
               Void Function(
+                Double,
+                Double,
+                Double,
+                Double,
                 Int,
                 Int,
                 Int,
@@ -25,6 +29,10 @@ void setUpSimulation(Map<String, num> settings) {
               )>>('setUpSimulation')
       .asFunction<
           void Function(
+            double,
+            double,
+            double,
+            double,
             int,
             int,
             int,
@@ -43,8 +51,11 @@ void setUpSimulation(Map<String, num> settings) {
             double,
           )>();
 
-  // лучше false возвращать, чем так
   execute(
+    settings['weigthCoef']?.toDouble() ?? 1,
+    settings['overDistanceCoef']?.toDouble() ?? 1,
+    settings['deltaFlowCoef']?.toDouble() ?? 0.5,
+    settings['resistanceCoef']?.toDouble() ?? 1,
     settings['locationX']?.toInt() ?? 200,
     settings['locationY']?.toInt() ?? 200,
     settings['timeToLive']?.toInt() ?? 80,

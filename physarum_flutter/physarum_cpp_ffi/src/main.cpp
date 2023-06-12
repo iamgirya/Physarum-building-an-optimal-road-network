@@ -3,7 +3,30 @@
 int main()
 {
 	SlimeMoldSimulation sim = SlimeMoldSimulation(200, 200);
-	sim.setUp(80, 0, 6, 45, 45, 1, 3, 1.5, false, true, 16, 8, 4, 15);
+	auto loc = LocationSettings();
+	loc.decayFactor = 1.5;
+	loc.isCanMultiAgent = 1;
+	loc.isPeriodicBoundary = 0;
+	loc.xSize = 200;
+	loc.ySize = 200;
+	auto age = AgentSettings();
+	age.depositPerStep = 3;
+	age.rotationAngle = 45;
+	age.sensorOffsetDistance = 6;
+	age.sensorsAngle = 45;
+	age.startTimeToLife = 80;
+	age.stepSize = 1;
+	auto ana = AnalyserSettings();
+	ana.weigthCoef = 1;
+	ana.overDistanceCoef = 1;
+	ana.deltaFlowCoef = 0.5;
+	ana.resistanceCoef = 1;
+	ana.edgesRange = 16;
+	ana.vertexRange = 8;
+	ana.minVertexMass = 4;
+	ana.minEdgeAngle = 15;
+
+	sim.setUp(age, loc, ana, 0);
 	sim.placeGenerators({make_pair(117,96), make_pair(122,71), make_pair(144,58) , make_pair(150,84) }, {1,1,1,1});
 	/*sim.placeGenerators({
 		make_pair(8,121),

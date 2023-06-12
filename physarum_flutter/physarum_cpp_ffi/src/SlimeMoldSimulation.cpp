@@ -1,4 +1,4 @@
-#include "SlimeMoldClass.h"
+﻿#include "SlimeMoldClass.h"
 
 SlimeMoldSimulation::SlimeMoldSimulation() {}
 
@@ -12,7 +12,7 @@ SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 }
 
 void SlimeMoldSimulation::makeStep() {
-	int i; ft timeForOneIteration1, timeForOneIteration2, timeForOneIteration3;
+	int i;
 #pragma omp parallel for
 	for (i = 0; i < particles.size(); i++) {
 		particles[i]->moveTurn();
@@ -53,36 +53,28 @@ void SlimeMoldSimulation::makeStep() {
 	location.castDecay();
 }
 
-void SlimeMoldSimulation::setUp(it timeToLive, it startPopulation, ft sensorOffsetDistance, ft sensorsAngle, ft rotationAngle, ft stepSize, ft depositPerStep, ft decayFactor, bool isPeriodicBoundary, bool isCanMultiAgent, ft edgesRange, ft vertexRange, ft minVertexMass, ft minEdgeAngle) {
+void SlimeMoldSimulation::setUp(AgentSettings agentSettings, LocationSettings locationSettings, AnalyserSettings analyserSettings, it startPopulation) {
 
-	rotationAngle = it(rotationAngle) % 360;
+	ft rotationAngle = it(agentSettings.rotationAngle) % 360;
 	rotationAngle = rotationAngle * PI / 180;
 
-	sensorsAngle = it(sensorsAngle) % 360;
-	sensorsAngle = sensorsAngle * PI / 180;
 	//матрицы нужные для поворота мув вектора и сенсоров
 	SlimeAgent::rightRotationMatrix = { {cos(rotationAngle), -sin(rotationAngle)}, { sin(rotationAngle), cos(rotationAngle)} };
 	SlimeAgent::leftRotationMatrix = { {cos(-rotationAngle), -sin(-rotationAngle)}, { sin(-rotationAngle), cos(-rotationAngle)} };
-	SlimeAgent::depositPerStep = depositPerStep;
+	SlimeAgent::depositPerStep = agentSettings.depositPerStep;
 	
 	this->population = startPopulation;
 	// параметры агентов
-	this->factory.startTimeToLife = timeToLive;
-	this->factory.sensorOffsetDistance = sensorOffsetDistance;
-	this->factory.sensorAngle = sensorsAngle;
-	this->factory.stepSize = stepSize;
+	agentSettings.sensorsAngle = it(agentSettings.sensorsAngle) % 360;
+	agentSettings.sensorsAngle = agentSettings.sensorsAngle * PI / 180;
+	this->factory.settings = agentSettings;
 	this->factory.location = &(this->location);
 
 	// параметры локации
-	this->location.decayFactor = decayFactor;
-	this->location.isPeriodicBoundary = isPeriodicBoundary;
-	this->location.isCanMultiAgent = isCanMultiAgent;
+	this->location.settings = locationSettings;
 
 	// параметры анализатора
-	this->analyser.edgesRange = edgesRange;
-	this->analyser.vertexRange = vertexRange;
-	this->analyser.minVertexMass = minVertexMass;
-	this->analyser.minEdgeAngle = minEdgeAngle;
+	this->analyser.settings = analyserSettings;
 }
 
 void SlimeMoldSimulation::placeGenerators(vector<pair<it, it>> positions, vector<it> agentsPerSec) {
