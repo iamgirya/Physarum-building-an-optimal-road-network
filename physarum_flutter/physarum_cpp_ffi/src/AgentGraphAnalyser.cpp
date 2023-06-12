@@ -77,7 +77,7 @@ void AgentGraphAnalyser::makeGraph(vector<SlimeAgent*> particles, vector<Generat
 
 	// делаем из вектора односвязный список. В i-том элементе находится индекс вектора следующего активного элемента
 	vector<it> next(position.size(), -1);
-	for (int i = 0; i < position.size()-1; i++) {
+	for (it i = 0; i < position.size()-1; i++) {
 		next[i] = i + 1;
 	}
 	// количество точек, которые забрала данная точка
@@ -487,7 +487,7 @@ ft AgentGraphAnalyser::calculateWeigth() {
 	}
 	int countOfVertex = townIndexes.size()-1;
 	while (countOfVertex) {
-		auto edge = edges.top(); edges.pop();
+		pair<ft, ft> edge = edges.top(); edges.pop();
 		if (visited[edge.second]) {
 			continue;
 		}
@@ -700,15 +700,18 @@ void AgentGraphAnalyser::calculateMetrics() {
 	if (!checkConnected()) {
 		return;
 	}
-	vector <ft> metrics = { calculateWeigth(), calculateDeltaFlow(), calculateOverDistance(), calculateResistance() };
-	ft nowMetricsSum = metrics[0] * metrics[1] * metrics[2] * metrics[3];
+	ft nowMetricWeigth = calculateWeigth() * settings.weigthCoef;
+	ft nowMetricDeltaFlow = calculateDeltaFlow() * settings.deltaFlowCoef;
+	ft nowMetricOverDistance = calculateOverDistance() * settings.overDistanceCoef;
+	ft nowMetricResistance = calculateResistance() * settings.resistanceCoef;
+	ft nowMetricsSum = nowMetricWeigth + nowMetricDeltaFlow + nowMetricOverDistance + nowMetricResistance;
 
 	if (bestGraph.empty() || nowMetricsSum < metricsSum) {
 		metricsSum = nowMetricsSum;
-		metricWeigth = metrics[0];
-		metricDeltaFlow = metrics[1];
-		metricOverDistance = metrics[2];
-		metricResistance = metrics[3];
+		metricWeigth = nowMetricWeigth;
+		metricDeltaFlow = nowMetricDeltaFlow;
+		metricOverDistance = nowMetricOverDistance;
+		metricResistance = nowMetricResistance;
 		bestGraph = vector<vector<it>>(graph.size());
 		bestExitPoints = vector<pair<it, it>>(exitPoints.size());
 		bestTowns = vector<it>(towns.size());

@@ -14,9 +14,32 @@ FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
 }
 
 FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings, it startPopulation) {
-	// пересоздаЄм симул€цию
 	sim = SlimeMoldSimulation(locationSettings->xSize, locationSettings->ySize);
 	
+	// пересоздаЄм симул€цию
+	ofstream f("C:/test.txt");
+	f << agentSettings->depositPerStep << '\n';
+	f << agentSettings ->rotationAngle << '\n';
+	f << agentSettings ->sensorOffsetDistance << '\n';
+	f << agentSettings ->sensorsAngle << '\n';
+	f << agentSettings ->stepSize << '\n';
+	f << agentSettings ->timeToLive << '\n' << '\n';
+	f << locationSettings ->decayFactor << '\n';
+	f << locationSettings ->isCanMultiAgent << '\n';
+	f << locationSettings ->isPeriodicBoundary << '\n';
+	f << locationSettings ->xSize << '\n';
+	f << locationSettings ->ySize << '\n' << '\n';
+	f << analyserSettings ->deltaFlowCoef << '\n';
+	f << analyserSettings ->edgesRange << '\n';
+	f << analyserSettings ->minEdgeAngle << '\n';
+	f << analyserSettings ->minVertexMass << '\n';
+	f << analyserSettings ->overDistanceCoef << '\n';
+	f << analyserSettings ->resistanceCoef << '\n';
+	f << analyserSettings ->vertexRange << '\n';
+	f << analyserSettings ->weigthCoef << '\n';
+	f.close();
+
+
 	sim.setUp(*agentSettings, *locationSettings, *analyserSettings, startPopulation);
 }
 

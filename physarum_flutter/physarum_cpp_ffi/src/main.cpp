@@ -12,9 +12,9 @@ int main()
 	auto age = AgentSettings();
 	age.depositPerStep = 3;
 	age.rotationAngle = 45;
-	age.sensorOffsetDistance = 6;
 	age.sensorsAngle = 45;
-	age.startTimeToLife = 80;
+	age.sensorOffsetDistance = 6;
+	age.timeToLive = 80;
 	age.stepSize = 1;
 	auto ana = AnalyserSettings();
 	ana.weigthCoef = 1;

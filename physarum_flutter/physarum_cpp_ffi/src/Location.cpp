@@ -6,11 +6,6 @@ Location::Location(it x, it y) {
 	xSize = x;
 	ySize = y;
 
-	settings = LocationSettings();
-	settings.decayFactor = 0;
-	settings.isPeriodicBoundary = 0;
-	settings.isCanMultiAgent = 0;
-
 	generators = vector<Generator*>();
 	trailMap = vector<vector<ft>>(xSize, vector<ft>(ySize, 0.0));
 	agentMap = vector<vector<short int>>(xSize, vector<short int>(ySize, 0));

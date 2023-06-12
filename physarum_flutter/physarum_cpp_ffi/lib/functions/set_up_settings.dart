@@ -1,77 +1,70 @@
 import 'dart:ffi';
 
+import 'package:ffi/ffi.dart';
+import 'package:physarum_cpp_ffi/models/settings.dart';
+
 import '../ffi_core.dart';
 
 void setUpSimulation(Map<String, num> settings) {
   final execute = lookup<
           NativeFunction<
               Void Function(
-                Double,
-                Double,
-                Double,
-                Double,
-                Int,
-                Int,
-                Int,
-                Int,
-                Double,
-                Double,
-                Double,
-                Double,
-                Double,
-                Double,
-                Bool,
-                Bool,
-                Double,
-                Double,
-                Double,
-                Double,
+                Pointer<AgentSettings>,
+                Pointer<LocationSettings>,
+                Pointer<AnalyserSettings>,
+                Int32,
               )>>('setUpSimulation')
       .asFunction<
           void Function(
-            double,
-            double,
-            double,
-            double,
+            Pointer<AgentSettings>,
+            Pointer<LocationSettings>,
+            Pointer<AnalyserSettings>,
             int,
-            int,
-            int,
-            int,
-            double,
-            double,
-            double,
-            double,
-            double,
-            double,
-            bool,
-            bool,
-            double,
-            double,
-            double,
-            double,
           )>();
 
-  execute(
-    settings['weigthCoef']?.toDouble() ?? 1,
-    settings['overDistanceCoef']?.toDouble() ?? 1,
-    settings['deltaFlowCoef']?.toDouble() ?? 0.5,
-    settings['resistanceCoef']?.toDouble() ?? 1,
-    settings['locationX']?.toInt() ?? 200,
-    settings['locationY']?.toInt() ?? 200,
-    settings['timeToLive']?.toInt() ?? 80,
-    settings['startPopulation']?.toInt() ?? 0,
-    settings['sensorOffsetDistance']?.toDouble() ?? 6,
-    settings['sensorsAngle']?.toDouble() ?? 45,
-    settings['rotationAngle']?.toDouble() ?? 45,
-    settings['stepSize']?.toDouble() ?? 1,
-    settings['depositPerStep']?.toDouble() ?? 3,
-    settings['decayFactor']?.toDouble() ?? 1.5,
-    (settings['isPeriodicBoundary'] != null &&
-        settings['isPeriodicBoundary'] != 0),
-    (settings['isCanMultiAgent'] != 0),
-    settings['edgesRange']?.toDouble() ?? 16,
-    settings['vertexRange']?.toDouble() ?? 8,
-    settings['minVertexMass']?.toDouble() ?? 4,
-    settings['minEdgeAngle']?.toDouble() ?? 15,
-  );
+  Arena arena = Arena();
+
+  try {
+    Pointer<AgentSettings> agentSettings =
+        arena.allocate(sizeOf<AgentSettings>());
+    agentSettings.ref.timeToLive = settings['timeToLive']!.toInt();
+    agentSettings.ref.sensorOffsetDistance =
+        settings['sensorOffsetDistance']!.toDouble();
+    agentSettings.ref.stepSize = settings['stepSize']!.toDouble();
+    agentSettings.ref.sensorsAngle = settings['sensorsAngle']!.toDouble();
+    agentSettings.ref.rotationAngle = settings['rotationAngle']!.toDouble();
+    agentSettings.ref.depositPerStep = settings['depositPerStep']!.toDouble();
+
+    Pointer<LocationSettings> locationSettings =
+        arena.allocate(sizeOf<LocationSettings>());
+    locationSettings.ref.xSize = settings['locationX']!.toInt();
+    locationSettings.ref.ySize = settings['locationY']!.toInt();
+    locationSettings.ref.decayFactor = settings['decayFactor']!.toDouble();
+    locationSettings.ref.isPeriodicBoundary =
+        (settings['isPeriodicBoundary'] != null &&
+            settings['isPeriodicBoundary'] != 0);
+    locationSettings.ref.isCanMultiAgent = (settings['isCanMultiAgent'] != 0);
+
+    Pointer<AnalyserSettings> analyserSettings =
+        arena.allocate(sizeOf<AnalyserSettings>());
+    analyserSettings.ref.weigthCoef = settings['weigthCoef']!.toDouble();
+    analyserSettings.ref.overDistanceCoef =
+        settings['overDistanceCoef']!.toDouble();
+    analyserSettings.ref.deltaFlowCoef = settings['deltaFlowCoef']!.toDouble();
+    analyserSettings.ref.resistanceCoef =
+        settings['resistanceCoef']!.toDouble();
+    analyserSettings.ref.edgesRange = settings['edgesRange']!.toDouble();
+    analyserSettings.ref.vertexRange = settings['vertexRange']!.toDouble();
+    analyserSettings.ref.minVertexMass = settings['minVertexMass']!.toDouble();
+    analyserSettings.ref.minEdgeAngle = settings['minEdgeAngle']!.toDouble();
+
+    final startPopulation = settings['startPopulation']!.toInt();
+
+    execute(agentSettings, locationSettings, analyserSettings, startPopulation);
+
+    arena.releaseAll();
+  } catch (error) {
+    print(error);
+    return;
+  }
 }

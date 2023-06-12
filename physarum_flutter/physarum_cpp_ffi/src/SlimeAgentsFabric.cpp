@@ -5,7 +5,7 @@ SlimeAgentFactory::SlimeAgentFactory() {}
 SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex = -1) {
 	ft stepSize = settings.stepSize;
 	ft sensorOffsetDistance = settings.sensorOffsetDistance;
-	ft startTimeToLife = settings.startTimeToLife;
+	ft startTimeToLife = settings.timeToLive;
 	ft sensorsAngle = settings.sensorsAngle;
 
 	ft piStartAngle = startAngle / 180 * PI;

@@ -32,45 +32,40 @@ extern "C" {
     class SlimeAgentFactory;
     class Generator;
     class SlimeAgent;
-    struct LocationSettings;
-    struct AnalyserSettings;
-    struct AgentSettings;
     class SlimeMoldSimulation;
     class Location;
     class AgentGraphAnalyser;
 
     // настройки агентов
-    struct AgentSettings {
-        it startTimeToLife;
+    typedef struct {
+        it timeToLive;
         ft sensorOffsetDistance;
         ft sensorsAngle;
         ft stepSize;
-
-        ft depositPerStep;
         ft rotationAngle;
-    };
+        ft depositPerStep;
+    } AgentSettings;
 
     // настройки локации
-    struct LocationSettings {
+    typedef struct {
         it xSize;
         it ySize;
         ft decayFactor;
         bool isPeriodicBoundary;
         bool isCanMultiAgent;
-    };
+    } LocationSettings;
 
     // настройки анализатора
-    struct AnalyserSettings {
+    typedef struct {
         ft weigthCoef;
         ft overDistanceCoef;
         ft deltaFlowCoef;
         ft resistanceCoef;
-
         ft edgesRange;
         ft vertexRange;
-        it minVertexMass;
+        ft minVertexMass;
         ft minEdgeAngle;
-    };
+    } AnalyserSettings;
 
 
     class SlimeAgent {
@@ -365,8 +360,6 @@ extern "C" {
         int length;
     } SlimeMoldNetwork;
 
-    void restartSimulation();
-
     SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints);
 
     FFI_PLUGIN_EXPORT void execute(int stepCount);
@@ -375,7 +368,7 @@ extern "C" {
 
     FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics();
 
-    FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings);
+    FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings, it startPopulation);
 
     FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns);
 
