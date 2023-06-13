@@ -4,13 +4,14 @@ import '../models/graph_model.dart';
 import '../../../support/pair.dart';
 
 class GraphPainter extends CustomPainter {
-  GraphPainter(this.graph, this.sizeOfPixel);
   final Graph graph;
-  final double sizeOfPixel;
+  final double widthScale;
+  final double heightScale;
+  GraphPainter(this.graph, this.widthScale, this.heightScale);
 
   @override
   void paint(Canvas canvas, Size size) {
-    Size pointSize = Size(sizeOfPixel, sizeOfPixel);
+    Size pointSize = Size(widthScale, heightScale);
     final Rect backgroundRect = Offset.zero & size;
     canvas.drawRect(
       backgroundRect,
@@ -26,12 +27,12 @@ class GraphPainter extends CustomPainter {
 
         canvas.drawLine(
           Offset(
-            first.first * pointSize.width + sizeOfPixel / 2,
-            first.second * pointSize.height + sizeOfPixel / 2,
+            first.first * pointSize.width + widthScale / 2,
+            first.second * pointSize.height + heightScale / 2,
           ),
           Offset(
-            second.first * pointSize.width + sizeOfPixel / 2,
-            second.second * pointSize.height + sizeOfPixel / 2,
+            second.first * pointSize.width + widthScale / 2,
+            second.second * pointSize.height + heightScale / 2,
           ),
           Paint()..color = edgeColor,
         );

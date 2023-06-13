@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../setting_panel/state/simulation_setting_state_holder.dart';
 import '../graph_fields_manager.dart';
 import '../graph_field_state_holders.dart';
 
 import 'graph_painter.dart';
 
 class GraphDrawField extends ConsumerStatefulWidget {
-  final double sizeOfPixel;
   final double sizeOfField;
   final bool isBest;
 
   const GraphDrawField({
     super.key,
-    required this.sizeOfPixel,
     required this.sizeOfField,
     required this.isBest,
   });
@@ -28,34 +27,56 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
     final graph = widget.isBest
         ? ref.watch(bestGraphsFieldGraphStateHolder)
         : ref.watch(nowGraphsFieldGraphStateHolder);
+
+    final widthScale = widget.sizeOfField /
+        ref.watch(
+          settingsStateHolder.select(
+            (value) =>
+                value.settingsControllers['locationX'] ?? widget.sizeOfField,
+          ),
+        );
+    final heightScale = widget.sizeOfField /
+        ref.watch(
+          settingsStateHolder.select(
+            (value) =>
+                value.settingsControllers['locationY'] ?? widget.sizeOfField,
+          ),
+        );
+
     final painter = GraphPainter(
       graph,
-      widget.sizeOfPixel,
+      widthScale,
+      heightScale,
     );
     return Column(
       children: [
         Text(widget.isBest ? 'Лучший результат' : 'Нынешний граф'),
         SizedBox(
-          height: widget.sizeOfField * widget.sizeOfPixel,
-          width: widget.sizeOfField * widget.sizeOfPixel,
+          height: widget.sizeOfField,
+          width: widget.sizeOfField,
           child: Stack(
             children: [
               CustomPaint(
                 painter: painter,
                 size: Size(
-                  widget.sizeOfField * widget.sizeOfPixel,
-                  widget.sizeOfField * widget.sizeOfPixel,
+                  widget.sizeOfField,
+                  widget.sizeOfField,
                 ),
               ),
               if (!widget.isBest)
                 GestureDetector(
                   onTapDown: (touchData) {
-                    manager.onTap(touchData.localPosition, widget.sizeOfPixel);
+                    manager.onTap(
+                      touchData.localPosition,
+                      widthScale,
+                      heightScale,
+                    );
                   },
                   onSecondaryTapDown: (touchData) {
                     manager.onSecondTap(
                       touchData.localPosition,
-                      widget.sizeOfPixel,
+                      widthScale,
+                      heightScale,
                     );
                   },
                 ),

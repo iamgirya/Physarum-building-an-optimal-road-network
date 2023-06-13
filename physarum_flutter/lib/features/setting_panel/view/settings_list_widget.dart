@@ -1,57 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../graph_field/graph_field_state_holders.dart';
-import '../../main_screen/view/main_screen_button.dart';
 import '../setting_manager.dart';
-import '../simulation_setting_state_holder.dart';
+import '../state/simulation_setting_state_holder.dart';
 import '../../../support/settings_data.dart';
 
-class SettingsList extends ConsumerStatefulWidget {
+class SettingsList extends HookConsumerWidget {
   const SettingsList({super.key});
 
   @override
-  ConsumerState<SettingsList> createState() => _SettingsListState();
-}
-
-class _SettingsListState extends ConsumerState<SettingsList> {
-  @override
-  Widget build(BuildContext context) {
-    final manager = ref.watch(settingsManager);
+  Widget build(BuildContext context, WidgetRef ref) {
     final graph = ref.watch(nowGraphsFieldGraphStateHolder);
     final state = ref.watch(settingsStateHolder);
-    final list = state.settingsControllers.entries.toList();
+
+    List<String> keyList =
+        state.settingsControllers.entries.map((e) => e.key).toList();
+    final controllerList = keyList
+        .map(
+          (e) => useTextEditingController(
+            text: state.settingsControllers[e]!.toString(),
+          ),
+        )
+        .toList();
+
     return graph.isGraphBuilded
         ? const SizedBox()
-        : Column(
-            children: [
-              Expanded(
-                child: ListView.separated(
-                  itemBuilder: (context, i) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          settingsValues[list[i].key]?.name ?? '!',
-                        ),
-                        TextField(
-                          controller: list[i].value,
-                        ),
-                      ],
-                    );
-                  },
-                  separatorBuilder: (context, i) {
-                    return const SizedBox(
-                      height: 10,
-                    );
-                  },
-                  itemCount: list.length,
-                ),
-              ),
-              MainScreenButton(
-                onPressed: (_) => manager.onSaveSetting(),
-                title: 'Сохранить',
-              ),
-            ],
+        : ListView.separated(
+            itemBuilder: (context, i) {
+              return SettingsCard(
+                settingsKey: keyList[i],
+                controller: controllerList[i],
+              );
+            },
+            separatorBuilder: (context, i) {
+              return const SizedBox(
+                height: 10,
+              );
+            },
+            itemCount: controllerList.length,
           );
+  }
+}
+
+class SettingsCard extends ConsumerWidget {
+  const SettingsCard({
+    super.key,
+    required this.settingsKey,
+    required this.controller,
+  });
+
+  final String settingsKey;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final manager = ref.watch(settingsManager);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          settingsValues[settingsKey]?.name ?? '!',
+        ),
+        TextField(
+          controller: controller,
+          onChanged: (value) =>
+              manager.setNewValue(settingsKey, controller.text),
+        ),
+      ],
+    );
   }
 }

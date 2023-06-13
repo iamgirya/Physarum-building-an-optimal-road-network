@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$SettingsState {
-  Map<String, TextEditingController> get settingsControllers =>
+  Map<String, num> get settingsControllers =>
       throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -30,7 +30,7 @@ abstract class $SettingsStateCopyWith<$Res> {
           SettingsState value, $Res Function(SettingsState) then) =
       _$SettingsStateCopyWithImpl<$Res, SettingsState>;
   @useResult
-  $Res call({Map<String, TextEditingController> settingsControllers});
+  $Res call({Map<String, num> settingsControllers});
 }
 
 /// @nodoc
@@ -52,7 +52,7 @@ class _$SettingsStateCopyWithImpl<$Res, $Val extends SettingsState>
       settingsControllers: null == settingsControllers
           ? _value.settingsControllers
           : settingsControllers // ignore: cast_nullable_to_non_nullable
-              as Map<String, TextEditingController>,
+              as Map<String, num>,
     ) as $Val);
   }
 }
@@ -65,7 +65,7 @@ abstract class _$$_SettingsStateCopyWith<$Res>
       __$$_SettingsStateCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Map<String, TextEditingController> settingsControllers});
+  $Res call({Map<String, num> settingsControllers});
 }
 
 /// @nodoc
@@ -85,7 +85,7 @@ class __$$_SettingsStateCopyWithImpl<$Res>
       settingsControllers: null == settingsControllers
           ? _value.settingsControllers
           : settingsControllers // ignore: cast_nullable_to_non_nullable
-              as Map<String, TextEditingController>,
+              as Map<String, num>,
     ));
   }
 }
@@ -96,7 +96,7 @@ class _$_SettingsState extends _SettingsState {
   _$_SettingsState({required this.settingsControllers}) : super._();
 
   @override
-  final Map<String, TextEditingController> settingsControllers;
+  final Map<String, num> settingsControllers;
 
   @override
   String toString() {
@@ -125,12 +125,11 @@ class _$_SettingsState extends _SettingsState {
 
 abstract class _SettingsState extends SettingsState {
   factory _SettingsState(
-      {required final Map<String, TextEditingController>
-          settingsControllers}) = _$_SettingsState;
+      {required final Map<String, num> settingsControllers}) = _$_SettingsState;
   _SettingsState._() : super._();
 
   @override
-  Map<String, TextEditingController> get settingsControllers;
+  Map<String, num> get settingsControllers;
   @override
   @JsonKey(ignore: true)
   _$$_SettingsStateCopyWith<_$_SettingsState> get copyWith =>

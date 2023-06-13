@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../support/settings_data.dart';
 
@@ -9,14 +8,16 @@ class SettingsState with _$SettingsState {
   const SettingsState._();
 
   factory SettingsState({
-    required Map<String, TextEditingController> settingsControllers,
+    required Map<String, num> settingsControllers,
   }) = _SettingsState;
 
   static SettingsState empty() => SettingsState(
-        settingsControllers: settingsValues.map(
-          (key, value) => MapEntry(
-            key,
-            TextEditingController()..text = value.defaultValue.toString(),
+        settingsControllers: Map.unmodifiable(
+          settingsValues.map(
+            (key, value) => MapEntry(
+              key,
+              value.defaultValue,
+            ),
           ),
         ),
       );

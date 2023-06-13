@@ -11,6 +11,7 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const sizeOfFied = 600.0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -23,8 +24,7 @@ class MainPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GraphDrawField(
-                sizeOfField: 200,
-                sizeOfPixel: 3,
+                sizeOfField: sizeOfFied,
                 isBest: false,
               ),
               SizedBox(
@@ -35,13 +35,13 @@ class MainPage extends StatelessWidget {
                 width: 15,
               ),
               SizedBox(
-                width: 600,
-                height: 600,
+                width: sizeOfFied,
+                height: sizeOfFied,
                 child: SettingsPanel(),
-              )
+              ),
             ],
           ),
-          GraphEditDrawer(),
+          GraphEditDrawer(sizeOfFied: sizeOfFied),
         ],
       ),
     );

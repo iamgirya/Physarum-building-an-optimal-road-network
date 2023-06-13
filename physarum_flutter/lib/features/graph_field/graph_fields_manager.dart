@@ -45,11 +45,11 @@ class GraphFieldManager {
     }
   }
 
-  void onTap(Offset coords, double sizeOfPixel) {
+  void onTap(Offset coords, double widthScale, double heightScale) {
     if (!nowGraphHolder.state.isGraphBuilded) {
       final newPoint = Pair(
-        (coords.dx ~/ sizeOfPixel),
-        (coords.dy ~/ sizeOfPixel),
+        ((coords.dx / widthScale).round()),
+        ((coords.dy / heightScale).round()),
       );
 
       final graph = nowGraphHolder.state;
@@ -66,11 +66,11 @@ class GraphFieldManager {
     }
   }
 
-  void onSecondTap(Offset coords, double sizeOfPixel) {
+  void onSecondTap(Offset coords, double widthScale, double heightScale) {
     if (!nowGraphHolder.state.isGraphBuilded) {
       final oldPoint = Pair(
-        (coords.dx ~/ sizeOfPixel),
-        (coords.dy ~/ sizeOfPixel),
+        ((coords.dx / widthScale).round()),
+        ((coords.dy / heightScale).round()),
       );
 
       final searchResult = nowGraphHolder.state.exitPoints.indexOf(oldPoint);

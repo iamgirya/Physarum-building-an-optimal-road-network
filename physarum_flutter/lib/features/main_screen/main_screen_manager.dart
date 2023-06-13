@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
 import 'state/main_screen_state_holder.dart';
-import '../setting_panel/simulation_setting_state_holder.dart';
+import '../setting_panel/state/simulation_setting_state_holder.dart';
 import '../graph_field/models/graph_model.dart';
 import 'state/main_screen_state.dart';
 import '../../support/pair.dart';
@@ -85,8 +85,7 @@ class MainScreenManager {
   Future<void> _callNextStep(int stepCount, bool isLaunch) async {
     if (isLaunch) {
       bindings.setUpSimulation(
-        settingsState.state.settingsControllers
-            .map((key, value) => MapEntry(key, num.parse(value.text))),
+        settingsState.state.settingsControllers,
       );
       bindings.setUpTowns(
         nowGraphHolder.state.exitPoints
