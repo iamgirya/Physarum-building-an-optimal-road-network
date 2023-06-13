@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../graph_field/ui/graph_field_view.dart';
+import '../../graph_field/view/graph_field_view.dart';
 import 'graph_edit_drawer.dart';
 import 'main_interface_column.dart';
 

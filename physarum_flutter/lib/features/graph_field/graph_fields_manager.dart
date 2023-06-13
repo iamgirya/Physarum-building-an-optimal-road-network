@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,9 +48,10 @@ class GraphFieldManager {
 
   void onTap(Offset coords, double widthScale, double heightScale) {
     if (!nowGraphHolder.state.isGraphBuilded) {
+      final scale = min(widthScale, heightScale);
       final newPoint = Pair(
-        ((coords.dx / widthScale).round()),
-        ((coords.dy / heightScale).round()),
+        ((coords.dx / scale).round()),
+        ((coords.dy / scale).round()),
       );
 
       final graph = nowGraphHolder.state;
@@ -68,9 +70,10 @@ class GraphFieldManager {
 
   void onSecondTap(Offset coords, double widthScale, double heightScale) {
     if (!nowGraphHolder.state.isGraphBuilded) {
+      final scale = min(widthScale, heightScale);
       final oldPoint = Pair(
-        ((coords.dx / widthScale).round()),
-        ((coords.dy / heightScale).round()),
+        ((coords.dx / scale).round()),
+        ((coords.dy / scale).round()),
       );
 
       final searchResult = nowGraphHolder.state.exitPoints.indexOf(oldPoint);

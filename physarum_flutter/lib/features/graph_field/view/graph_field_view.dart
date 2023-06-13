@@ -43,6 +43,8 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
           ),
         );
 
+    final sizeScale = heightScale / widthScale;
+
     final painter = GraphPainter(
       graph,
       widthScale,
@@ -52,15 +54,23 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
       children: [
         Text(widget.isBest ? 'Лучший результат' : 'Нынешний граф'),
         SizedBox(
-          height: widget.sizeOfField,
-          width: widget.sizeOfField,
+          width: sizeScale >= 1
+              ? widget.sizeOfField
+              : widget.sizeOfField * sizeScale,
+          height: sizeScale > 1
+              ? widget.sizeOfField / sizeScale
+              : widget.sizeOfField,
           child: Stack(
             children: [
               CustomPaint(
                 painter: painter,
                 size: Size(
-                  widget.sizeOfField,
-                  widget.sizeOfField,
+                  sizeScale >= 1
+                      ? widget.sizeOfField
+                      : widget.sizeOfField * sizeScale,
+                  sizeScale > 1
+                      ? widget.sizeOfField / sizeScale
+                      : widget.sizeOfField,
                 ),
               ),
               if (!widget.isBest)

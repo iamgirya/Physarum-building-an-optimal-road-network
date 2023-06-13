@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../models/graph_model.dart';
@@ -11,7 +13,8 @@ class GraphPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Size pointSize = Size(widthScale, heightScale);
+    final sideScale = min(widthScale, heightScale);
+    Size pointSize = Size(sideScale, sideScale);
     final Rect backgroundRect = Offset.zero & size;
     canvas.drawRect(
       backgroundRect,
@@ -27,12 +30,12 @@ class GraphPainter extends CustomPainter {
 
         canvas.drawLine(
           Offset(
-            first.first * pointSize.width + widthScale / 2,
-            first.second * pointSize.height + heightScale / 2,
+            first.first * pointSize.width + sideScale / 2,
+            first.second * pointSize.height + sideScale / 2,
           ),
           Offset(
-            second.first * pointSize.width + widthScale / 2,
-            second.second * pointSize.height + heightScale / 2,
+            second.first * pointSize.width + sideScale / 2,
+            second.second * pointSize.height + sideScale / 2,
           ),
           Paint()..color = edgeColor,
         );
@@ -44,7 +47,7 @@ class GraphPainter extends CustomPainter {
       final int x = graph.exitPoints[i].first;
       final int y = graph.exitPoints[i].second;
       final Rect point =
-          Offset(x * pointSize.width, y * pointSize.height) & pointSize;
+          Offset(x * sideScale, y * sideScale) & pointSize;
       final Color pointColor =
           graph.towns[i] != 0 ? Colors.white : Colors.lightGreen;
 
