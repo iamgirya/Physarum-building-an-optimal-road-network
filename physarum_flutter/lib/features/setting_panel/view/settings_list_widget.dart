@@ -60,7 +60,7 @@ class SettingsCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          settingsValues[settingsKey]?.name ?? '!',
+          settingsMappedData[settingsKey]?.name ?? '!',
         ),
         TextField(
           controller: controller,

@@ -87,4 +87,19 @@ class GraphFieldManager {
       }
     }
   }
+
+  void validateVertex(num width, num height) {
+    final validPoints = <Pair>[];
+    final validTowns = <int>[];
+    for (int i = 0; i < nowGraphHolder.state.exitPoints.length; i++) {
+      final point = nowGraphHolder.state.exitPoints[i];
+      if (point.first < width && point.second < height) {
+        validPoints.add(point);
+        validTowns.add(nowGraphHolder.state.towns[i]);
+      }
+    }
+    nowGraphHolder.update(
+      (state) => state.copyWith(exitPoints: validPoints, towns: validTowns),
+    );
+  }
 }

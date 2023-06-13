@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
+import '../graph_field/graph_fields_manager.dart';
 import 'state/main_screen_state_holder.dart';
 import '../setting_panel/state/simulation_setting_state_holder.dart';
 import '../graph_field/models/graph_model.dart';
@@ -10,28 +11,31 @@ import '../setting_panel/state/settings_state.dart';
 
 final mainScreenManager = Provider<MainScreenManager>((ref) {
   return MainScreenManager(
-    mainScreenState: ref.watch(mainScreenStateHolder.notifier),
+    graphManager: ref.watch(graphFieldsManager),
+    mainScreenHolder: ref.watch(mainScreenStateHolder.notifier),
     bestGraphHolder: ref.watch(bestGraphsFieldGraphStateHolder.notifier),
     nowGraphHolder: ref.watch(nowGraphsFieldGraphStateHolder.notifier),
-    settingsState: ref.watch(settingsStateHolder.notifier),
+    settingsHolder: ref.watch(settingsStateHolder.notifier),
   );
 });
 
 class MainScreenManager {
   static const int iterationPerStep = 10;
-  final StateController<MainScreenState> mainScreenState;
+  final GraphFieldManager graphManager;
+  final StateController<MainScreenState> mainScreenHolder;
   final GraphNotifier bestGraphHolder;
   final GraphNotifier nowGraphHolder;
-  final StateController<SettingsState> settingsState;
+  final StateController<SettingsState> settingsHolder;
   MainScreenManager({
-    required this.mainScreenState,
+    required this.mainScreenHolder,
     required this.bestGraphHolder,
     required this.nowGraphHolder,
-    required this.settingsState,
+    required this.settingsHolder,
+    required this.graphManager,
   });
 
   void onRestartTap() async {
-    mainScreenState.update(
+    mainScreenHolder.update(
       (state) => state.copyWith(
         isNeedRestart: true,
         metricWeigth: -1,
@@ -46,34 +50,39 @@ class MainScreenManager {
 
   void onStopTap() async {
     // защита на случай, если пользователь нажмёт сброс, стоп и старп.
-    if (!mainScreenState.state.isNeedRestart) {
-      mainScreenState.update((state) => state.copyWith(isAlgoWorking: false));
+    if (!mainScreenHolder.state.isNeedRestart) {
+      mainScreenHolder.update((state) => state.copyWith(isAlgoWorking: false));
     }
   }
 
   void onExecuteTap() {
+    graphManager.validateVertex(
+      settingsHolder.state.settingsControllers['locationX']!,
+      settingsHolder.state.settingsControllers['locationY']!,
+    );
+
     if (nowGraphHolder.state.towns.isEmpty) {
       return;
     }
 
-    if (!mainScreenState.state.isAlgoWorking) {
+    if (!mainScreenHolder.state.isAlgoWorking) {
       final count = int.tryParse(
-        mainScreenState.state.stepCountTextEditingController.text,
+        mainScreenHolder.state.stepCountTextEditingController.text,
       );
       if (count != null && count >= 1) {
-        mainScreenState.update((state) => state.copyWith(isAlgoWorking: true));
+        mainScreenHolder.update((state) => state.copyWith(isAlgoWorking: true));
 
         // если нужно перезапустить, то перезапускаем и плюсовую часть
-        if (mainScreenState.state.isNeedRestart) {
-          mainScreenState
+        if (mainScreenHolder.state.isNeedRestart) {
+          mainScreenHolder
               .update((state) => state.copyWith(isNeedRestart: false));
           _callNextStep(count, true);
         } else {
           _callNextStep(count, false);
         }
       }
-    } else if (mainScreenState.state.isAlgoWorking &&
-        mainScreenState.state.isNeedRestart) {
+    } else if (mainScreenHolder.state.isAlgoWorking &&
+        mainScreenHolder.state.isNeedRestart) {
       // В случае, если выполнение последнего шага не закончилось, пользователь нажал на рестарт
       // и сразу нажал на выполнить, то мы заносим это нажатие кнопки в очередь Future
       // Оно гарантированно выполнится после того, как отработает последний _callNextStep
@@ -85,7 +94,7 @@ class MainScreenManager {
   Future<void> _callNextStep(int stepCount, bool isLaunch) async {
     if (isLaunch) {
       bindings.setUpSimulation(
-        settingsState.state.settingsControllers,
+        settingsHolder.state.settingsControllers,
       );
       bindings.setUpTowns(
         nowGraphHolder.state.exitPoints
@@ -96,8 +105,8 @@ class MainScreenManager {
     }
 
     await bindings.execute(iterationPerStep);
-    if (mainScreenState.state.isAlgoWorking &&
-        !mainScreenState.state.isNeedRestart) {
+    if (mainScreenHolder.state.isAlgoWorking &&
+        !mainScreenHolder.state.isNeedRestart) {
       final bestNetwork = bindings.getGraph(true);
       _setGraphFromNetwork(networkOrGraph: bestNetwork, isBest: true);
 
@@ -106,7 +115,7 @@ class MainScreenManager {
 
       final metrics = bindings.getBestMetrics();
       if (metrics.isNotEmpty) {
-        mainScreenState.update(
+        mainScreenHolder.update(
           (state) => state.copyWith(
             metricWeigth: metrics[0],
             metricDistance: metrics[1],
@@ -117,15 +126,16 @@ class MainScreenManager {
       }
       // вычисляем сколько шагов осталось
       stepCount--;
-      mainScreenState.state.stepCountTextEditingController.text =
+      mainScreenHolder.state.stepCountTextEditingController.text =
           (stepCount).toString();
       if (stepCount != 0) {
         _callNextStep(stepCount, false);
       } else {
-        mainScreenState.update((state) => state.copyWith(isAlgoWorking: false));
+        mainScreenHolder
+            .update((state) => state.copyWith(isAlgoWorking: false));
       }
     } else {
-      mainScreenState.update((state) => state.copyWith(isAlgoWorking: false));
+      mainScreenHolder.update((state) => state.copyWith(isAlgoWorking: false));
     }
   }
 

@@ -13,7 +13,7 @@ class SettingsState with _$SettingsState {
 
   static SettingsState empty() => SettingsState(
         settingsControllers: Map.unmodifiable(
-          settingsValues.map(
+          settingsMappedData.map(
             (key, value) => MapEntry(
               key,
               value.defaultValue,
