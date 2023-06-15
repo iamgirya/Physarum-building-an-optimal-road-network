@@ -108,7 +108,8 @@ class __$$_GraphCopyWithImpl<$Res> extends _$GraphCopyWithImpl<$Res, _$_Graph>
 /// @nodoc
 
 class _$_Graph extends _Graph with DiagnosticableTreeMixin {
-  _$_Graph({required this.towns, required this.exitPoints, required this.graph})
+  const _$_Graph(
+      {required this.towns, required this.exitPoints, required this.graph})
       : super._();
 
   @override
@@ -159,11 +160,11 @@ class _$_Graph extends _Graph with DiagnosticableTreeMixin {
 }
 
 abstract class _Graph extends Graph {
-  factory _Graph(
+  const factory _Graph(
       {required final List<int> towns,
       required final List<Pair> exitPoints,
       required final List<List<int>> graph}) = _$_Graph;
-  _Graph._() : super._();
+  const _Graph._() : super._();
 
   @override
   List<int> get towns;

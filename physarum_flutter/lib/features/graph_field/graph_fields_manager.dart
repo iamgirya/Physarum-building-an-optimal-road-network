@@ -38,10 +38,11 @@ class GraphFieldManager {
     if (_validateCoords(textCoords) && int.tryParse(priority) != null) {
       final coords = textCoords.split(' ');
       nowGraphHolder.update(
-        (state) => state
-          ..towns[index] = int.parse(priority)
-          ..exitPoints[index] =
-              Pair(int.parse(coords[0]), int.parse(coords[1])),
+        (state) => state.copyWith(
+          towns: List.from(state.towns)..[index] = int.parse(priority),
+          exitPoints: List.from(state.exitPoints)
+            ..[index] = Pair(int.parse(coords[0]), int.parse(coords[1])),
+        ),
       );
     }
   }
@@ -54,15 +55,19 @@ class GraphFieldManager {
         ((coords.dy / scale).round()),
       );
 
-      final graph = nowGraphHolder.state;
       final searchResult = nowGraphHolder.state.exitPoints.indexOf(newPoint);
       if (searchResult != -1) {
-        nowGraphHolder.update((state) => state..towns[searchResult] += 1);
+        nowGraphHolder.update(
+          (state) => state.copyWith(
+            towns: List.from(state.towns)..[searchResult] += 1,
+          ),
+        );
       } else {
         nowGraphHolder.update(
-          (state) => graph
-            ..exitPoints.add(newPoint)
-            ..towns.add(1),
+          (state) => state.copyWith(
+            towns: List.from(state.towns)..add(1),
+            exitPoints: List.from(state.exitPoints)..add(newPoint),
+          ),
         );
       }
     }
@@ -80,12 +85,17 @@ class GraphFieldManager {
       if (searchResult != -1) {
         if (nowGraphHolder.state.towns[searchResult] == 1) {
           nowGraphHolder.update(
-            (state) => state
-              ..exitPoints.removeAt(searchResult)
-              ..towns.removeAt(searchResult),
+            (state) => state.copyWith(
+              towns: List.from(state.towns)..removeAt(searchResult),
+              exitPoints: List.from(state.exitPoints)..removeAt(searchResult),
+            ),
           );
         } else {
-          nowGraphHolder.update((state) => state..towns[searchResult] -= 1);
+          nowGraphHolder.update(
+            (state) => state.copyWith(
+              towns: List.from(state.towns)..[searchResult] -= 1,
+            ),
+          );
         }
       }
     }

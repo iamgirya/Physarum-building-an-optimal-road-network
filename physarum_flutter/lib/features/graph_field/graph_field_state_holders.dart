@@ -21,5 +21,6 @@ class GraphNotifier extends Notifier<Graph> {
   }
 
   @override
-  bool updateShouldNotify(Graph previous, Graph next) => true;
+  bool updateShouldNotify(Graph previous, Graph next) =>
+      previous.hashCode != next.hashCode;
 }

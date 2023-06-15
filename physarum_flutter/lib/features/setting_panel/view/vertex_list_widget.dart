@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../graph_field/graph_field_state_holders.dart';
-import '../../graph_field/graph_fields_manager.dart';
+import 'vertex_line.dart';
 
 class VertexList extends HookConsumerWidget {
   const VertexList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final graph = ref.watch(nowGraphsFieldGraphStateHolder);
-    return graph.isGraphBuilded
+    final isGraphBuilded = ref.watch(
+      nowGraphsFieldGraphStateHolder.select((value) => value.isGraphBuilded),
+    );
+    final townsCount = ref.watch(
+      nowGraphsFieldGraphStateHolder.select((value) => value.towns.length),
+    );
+    return isGraphBuilded
         ? const SizedBox()
         : Column(
             children: [
@@ -34,63 +38,10 @@ class VertexList extends HookConsumerWidget {
                       height: 5,
                     );
                   },
-                  itemCount: graph.towns.length,
+                  itemCount: townsCount,
                 ),
               ),
             ],
           );
-  }
-}
-
-class VertexLine extends HookConsumerWidget {
-  const VertexLine(this.i, {super.key});
-
-  final int i;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final manager = ref.watch(graphFieldsManager);
-    final graph = ref.watch(nowGraphsFieldGraphStateHolder);
-
-    final coordsTextController = useTextEditingController(
-      text: '${graph.exitPoints[i].first} ${graph.exitPoints[i].second}',
-    );
-    final priorityTextController = useTextEditingController(
-      text: graph.towns[i].toString(),
-    );
-
-    coordsTextController.addListener(
-      () => manager.changeVectex(
-        i,
-        coordsTextController.text,
-        priorityTextController.text,
-      ),
-    );
-    priorityTextController.addListener(
-      () => manager.changeVectex(
-        i,
-        coordsTextController.text,
-        priorityTextController.text,
-      ),
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Expanded(child: Center(child: Text(i.toString()))),
-        Expanded(
-          child: TextField(
-            controller: coordsTextController,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Expanded(
-          child: TextField(
-            controller: priorityTextController,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
   }
 }

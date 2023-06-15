@@ -8,7 +8,7 @@ part 'graph_model.freezed.dart';
 class Graph with _$Graph {
   const Graph._();
 
-  factory Graph({
+  const factory Graph({
     required List<int> towns,
     required List<Pair> exitPoints,
     required List<List<int>> graph,
@@ -16,5 +16,5 @@ class Graph with _$Graph {
 
   bool get isGraphBuilded => graph.isNotEmpty;
 
-  static Graph empty() => Graph(towns: [], exitPoints: [], graph: []);
+  static Graph empty() => const Graph(towns: [], exitPoints: [], graph: []);
 }
