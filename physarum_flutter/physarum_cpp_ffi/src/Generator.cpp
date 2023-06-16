@@ -28,10 +28,10 @@ vector<SlimeAgent*> Generator::generate() {
 		if (!generatorsQueue.empty()) {
 			ft startAngle = generatorsQueue.front();
 			generatorsQueue.pop();
-			rezult.push_back(factory->generateAgent(position, startAngle, teamIndex));
+			rezult.push_back(factory->generateAgent(position, startAngle, false, teamIndex));
 		}
 		else {
-			rezult.push_back(factory->generateAgent(position, (ft(rand() % 360)), teamIndex));
+			rezult.push_back(factory->generateAgent(position, (ft(rand() % 360)), false, teamIndex));
 		}
 	}
 	return rezult;

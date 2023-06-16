@@ -61,7 +61,7 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
           ),
           MainScreenButton(
             onPressed: (context) => manager.changeDrawerMode(),
-            title: 'Режим',
+            title: state.isBestOnDrawer ? 'Режим лучшего' : 'Режим агентов',
           ),
           const Spacer(),
           const Text('Вес:'),

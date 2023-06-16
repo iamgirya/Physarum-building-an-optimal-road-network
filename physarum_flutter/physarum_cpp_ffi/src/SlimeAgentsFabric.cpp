@@ -2,7 +2,7 @@
 
 SlimeAgentFactory::SlimeAgentFactory() {}
 
-SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex = -1) {
+SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startAngle, bool isUndead, it teamIndex = -1) {
 	ft stepSize = settings.stepSize;
 	ft sensorOffsetDistance = settings.sensorOffsetDistance;
 	ft startTimeToLife = settings.timeToLive;
@@ -14,7 +14,7 @@ SlimeAgent* SlimeAgentFactory::generateAgent(vector<ft> startPosition, ft startA
 	vector<ft> csVector = { sensorOffsetDistance * cos(startAngle), sensorOffsetDistance * sin(startAngle) };
 	vector<ft> rsVector = { sensorOffsetDistance * cos(startAngle - sensorsAngle), sensorOffsetDistance * sin(startAngle - sensorsAngle) };
 	SlimeAgent* tmp = new SlimeAgent();
-	tmp->setUp(startAngle, teamIndex, startTimeToLife, startPosition, moveVector, lsVector, csVector, rsVector, location);
+	tmp->setUp(startAngle, teamIndex, startTimeToLife, startPosition, moveVector, lsVector, csVector, rsVector, location, isUndead);
 	return tmp;
 }
 
@@ -22,7 +22,7 @@ vector<SlimeAgent*> SlimeAgentFactory::generatePopulationInPixel(it count, vecto
 	vector<SlimeAgent*> rezult;
 
 	for (int i = 0; i < count; i++) {
-		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360)), teamIndex));
+		rezult.push_back(generateAgent(startPosition, (ft(rand() % 360)), teamIndex, false));
 	}
 	return rezult;
 }
@@ -31,7 +31,7 @@ vector<SlimeAgent*> SlimeAgentFactory::generatePopulationRandomPositions(it coun
 	vector<SlimeAgent*> rezult;
 
 	for (int i = 0; i < count; i++) {
-		rezult.push_back(generateAgent({ ft(rand() % sizes[0]) , ft(rand() % sizes[1]) }, (ft(rand() % 360))));
+		rezult.push_back(generateAgent({ ft(rand() % sizes[0]) , ft(rand() % sizes[1]) }, (ft(rand() % 360)), true));
 	}
 	return rezult;
 }

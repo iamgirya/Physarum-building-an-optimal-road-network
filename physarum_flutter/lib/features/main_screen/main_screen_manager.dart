@@ -70,7 +70,8 @@ class MainScreenManager {
       settingsHolder.state.settingsControllers['locationY']!,
     );
 
-    if (nowGraphHolder.state.towns.isEmpty) {
+    if (nowGraphHolder.state.towns.isEmpty &&
+        settingsHolder.state.settingsControllers['startPopulation']! == 0) {
       return;
     }
 

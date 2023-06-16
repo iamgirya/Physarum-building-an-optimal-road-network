@@ -98,8 +98,9 @@ extern "C" {
         pair<ft ,vector<ft>> startAngle;
         // вектор с пройденными клетками
         vector<vector<it>> pathVector;
+        bool isUndead;
 
-        void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, Location*);
+        void setUp(ft, it, it, vector<ft> , vector<ft>, vector<ft>, vector<ft>, vector<ft>, Location*, bool);
         //движение
         void moveTurn();
         //сканирование
@@ -133,7 +134,7 @@ extern "C" {
 
         SlimeAgentFactory();
 
-        SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, it teamIndex);
+        SlimeAgent* generateAgent(vector<ft> startPosition, ft startAngle, bool isUndead, it teamIndex);
 
         vector<SlimeAgent*> generatePopulationInPixel(it count, vector<ft>& startPosition, it teamIndex);
 
@@ -298,7 +299,6 @@ extern "C" {
 
     class SlimeMoldSimulation {
     public:
-        it population;
         vector<SlimeAgent*> particles;
         Location location;
         SlimeAgentFactory factory;

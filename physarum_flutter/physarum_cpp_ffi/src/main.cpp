@@ -26,8 +26,8 @@ int main()
 	ana.minVertexMass = 4;
 	ana.minEdgeAngle = 15;
 
-	sim.setUp(age, loc, ana, 0);
-	sim.placeGenerators({make_pair(117,96), make_pair(122,71), make_pair(144,58) , make_pair(150,84) }, {1,1,1,1});
+	sim.setUp(age, loc, ana, 1000);
+	//sim.placeGenerators({make_pair(117,96), make_pair(122,71), make_pair(144,58) , make_pair(150,84) }, {1,1,1,1});
 	/*sim.placeGenerators({
 		make_pair(8,121),
 		make_pair(35, 126),

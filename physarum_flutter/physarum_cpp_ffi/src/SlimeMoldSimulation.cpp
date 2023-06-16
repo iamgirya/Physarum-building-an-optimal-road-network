@@ -5,7 +5,6 @@ SlimeMoldSimulation::SlimeMoldSimulation() {}
 SlimeMoldSimulation::SlimeMoldSimulation(it xSize, it ySize) {
 	srand(it(time(NULL)));
 
-	population = 0;
 	location = Location(xSize, ySize);
 	factory = SlimeAgentFactory();
 	analyser = AgentGraphAnalyser();
@@ -63,7 +62,6 @@ void SlimeMoldSimulation::setUp(AgentSettings agentSettings, LocationSettings lo
 	SlimeAgent::leftRotationMatrix = { {cos(-rotationAngle), -sin(-rotationAngle)}, { sin(-rotationAngle), cos(-rotationAngle)} };
 	SlimeAgent::depositPerStep = agentSettings.depositPerStep;
 	
-	this->population = startPopulation;
 	// параметры агентов
 	agentSettings.sensorsAngle = it(agentSettings.sensorsAngle) % 360;
 	agentSettings.sensorsAngle = agentSettings.sensorsAngle * PI / 180;
@@ -75,6 +73,9 @@ void SlimeMoldSimulation::setUp(AgentSettings agentSettings, LocationSettings lo
 
 	// параметры анализатора
 	this->analyser.settings = analyserSettings;
+
+	//стартовая популяция
+	particles = this->factory.generatePopulationRandomPositions(startPopulation, this->location.getSizes());
 }
 
 void SlimeMoldSimulation::placeGenerators(vector<pair<it, it>> positions, vector<it> agentsPerSec) {
@@ -89,12 +90,13 @@ void SlimeMoldSimulation::startSimulation(it stepCount) {
 	std::mt19937 g(rd());
 	double sumTime = 0;
 	double count = 0;
-
+	
 	while (stepCount--) {
+		cout << particles.size() << endl;
 		//double time1 = omp_get_wtime();
 		makeStep();
 		shuffle(particles.begin(), particles.end(), g);
-		if (stepCount % 100 == 0) {
+		if (stepCount % 100 == 0 && location.generators.size() >= 2) {
 			analyser.makeGraph(particles, location.generators);
 			analyser.minimizeGraph();
 			analyser.calculateMetrics();
