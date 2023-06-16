@@ -360,11 +360,20 @@ extern "C" {
         int length;
     } SlimeMoldNetwork;
 
+    // структура вывода локации
+    typedef struct {
+        IntArrayArray *trailMap;
+        DoubleArray *agentsX;
+        DoubleArray *agentsY;
+    } LocationOutput;
+
     SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints);
 
     FFI_PLUGIN_EXPORT void execute(int stepCount);
 
     FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest);
+
+    FFI_PLUGIN_EXPORT LocationOutput* getLocation();
 
     FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics();
 

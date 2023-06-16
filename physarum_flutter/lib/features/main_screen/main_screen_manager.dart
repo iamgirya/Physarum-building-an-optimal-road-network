@@ -113,6 +113,8 @@ class MainScreenManager {
       final nowNetwork = bindings.getGraph(false);
       _setGraphFromNetwork(networkOrGraph: nowNetwork, isBest: false);
 
+      final test = bindings.getLocation();
+
       final metrics = bindings.getBestMetrics();
       if (metrics.isNotEmpty) {
         mainScreenHolder.update(

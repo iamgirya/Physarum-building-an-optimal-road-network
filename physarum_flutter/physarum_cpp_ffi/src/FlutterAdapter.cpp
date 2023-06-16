@@ -2,26 +2,7 @@
 
 SlimeMoldSimulation sim;
 
-FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
-	vector <it> generatorsPriotiry;
-	vector <pair<it,it>> generatorsPoint;
-	for (int i = 0; i < x->length; i++) {
-		generatorsPoint.push_back(make_pair(x->data[i], y->data[i]));
-		generatorsPriotiry.push_back(towns->data[i]);
-	}
-
-	sim.placeGenerators(generatorsPoint, generatorsPriotiry);
-}
-
-FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings, it startPopulation) {
-	// пересоздаЄм симул€цию
-	sim = SlimeMoldSimulation(locationSettings->xSize, locationSettings->ySize);
-
-	sim.setUp(*agentSettings, *locationSettings, *analyserSettings, startPopulation);
-}
-
 SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>& towns, vector<pair<it,it>>& exitPoints) {
-	// parsing time!
 	int sizeOfNetwork = graph.size();
 	auto *result = (SlimeMoldNetwork *) malloc(sizeof(SlimeMoldNetwork));
 	result->length = sizeOfNetwork;
@@ -70,6 +51,66 @@ SlimeMoldNetwork *parseSimulationToNetwork(vector<vector<it>>& graph, vector<it>
 	return result;
 }
 
+LocationOutput* parseSimulationToLocationOutput(Location& location, vector<SlimeAgent*>& agents) {
+	int count = agents.size();
+	int xSize = location.trailMap.size();
+	int ySize = location.trailMap[0].size();
+	auto* result = (LocationOutput*)malloc(sizeof(LocationOutput));
+
+	// exitPoints
+	auto* pointsX = (DoubleArray*)malloc(sizeof(DoubleArray));
+	pointsX->length = count;
+	pointsX->data = (double*)malloc(pointsX->length * sizeof(double));
+	for (int j = 0; j < pointsX->length; j++) {
+		pointsX->data[j] = agents[j]->positionVector[0];
+	}
+	result->agentsX = pointsX;
+
+	auto* pointsY = (DoubleArray*)malloc(sizeof(DoubleArray));
+	pointsY->length = count;
+	pointsY->data = (double*)malloc(pointsY->length * sizeof(double));
+	for (int j = 0; j < pointsY->length; j++) {
+		pointsY->data[j] = agents[j]->positionVector[1];
+	}
+	result->agentsY = pointsY;
+
+	// map
+	auto* exitGraph = (IntArrayArray*)malloc(sizeof(IntArrayArray));
+	exitGraph->length = xSize;
+	exitGraph->data = (IntArray*)malloc(exitGraph->length * sizeof(IntArray));
+	for (int i = 0; i < exitGraph->length; i++) {
+		auto* exitGraphPart = (IntArray*)malloc(sizeof(IntArray));
+		exitGraphPart->length = ySize;
+		exitGraphPart->data = (int32_t*)malloc(exitGraphPart->length * sizeof(int32_t));
+		for (int j = 0; j < exitGraphPart->length; j++) {
+			exitGraphPart->data[j] = location.trailMap[i][j];
+		}
+		exitGraph->data[i] = *exitGraphPart;
+	}
+	result->trailMap = exitGraph;
+
+	return result;
+}
+
+
+
+FFI_PLUGIN_EXPORT void setUpTowns(IntArray* x, IntArray* y, IntArray* towns) {
+	vector <it> generatorsPriotiry;
+	vector <pair<it, it>> generatorsPoint;
+	for (int i = 0; i < x->length; i++) {
+		generatorsPoint.push_back(make_pair(x->data[i], y->data[i]));
+		generatorsPriotiry.push_back(towns->data[i]);
+	}
+
+	sim.placeGenerators(generatorsPoint, generatorsPriotiry);
+}
+
+FFI_PLUGIN_EXPORT void setUpSimulation(AgentSettings* agentSettings, LocationSettings* locationSettings, AnalyserSettings* analyserSettings, it startPopulation) {
+	sim = SlimeMoldSimulation(locationSettings->xSize, locationSettings->ySize);
+
+	sim.setUp(*agentSettings, *locationSettings, *analyserSettings, startPopulation);
+}
+
 FFI_PLUGIN_EXPORT void execute(int stepCount) {
 	sim.startSimulation(stepCount);
 }
@@ -80,6 +121,11 @@ FFI_PLUGIN_EXPORT SlimeMoldNetwork *getGraph(bool isNeedBest) {
 	} else {
 		return parseSimulationToNetwork(sim.analyser.graph, sim.analyser.towns, sim.analyser.exitPoints);
 	}
+}
+
+
+FFI_PLUGIN_EXPORT LocationOutput* getLocation() {
+	return parseSimulationToLocationOutput(sim.location, sim.particles);
 }
 
 FFI_PLUGIN_EXPORT DoubleArray *getBestMetrics() {
