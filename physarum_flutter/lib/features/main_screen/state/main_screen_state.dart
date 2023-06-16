@@ -9,6 +9,7 @@ class MainScreenState with _$MainScreenState {
   factory MainScreenState({
     required bool isAlgoWorking,
     required bool isNeedRestart,
+    required bool isBestOnDrawer,
     required TextEditingController stepCountTextEditingController,
     required double metricWeigth,
     required double metricDistance,
@@ -19,6 +20,7 @@ class MainScreenState with _$MainScreenState {
   static MainScreenState empty() => MainScreenState(
         isAlgoWorking: false,
         isNeedRestart: true,
+        isBestOnDrawer: true,
         stepCountTextEditingController: TextEditingController(),
         metricDistance: -1,
         metricFlow: -1,

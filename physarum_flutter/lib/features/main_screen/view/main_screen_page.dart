@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../graph_field/graph_field_state_holders.dart';
-import '../../graph_field/view/graph_field_view.dart';
-import 'graph_edit_drawer.dart';
+import '../../graph_field/view/graph_draw_field.dart';
+import 'draw_field_drawer.dart';
 import 'main_interface_column.dart';
 
 import '../../setting_panel/view/setting_panel_view.dart';
@@ -50,7 +50,7 @@ class MainPage extends StatelessWidget {
               ),
             ],
           ),
-          const GraphEditDrawer(sizeOfFied: sizeOfFied),
+          const DrawFieldDrawer(sizeOfFied: sizeOfFied),
         ],
       ),
     );

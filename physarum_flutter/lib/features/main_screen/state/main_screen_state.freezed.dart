@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$MainScreenState {
   bool get isAlgoWorking => throw _privateConstructorUsedError;
   bool get isNeedRestart => throw _privateConstructorUsedError;
+  bool get isBestOnDrawer => throw _privateConstructorUsedError;
   TextEditingController get stepCountTextEditingController =>
       throw _privateConstructorUsedError;
   double get metricWeigth => throw _privateConstructorUsedError;
@@ -39,6 +40,7 @@ abstract class $MainScreenStateCopyWith<$Res> {
   $Res call(
       {bool isAlgoWorking,
       bool isNeedRestart,
+      bool isBestOnDrawer,
       TextEditingController stepCountTextEditingController,
       double metricWeigth,
       double metricDistance,
@@ -61,6 +63,7 @@ class _$MainScreenStateCopyWithImpl<$Res, $Val extends MainScreenState>
   $Res call({
     Object? isAlgoWorking = null,
     Object? isNeedRestart = null,
+    Object? isBestOnDrawer = null,
     Object? stepCountTextEditingController = null,
     Object? metricWeigth = null,
     Object? metricDistance = null,
@@ -75,6 +78,10 @@ class _$MainScreenStateCopyWithImpl<$Res, $Val extends MainScreenState>
       isNeedRestart: null == isNeedRestart
           ? _value.isNeedRestart
           : isNeedRestart // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isBestOnDrawer: null == isBestOnDrawer
+          ? _value.isBestOnDrawer
+          : isBestOnDrawer // ignore: cast_nullable_to_non_nullable
               as bool,
       stepCountTextEditingController: null == stepCountTextEditingController
           ? _value.stepCountTextEditingController
@@ -111,6 +118,7 @@ abstract class _$$_MainScreenStateCopyWith<$Res>
   $Res call(
       {bool isAlgoWorking,
       bool isNeedRestart,
+      bool isBestOnDrawer,
       TextEditingController stepCountTextEditingController,
       double metricWeigth,
       double metricDistance,
@@ -131,6 +139,7 @@ class __$$_MainScreenStateCopyWithImpl<$Res>
   $Res call({
     Object? isAlgoWorking = null,
     Object? isNeedRestart = null,
+    Object? isBestOnDrawer = null,
     Object? stepCountTextEditingController = null,
     Object? metricWeigth = null,
     Object? metricDistance = null,
@@ -145,6 +154,10 @@ class __$$_MainScreenStateCopyWithImpl<$Res>
       isNeedRestart: null == isNeedRestart
           ? _value.isNeedRestart
           : isNeedRestart // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isBestOnDrawer: null == isBestOnDrawer
+          ? _value.isBestOnDrawer
+          : isBestOnDrawer // ignore: cast_nullable_to_non_nullable
               as bool,
       stepCountTextEditingController: null == stepCountTextEditingController
           ? _value.stepCountTextEditingController
@@ -176,6 +189,7 @@ class _$_MainScreenState extends _MainScreenState {
   _$_MainScreenState(
       {required this.isAlgoWorking,
       required this.isNeedRestart,
+      required this.isBestOnDrawer,
       required this.stepCountTextEditingController,
       required this.metricWeigth,
       required this.metricDistance,
@@ -187,6 +201,8 @@ class _$_MainScreenState extends _MainScreenState {
   final bool isAlgoWorking;
   @override
   final bool isNeedRestart;
+  @override
+  final bool isBestOnDrawer;
   @override
   final TextEditingController stepCountTextEditingController;
   @override
@@ -200,7 +216,7 @@ class _$_MainScreenState extends _MainScreenState {
 
   @override
   String toString() {
-    return 'MainScreenState(isAlgoWorking: $isAlgoWorking, isNeedRestart: $isNeedRestart, stepCountTextEditingController: $stepCountTextEditingController, metricWeigth: $metricWeigth, metricDistance: $metricDistance, metricResistance: $metricResistance, metricFlow: $metricFlow)';
+    return 'MainScreenState(isAlgoWorking: $isAlgoWorking, isNeedRestart: $isNeedRestart, isBestOnDrawer: $isBestOnDrawer, stepCountTextEditingController: $stepCountTextEditingController, metricWeigth: $metricWeigth, metricDistance: $metricDistance, metricResistance: $metricResistance, metricFlow: $metricFlow)';
   }
 
   @override
@@ -212,6 +228,8 @@ class _$_MainScreenState extends _MainScreenState {
                 other.isAlgoWorking == isAlgoWorking) &&
             (identical(other.isNeedRestart, isNeedRestart) ||
                 other.isNeedRestart == isNeedRestart) &&
+            (identical(other.isBestOnDrawer, isBestOnDrawer) ||
+                other.isBestOnDrawer == isBestOnDrawer) &&
             (identical(other.stepCountTextEditingController,
                     stepCountTextEditingController) ||
                 other.stepCountTextEditingController ==
@@ -231,6 +249,7 @@ class _$_MainScreenState extends _MainScreenState {
       runtimeType,
       isAlgoWorking,
       isNeedRestart,
+      isBestOnDrawer,
       stepCountTextEditingController,
       metricWeigth,
       metricDistance,
@@ -248,6 +267,7 @@ abstract class _MainScreenState extends MainScreenState {
   factory _MainScreenState(
       {required final bool isAlgoWorking,
       required final bool isNeedRestart,
+      required final bool isBestOnDrawer,
       required final TextEditingController stepCountTextEditingController,
       required final double metricWeigth,
       required final double metricDistance,
@@ -259,6 +279,8 @@ abstract class _MainScreenState extends MainScreenState {
   bool get isAlgoWorking;
   @override
   bool get isNeedRestart;
+  @override
+  bool get isBestOnDrawer;
   @override
   TextEditingController get stepCountTextEditingController;
   @override

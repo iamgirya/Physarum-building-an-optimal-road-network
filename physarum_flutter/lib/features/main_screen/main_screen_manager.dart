@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../graph_field/graph_field_state_holders.dart';
 import '../graph_field/graph_fields_manager.dart';
+import '../location_field/location_state_holders.dart';
 import 'physarum_repository.dart';
 import 'state/main_screen_state_holder.dart';
 import '../setting_panel/state/simulation_setting_state_holder.dart';
@@ -14,6 +15,7 @@ final mainScreenManager = Provider<MainScreenManager>((ref) {
     mainScreenHolder: ref.watch(mainScreenStateHolder.notifier),
     bestGraphHolder: ref.watch(bestGraphsFieldGraphStateHolder.notifier),
     nowGraphHolder: ref.watch(nowGraphsFieldGraphStateHolder.notifier),
+    locationHolder: ref.watch(locationStateHolder.notifier),
     settingsHolder: ref.watch(settingsStateHolder.notifier),
     physarumRepository: ref.watch(physarumRepositoryProvider),
   );
@@ -27,6 +29,7 @@ class MainScreenManager {
   final GraphNotifier nowGraphHolder;
   final StateController<SettingsState> settingsHolder;
   final PhysarumRepository physarumRepository;
+  final LocationNotifier locationHolder;
   MainScreenManager({
     required this.mainScreenHolder,
     required this.bestGraphHolder,
@@ -34,7 +37,11 @@ class MainScreenManager {
     required this.settingsHolder,
     required this.graphManager,
     required this.physarumRepository,
+    required this.locationHolder,
   });
+
+  void changeDrawerMode() => mainScreenHolder
+      .update((state) => state.copyWith(isBestOnDrawer: !state.isBestOnDrawer));
 
   void onRestartTap() async {
     mainScreenHolder.update(
@@ -113,7 +120,8 @@ class MainScreenManager {
       final nowNetwork = physarumRepository.getGraph(false);
       _setGraph(graph: nowNetwork, isBest: false);
 
-      final test = physarumRepository.getLocation();
+      final newLocation = physarumRepository.getLocation();
+      locationHolder.update((state) => newLocation);
 
       final metrics = physarumRepository.getBestMetrics();
       if (metrics.isNotEmpty) {

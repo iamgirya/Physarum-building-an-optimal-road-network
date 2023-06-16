@@ -56,6 +56,13 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
             onPressed: (context) => manager.onRestartTap(),
             title: 'Сбросить',
           ),
+          const SizedBox(
+            height: 15,
+          ),
+          MainScreenButton(
+            onPressed: (context) => manager.changeDrawerMode(),
+            title: 'Режим',
+          ),
           const Spacer(),
           const Text('Вес:'),
           Text(

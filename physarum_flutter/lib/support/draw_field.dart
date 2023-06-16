@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../setting_panel/state/simulation_setting_state_holder.dart';
-import '../graph_fields_manager.dart';
+import '../features/setting_panel/state/simulation_setting_state_holder.dart';
 
-import '../models/graph_model.dart';
-import 'graph_painter.dart';
-
-class GraphDrawField extends ConsumerWidget {
+class DrawField extends ConsumerWidget {
   final double sizeOfField;
   final String title;
-  final Graph graph;
-  final bool isEditor;
+  final CustomPainter Function(double widthScale, double heightScale)
+      painterConstructor;
+  final Widget? Function(double widthScale, double heightScale, WidgetRef ref)
+      builder;
 
-  const GraphDrawField({
+  const DrawField({
     super.key,
     required this.sizeOfField,
     required this.title,
-    required this.graph,
-    this.isEditor = false,
+    required this.painterConstructor,
+    required this.builder,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final manager = ref.watch(graphFieldsManager);
-
     final widthScale = sizeOfField /
         ref.watch(
           settingsStateHolder.select(
@@ -39,11 +35,8 @@ class GraphDrawField extends ConsumerWidget {
 
     final sizeScale = heightScale / widthScale;
 
-    final painter = GraphPainter(
-      graph,
-      widthScale,
-      heightScale,
-    );
+    final painter = painterConstructor(widthScale, heightScale);
+    final child = builder(widthScale, heightScale, ref);
     return Column(
       children: [
         Text(title),
@@ -59,23 +52,7 @@ class GraphDrawField extends ConsumerWidget {
                   sizeScale > 1 ? sizeOfField / sizeScale : sizeOfField,
                 ),
               ),
-              if (isEditor)
-                GestureDetector(
-                  onTapDown: (touchData) {
-                    manager.onTap(
-                      touchData.localPosition,
-                      widthScale,
-                      heightScale,
-                    );
-                  },
-                  onSecondaryTapDown: (touchData) {
-                    manager.onSecondTap(
-                      touchData.localPosition,
-                      widthScale,
-                      heightScale,
-                    );
-                  },
-                ),
+              if (child != null) child,
             ],
           ),
         ),
