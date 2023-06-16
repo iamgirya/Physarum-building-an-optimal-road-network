@@ -16,6 +16,7 @@ class GraphPainter extends CustomPainter {
     final sideScale = min(widthScale, heightScale);
     Size pointSize = Size(sideScale, sideScale);
     final Rect backgroundRect = Offset.zero & size;
+    canvas.clipRect(backgroundRect);
     canvas.drawRect(
       backgroundRect,
       Paint()..color = Colors.black,
@@ -46,8 +47,7 @@ class GraphPainter extends CustomPainter {
     for (int i = 0; i < graph.exitPoints.length; i++) {
       final int x = graph.exitPoints[i].first;
       final int y = graph.exitPoints[i].second;
-      final Rect point =
-          Offset(x * sideScale, y * sideScale) & pointSize;
+      final Rect point = Offset(x * sideScale, y * sideScale) & pointSize;
       final Color pointColor =
           graph.towns[i] != 0 ? Colors.white : Colors.lightGreen;
 

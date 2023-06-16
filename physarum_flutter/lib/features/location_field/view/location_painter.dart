@@ -15,6 +15,7 @@ class LocationPainter extends CustomPainter {
     final sideScale = min(widthScale, heightScale);
     Size pointSize = Size(sideScale, sideScale);
     final Rect backgroundRect = Offset.zero & size;
+    canvas.clipRect(backgroundRect);
     canvas.drawRect(
       backgroundRect,
       Paint()..color = Colors.black,
