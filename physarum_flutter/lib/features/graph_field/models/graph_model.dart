@@ -10,7 +10,7 @@ class Graph with _$Graph {
 
   const factory Graph({
     required List<int> towns,
-    required List<Pair> exitPoints,
+    required List<Pair<int>> exitPoints,
     required List<List<int>> graph,
   }) = _Graph;
 

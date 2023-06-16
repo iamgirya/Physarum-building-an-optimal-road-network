@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 // важно сохранять порядок как в C++ коде
 
-final class LocationSettings extends Struct {
+final class LocationSettingsFFI extends Struct {
   @Int64()
   external int xSize;
   @Int64()
@@ -15,7 +15,7 @@ final class LocationSettings extends Struct {
   external bool isCanMultiAgent;
 }
 
-final class AgentSettings extends Struct {
+final class AgentSettingsFFI extends Struct {
   @Int64()
   external int timeToLive;
   @Double()
@@ -30,7 +30,7 @@ final class AgentSettings extends Struct {
   external double depositPerStep;
 }
 
-final class AnalyserSettings extends Struct {
+final class AnalyserSettingsFFI extends Struct {
   @Double()
   external double weigthCoef;
   @Double()

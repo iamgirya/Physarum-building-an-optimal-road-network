@@ -1,16 +1,15 @@
 import 'dart:ffi';
 
 import '../ffi_core.dart';
-import '../models/network.dart';
+import '../models/graph.dart';
 
-SlimeMoldNetwork getGraph(bool isNeedBest) {
+Graph getGraph(bool isNeedBest) {
   final execute =
-      lookup<NativeFunction<Pointer<SlimeMoldNetworkFFI> Function(Bool)>>(
-              'getGraph')
-          .asFunction<Pointer<SlimeMoldNetworkFFI> Function(bool)>();
+      lookup<NativeFunction<Pointer<GraphFFI> Function(Bool)>>('getGraph')
+          .asFunction<Pointer<GraphFFI> Function(bool)>();
   final struct = execute(isNeedBest).ref;
 
-  SlimeMoldNetwork result = SlimeMoldNetwork();
+  Graph result = Graph();
   for (int i = 0; i < struct.length; i++) {
     // точки
     result.exitPoints

@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$Graph {
   List<int> get towns => throw _privateConstructorUsedError;
-  List<Pair> get exitPoints => throw _privateConstructorUsedError;
+  List<Pair<int>> get exitPoints => throw _privateConstructorUsedError;
   List<List<int>> get graph => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -29,7 +29,8 @@ abstract class $GraphCopyWith<$Res> {
   factory $GraphCopyWith(Graph value, $Res Function(Graph) then) =
       _$GraphCopyWithImpl<$Res, Graph>;
   @useResult
-  $Res call({List<int> towns, List<Pair> exitPoints, List<List<int>> graph});
+  $Res call(
+      {List<int> towns, List<Pair<int>> exitPoints, List<List<int>> graph});
 }
 
 /// @nodoc
@@ -57,7 +58,7 @@ class _$GraphCopyWithImpl<$Res, $Val extends Graph>
       exitPoints: null == exitPoints
           ? _value.exitPoints
           : exitPoints // ignore: cast_nullable_to_non_nullable
-              as List<Pair>,
+              as List<Pair<int>>,
       graph: null == graph
           ? _value.graph
           : graph // ignore: cast_nullable_to_non_nullable
@@ -72,7 +73,8 @@ abstract class _$$_GraphCopyWith<$Res> implements $GraphCopyWith<$Res> {
       __$$_GraphCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<int> towns, List<Pair> exitPoints, List<List<int>> graph});
+  $Res call(
+      {List<int> towns, List<Pair<int>> exitPoints, List<List<int>> graph});
 }
 
 /// @nodoc
@@ -96,7 +98,7 @@ class __$$_GraphCopyWithImpl<$Res> extends _$GraphCopyWithImpl<$Res, _$_Graph>
       exitPoints: null == exitPoints
           ? _value.exitPoints
           : exitPoints // ignore: cast_nullable_to_non_nullable
-              as List<Pair>,
+              as List<Pair<int>>,
       graph: null == graph
           ? _value.graph
           : graph // ignore: cast_nullable_to_non_nullable
@@ -115,7 +117,7 @@ class _$_Graph extends _Graph with DiagnosticableTreeMixin {
   @override
   final List<int> towns;
   @override
-  final List<Pair> exitPoints;
+  final List<Pair<int>> exitPoints;
   @override
   final List<List<int>> graph;
 
@@ -162,14 +164,14 @@ class _$_Graph extends _Graph with DiagnosticableTreeMixin {
 abstract class _Graph extends Graph {
   const factory _Graph(
       {required final List<int> towns,
-      required final List<Pair> exitPoints,
+      required final List<Pair<int>> exitPoints,
       required final List<List<int>> graph}) = _$_Graph;
   const _Graph._() : super._();
 
   @override
   List<int> get towns;
   @override
-  List<Pair> get exitPoints;
+  List<Pair<int>> get exitPoints;
   @override
   List<List<int>> get graph;
   @override

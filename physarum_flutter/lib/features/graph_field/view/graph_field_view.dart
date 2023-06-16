@@ -2,44 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../setting_panel/state/simulation_setting_state_holder.dart';
 import '../graph_fields_manager.dart';
-import '../graph_field_state_holders.dart';
 
+import '../models/graph_model.dart';
 import 'graph_painter.dart';
 
-class GraphDrawField extends ConsumerStatefulWidget {
+class GraphDrawField extends ConsumerWidget {
   final double sizeOfField;
-  final bool isBest;
+  final String title;
+  final Graph graph;
+  final bool isEditor;
 
   const GraphDrawField({
     super.key,
     required this.sizeOfField,
-    required this.isBest,
+    required this.title,
+    required this.graph,
+    this.isEditor = false,
   });
 
   @override
-  ConsumerState<GraphDrawField> createState() => _GraphDrawFieldState();
-}
-
-class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final manager = ref.watch(graphFieldsManager);
-    final graph = widget.isBest
-        ? ref.watch(bestGraphsFieldGraphStateHolder)
-        : ref.watch(nowGraphsFieldGraphStateHolder);
 
-    final widthScale = widget.sizeOfField /
+    final widthScale = sizeOfField /
         ref.watch(
           settingsStateHolder.select(
-            (value) =>
-                value.settingsControllers['locationX'] ?? widget.sizeOfField,
+            (value) => value.settingsControllers['locationX'] ?? sizeOfField,
           ),
         );
-    final heightScale = widget.sizeOfField /
+    final heightScale = sizeOfField /
         ref.watch(
           settingsStateHolder.select(
-            (value) =>
-                value.settingsControllers['locationY'] ?? widget.sizeOfField,
+            (value) => value.settingsControllers['locationY'] ?? sizeOfField,
           ),
         );
 
@@ -52,28 +46,20 @@ class _GraphDrawFieldState extends ConsumerState<GraphDrawField> {
     );
     return Column(
       children: [
-        Text(widget.isBest ? 'Лучший результат' : 'Нынешний граф'),
+        Text(title),
         SizedBox(
-          width: sizeScale >= 1
-              ? widget.sizeOfField
-              : widget.sizeOfField * sizeScale,
-          height: sizeScale > 1
-              ? widget.sizeOfField / sizeScale
-              : widget.sizeOfField,
+          width: sizeScale >= 1 ? sizeOfField : sizeOfField * sizeScale,
+          height: sizeScale > 1 ? sizeOfField / sizeScale : sizeOfField,
           child: Stack(
             children: [
               CustomPaint(
                 painter: painter,
                 size: Size(
-                  sizeScale >= 1
-                      ? widget.sizeOfField
-                      : widget.sizeOfField * sizeScale,
-                  sizeScale > 1
-                      ? widget.sizeOfField / sizeScale
-                      : widget.sizeOfField,
+                  sizeScale >= 1 ? sizeOfField : sizeOfField * sizeScale,
+                  sizeScale > 1 ? sizeOfField / sizeScale : sizeOfField,
                 ),
               ),
-              if (!widget.isBest)
+              if (isEditor)
                 GestureDetector(
                   onTapDown: (touchData) {
                     manager.onTap(

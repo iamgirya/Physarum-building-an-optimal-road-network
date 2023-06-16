@@ -1,6 +1,6 @@
-class Pair implements Comparable<Pair> {
-  final int first;
-  final int second;
+class Pair<T extends num> implements Comparable<Pair<T>> {
+  final T first;
+  final T second;
   Pair(this.first, this.second);
 
   @override

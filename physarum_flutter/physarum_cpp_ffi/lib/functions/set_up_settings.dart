@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:physarum_cpp_ffi/models/settings.dart';
 
 import '../ffi_core.dart';
@@ -9,24 +10,24 @@ void setUpSimulation(Map<String, num> settings) {
   final execute = lookup<
           NativeFunction<
               Void Function(
-                Pointer<AgentSettings>,
-                Pointer<LocationSettings>,
-                Pointer<AnalyserSettings>,
+                Pointer<AgentSettingsFFI>,
+                Pointer<LocationSettingsFFI>,
+                Pointer<AnalyserSettingsFFI>,
                 Int32,
               )>>('setUpSimulation')
       .asFunction<
           void Function(
-            Pointer<AgentSettings>,
-            Pointer<LocationSettings>,
-            Pointer<AnalyserSettings>,
+            Pointer<AgentSettingsFFI>,
+            Pointer<LocationSettingsFFI>,
+            Pointer<AnalyserSettingsFFI>,
             int,
           )>();
 
   Arena arena = Arena();
 
   try {
-    Pointer<AgentSettings> agentSettings =
-        arena.allocate(sizeOf<AgentSettings>());
+    Pointer<AgentSettingsFFI> agentSettings =
+        arena.allocate(sizeOf<AgentSettingsFFI>());
     agentSettings.ref.timeToLive = settings['timeToLive']!.toInt();
     agentSettings.ref.sensorOffsetDistance =
         settings['sensorOffsetDistance']!.toDouble();
@@ -35,8 +36,8 @@ void setUpSimulation(Map<String, num> settings) {
     agentSettings.ref.rotationAngle = settings['rotationAngle']!.toDouble();
     agentSettings.ref.depositPerStep = settings['depositPerStep']!.toDouble();
 
-    Pointer<LocationSettings> locationSettings =
-        arena.allocate(sizeOf<LocationSettings>());
+    Pointer<LocationSettingsFFI> locationSettings =
+        arena.allocate(sizeOf<LocationSettingsFFI>());
     locationSettings.ref.xSize = settings['locationX']!.toInt();
     locationSettings.ref.ySize = settings['locationY']!.toInt();
     locationSettings.ref.decayFactor = settings['decayFactor']!.toDouble();
@@ -45,8 +46,8 @@ void setUpSimulation(Map<String, num> settings) {
             settings['isPeriodicBoundary'] != 0);
     locationSettings.ref.isCanMultiAgent = (settings['isCanMultiAgent'] != 0);
 
-    Pointer<AnalyserSettings> analyserSettings =
-        arena.allocate(sizeOf<AnalyserSettings>());
+    Pointer<AnalyserSettingsFFI> analyserSettings =
+        arena.allocate(sizeOf<AnalyserSettingsFFI>());
     analyserSettings.ref.weigthCoef = settings['weigthCoef']!.toDouble();
     analyserSettings.ref.overDistanceCoef =
         settings['overDistanceCoef']!.toDouble();
@@ -64,7 +65,9 @@ void setUpSimulation(Map<String, num> settings) {
 
     arena.releaseAll();
   } catch (error) {
-    print(error);
+    if (kDebugMode) {
+      print(error);
+    }
     return;
   }
 }

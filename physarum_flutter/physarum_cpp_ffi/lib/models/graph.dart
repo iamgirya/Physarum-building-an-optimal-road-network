@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 import 'arrays.dart';
 
-final class SlimeMoldNetworkFFI extends Struct {
+final class GraphFFI extends Struct {
   external Pointer<IntArrayArray> graph;
   external Pointer<IntArray> exitPointsX;
   external Pointer<IntArray> exitPointsY;
@@ -12,7 +12,7 @@ final class SlimeMoldNetworkFFI extends Struct {
   external int length;
 }
 
-class SlimeMoldNetwork {
+class Graph {
   List<int> towns = [];
   List<List<int>> exitPoints = [];
   List<List<int>> graph = [];

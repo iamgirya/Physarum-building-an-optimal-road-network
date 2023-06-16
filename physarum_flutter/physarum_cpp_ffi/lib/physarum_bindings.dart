@@ -5,4 +5,5 @@ export 'functions/get_location.dart';
 export 'functions/set_up_settings.dart';
 export 'functions/set_up_towns.dart';
 
-export 'models/network.dart';
+export 'models/graph.dart';
+export 'models/location.dart';

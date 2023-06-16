@@ -102,7 +102,7 @@ class GraphFieldManager {
   }
 
   void validateVertex(num width, num height) {
-    final validPoints = <Pair>[];
+    final validPoints = <Pair<int>>[];
     final validTowns = <int>[];
     for (int i = 0; i < nowGraphHolder.state.exitPoints.length; i++) {
       final point = nowGraphHolder.state.exitPoints[i];

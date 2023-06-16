@@ -1,12 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:physarum_cpp_ffi/physarum_bindings.dart' as bindings;
 import '../graph_field/graph_field_state_holders.dart';
 import '../graph_field/graph_fields_manager.dart';
+import 'physarum_repository.dart';
 import 'state/main_screen_state_holder.dart';
 import '../setting_panel/state/simulation_setting_state_holder.dart';
 import '../graph_field/models/graph_model.dart';
 import 'state/main_screen_state.dart';
-import '../../support/pair.dart';
 import '../setting_panel/state/settings_state.dart';
 
 final mainScreenManager = Provider<MainScreenManager>((ref) {
@@ -16,6 +15,7 @@ final mainScreenManager = Provider<MainScreenManager>((ref) {
     bestGraphHolder: ref.watch(bestGraphsFieldGraphStateHolder.notifier),
     nowGraphHolder: ref.watch(nowGraphsFieldGraphStateHolder.notifier),
     settingsHolder: ref.watch(settingsStateHolder.notifier),
+    physarumRepository: ref.watch(physarumRepositoryProvider),
   );
 });
 
@@ -26,12 +26,14 @@ class MainScreenManager {
   final GraphNotifier bestGraphHolder;
   final GraphNotifier nowGraphHolder;
   final StateController<SettingsState> settingsHolder;
+  final PhysarumRepository physarumRepository;
   MainScreenManager({
     required this.mainScreenHolder,
     required this.bestGraphHolder,
     required this.nowGraphHolder,
     required this.settingsHolder,
     required this.graphManager,
+    required this.physarumRepository,
   });
 
   void onRestartTap() async {
@@ -44,8 +46,8 @@ class MainScreenManager {
         metricFlow: -1,
       ),
     );
-    _setGraphFromNetwork(isBest: false);
-    _setGraphFromNetwork(isBest: true);
+    _setGraph(isBest: false);
+    _setGraph(isBest: true);
   }
 
   void onStopTap() async {
@@ -93,29 +95,27 @@ class MainScreenManager {
 
   Future<void> _callNextStep(int stepCount, bool isLaunch) async {
     if (isLaunch) {
-      bindings.setUpSimulation(
+      physarumRepository.setUpSimulation(
         settingsHolder.state.settingsControllers,
       );
-      bindings.setUpTowns(
-        nowGraphHolder.state.exitPoints
-            .map((e) => [e.first, e.second])
-            .toList(),
+      physarumRepository.setUpTowns(
+        nowGraphHolder.state.exitPoints,
         nowGraphHolder.state.towns,
       );
     }
 
-    await bindings.execute(iterationPerStep);
+    await physarumRepository.makeStep(iterationPerStep);
     if (mainScreenHolder.state.isAlgoWorking &&
         !mainScreenHolder.state.isNeedRestart) {
-      final bestNetwork = bindings.getGraph(true);
-      _setGraphFromNetwork(networkOrGraph: bestNetwork, isBest: true);
+      final bestNetwork = physarumRepository.getGraph(true);
+      _setGraph(graph: bestNetwork, isBest: true);
 
-      final nowNetwork = bindings.getGraph(false);
-      _setGraphFromNetwork(networkOrGraph: nowNetwork, isBest: false);
+      final nowNetwork = physarumRepository.getGraph(false);
+      _setGraph(graph: nowNetwork, isBest: false);
 
-      final test = bindings.getLocation();
+      final test = physarumRepository.getLocation();
 
-      final metrics = bindings.getBestMetrics();
+      final metrics = physarumRepository.getBestMetrics();
       if (metrics.isNotEmpty) {
         mainScreenHolder.update(
           (state) => state.copyWith(
@@ -141,23 +141,12 @@ class MainScreenManager {
     }
   }
 
-  void _setGraphFromNetwork({
+  void _setGraph({
     required bool isBest,
-    bindings.SlimeMoldNetwork? networkOrGraph,
+    Graph? graph,
   }) {
-    Graph graph;
-    if (networkOrGraph != null) {
-      graph = Graph(
-        towns: List.from(networkOrGraph.towns),
-        exitPoints:
-            networkOrGraph.exitPoints.map((e) => Pair(e[0], e[1])).toList(),
-        graph: List.from(networkOrGraph.graph),
-      );
-    } else {
-      graph = Graph.empty();
-    }
-
+    graph = graph ?? Graph.empty();
     final stateHolder = isBest ? bestGraphHolder : nowGraphHolder;
-    stateHolder.update((state) => graph);
+    stateHolder.update((state) => graph!);
   }
 }

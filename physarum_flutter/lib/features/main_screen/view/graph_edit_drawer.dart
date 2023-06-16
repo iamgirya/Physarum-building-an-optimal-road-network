@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../graph_field/graph_field_state_holders.dart';
 import '../../graph_field/view/graph_field_view.dart';
 
 import '../state/main_screen_state_holder.dart';
@@ -24,9 +25,15 @@ class _GraphEditDrawerState extends ConsumerState<GraphEditDrawer> {
         alignment: Alignment.topRight,
         height: MediaQuery.of(context).size.height,
         width: widget.sizeOfFied,
-        child: GraphDrawField(
-          sizeOfField: widget.sizeOfFied,
-          isBest: true,
+        child: Consumer(
+          builder: (context, ref, child) {
+            final graph = ref.watch(bestGraphsFieldGraphStateHolder);
+            return GraphDrawField(
+              sizeOfField: widget.sizeOfFied,
+              title: 'Лучший граф',
+              graph: graph,
+            );
+          },
         ),
       ),
     );

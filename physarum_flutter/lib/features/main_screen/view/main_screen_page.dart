@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../graph_field/graph_field_state_holders.dart';
 import '../../graph_field/view/graph_field_view.dart';
 import 'graph_edit_drawer.dart';
 import 'main_interface_column.dart';
@@ -17,31 +19,38 @@ class MainPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Physarum Network'),
       ),
-      body: const Stack(
+      body: Stack(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GraphDrawField(
-                sizeOfField: sizeOfFied,
-                isBest: false,
+              Consumer(
+                builder: (context, ref, child) {
+                  final graph = ref.watch(nowGraphsFieldGraphStateHolder);
+                  return GraphDrawField(
+                    sizeOfField: sizeOfFied,
+                    title: 'Текущий граф',
+                    graph: graph,
+                    isEditor: true,
+                  );
+                },
               ),
-              SizedBox(
+              const SizedBox(
                 width: 15,
               ),
-              MainInterfaceColumn(),
-              SizedBox(
+              const MainInterfaceColumn(),
+              const SizedBox(
                 width: 15,
               ),
-              SizedBox(
+              const SizedBox(
                 width: sizeOfFied,
                 height: sizeOfFied,
                 child: SettingsPanel(),
               ),
             ],
           ),
-          GraphEditDrawer(sizeOfFied: sizeOfFied),
+          const GraphEditDrawer(sizeOfFied: sizeOfFied),
         ],
       ),
     );

@@ -14,7 +14,8 @@ class VertexLine extends HookConsumerWidget {
 
     final graph = ref.read(nowGraphsFieldGraphStateHolder);
     final coordsTextController = useTextEditingController(
-        text: '${graph.exitPoints[i].first} ${graph.exitPoints[i].second}');
+      text: '${graph.exitPoints[i].first} ${graph.exitPoints[i].second}',
+    );
     final priorityTextController =
         useTextEditingController(text: graph.towns[i].toString());
     // этот listen нужен для того, чтобы при кликах на граф менялись текст филды, причём только нужные
