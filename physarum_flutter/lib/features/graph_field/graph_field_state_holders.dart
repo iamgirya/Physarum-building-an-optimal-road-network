@@ -19,8 +19,4 @@ class GraphNotifier extends Notifier<Graph> {
   void update(Graph Function(Graph) func) {
     super.state = func(super.state);
   }
-
-  @override
-  bool updateShouldNotify(Graph previous, Graph next) =>
-      previous.hashCode != next.hashCode;
 }

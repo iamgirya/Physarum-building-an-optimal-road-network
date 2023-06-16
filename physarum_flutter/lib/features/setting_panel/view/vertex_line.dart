@@ -12,11 +12,14 @@ class VertexLine extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final manager = ref.read(graphFieldsManager);
 
-    final coordsTextController = useTextEditingController();
-    final priorityTextController = useTextEditingController();
-    // такой select нужен для того, чтобы при кликах на граф менялись текст филды, причём только нужные
-    ref.watch(
-      nowGraphsFieldGraphStateHolder.select((value) {
+    final graph = ref.read(nowGraphsFieldGraphStateHolder);
+    final coordsTextController = useTextEditingController(
+        text: '${graph.exitPoints[i].first} ${graph.exitPoints[i].second}');
+    final priorityTextController =
+        useTextEditingController(text: graph.towns[i].toString());
+    // этот listen нужен для того, чтобы при кликах на граф менялись текст филды, причём только нужные
+    ref.listen(nowGraphsFieldGraphStateHolder, (_, value) {
+      if (value.exitPoints.length > i) {
         String newCoord =
             '${value.exitPoints[i].first} ${value.exitPoints[i].second}';
         String newPriority = value.towns[i].toString();
@@ -25,9 +28,8 @@ class VertexLine extends HookConsumerWidget {
           coordsTextController.text = newCoord;
           priorityTextController.text = newPriority;
         }
-        return (value.exitPoints[i], value.towns[i]);
-      }),
-    );
+      }
+    });
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,

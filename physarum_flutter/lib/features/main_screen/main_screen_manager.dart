@@ -145,17 +145,12 @@ class MainScreenManager {
   }) {
     Graph graph;
     if (networkOrGraph != null) {
-      graph = Graph.empty();
-      for (int i = 0; i < networkOrGraph.exitPoints.length; i++) {
-        graph.towns.add(networkOrGraph.towns[i]);
-        graph.exitPoints.add(
-          Pair(
-            networkOrGraph.exitPoints[i][0],
-            networkOrGraph.exitPoints[i][1],
-          ),
-        );
-        graph.graph.add(networkOrGraph.graph[i]);
-      }
+      graph = Graph(
+        towns: List.from(networkOrGraph.towns),
+        exitPoints:
+            networkOrGraph.exitPoints.map((e) => Pair(e[0], e[1])).toList(),
+        graph: List.from(networkOrGraph.graph),
+      );
     } else {
       graph = Graph.empty();
     }
