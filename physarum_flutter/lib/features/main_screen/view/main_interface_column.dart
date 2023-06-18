@@ -63,6 +63,13 @@ class _MainInterfaceColumnState extends ConsumerState<MainInterfaceColumn> {
             onPressed: (context) => manager.changeDrawerMode(),
             title: state.isBestOnDrawer ? 'Режим лучшего' : 'Режим агентов',
           ),
+          const SizedBox(
+            height: 15,
+          ),
+          MainScreenButton(
+            onPressed: manager.showInfoDialog,
+            title: 'Подсказка',
+          ),
           const Spacer(),
           const Text('Вес:'),
           Text(

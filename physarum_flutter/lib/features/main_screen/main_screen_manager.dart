@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../graph_field/graph_field_state_holders.dart';
 import '../graph_field/graph_fields_manager.dart';
@@ -148,6 +149,31 @@ class MainScreenManager {
     } else {
       mainScreenHolder.update((state) => state.copyWith(isAlgoWorking: false));
     }
+  }
+
+  void showInfoDialog(context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Как пользоваться программой'),
+        content: const Text(
+            '''С помощью ЛКМ на левом графе можно задать вершины маршрутной сети. При повторном клике на вершину ЛКМ будет увеличен её приоритет.
+При ПКМ приоритет будет уменьшен. При достижении нулевого приоритета, вершина убирается.
+Координаты вершин и их приоритет можно задать самостоятельно на вкладке "Вершины".
+        
+На вкладке "Расширенные настройки" находятся настройки симуляции. Подробное описание каждой из настроек можно найти в тексте зимней курсовой работы.
+        
+После того, как задано количество итераций алгоритма, можно запустить программу нажатием на "Выполнить". Итерации можно остановить с помощью "Остановить" или же обнулить всю программу с помощью "Сбросить".'''),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Понятно'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _setGraph({
