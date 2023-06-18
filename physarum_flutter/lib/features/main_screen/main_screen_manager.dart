@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../support/pair.dart';
 import '../graph_field/graph_field_state_holders.dart';
 import '../graph_field/graph_fields_manager.dart';
 import '../location_field/location_state_holders.dart';
@@ -45,6 +46,23 @@ class MainScreenManager {
       .update((state) => state.copyWith(isBestOnDrawer: !state.isBestOnDrawer));
 
   void onRestartTap() async {
+    if (mainScreenHolder.state.isNeedRestart) {
+      _setGraph(isBest: false);
+      _setGraph(isBest: true);
+    } else {
+      final startPoint = <Pair<int>>[];
+      final startTowns = <int>[];
+      for (int i = 0; i < nowGraphHolder.state.towns.length; i++) {
+        if (nowGraphHolder.state.towns[i] >= 1) {
+          startTowns.add(nowGraphHolder.state.towns[i]);
+          startPoint.add(nowGraphHolder.state.exitPoints[i]);
+        }
+      }
+      final startGraph =
+          Graph(towns: startTowns, exitPoints: startPoint, graph: []);
+      _setGraph(graph: startGraph, isBest: false);
+      _setGraph(isBest: true);
+    }
     mainScreenHolder.update(
       (state) => state.copyWith(
         isNeedRestart: true,
@@ -54,8 +72,6 @@ class MainScreenManager {
         metricFlow: -1,
       ),
     );
-    _setGraph(isBest: false);
-    _setGraph(isBest: true);
   }
 
   void onStopTap() async {
@@ -157,13 +173,15 @@ class MainScreenManager {
       builder: (context) => AlertDialog(
         title: const Text('Как пользоваться программой'),
         content: const Text(
-            '''С помощью ЛКМ на левом графе можно задать вершины маршрутной сети. При повторном клике на вершину ЛКМ будет увеличен её приоритет.
+          '''С помощью ЛКМ на левом графе можно задать вершины маршрутной сети. При повторном клике на вершину ЛКМ будет увеличен её приоритет.
 При ПКМ приоритет будет уменьшен. При достижении нулевого приоритета, вершина убирается.
 Координаты вершин и их приоритет можно задать самостоятельно на вкладке "Вершины".
         
 На вкладке "Расширенные настройки" находятся настройки симуляции. Подробное описание каждой из настроек можно найти в тексте зимней курсовой работы.
         
-После того, как задано количество итераций алгоритма, можно запустить программу нажатием на "Выполнить". Итерации можно остановить с помощью "Остановить" или же обнулить всю программу с помощью "Сбросить".'''),
+После того, как задано количество итераций алгоритма, можно запустить программу нажатием на "Выполнить". Итерации можно остановить с помощью "Остановить". При нажатии "Сбросить" во время симуляции, программа вернётся к моменту до старта симуляции с сохранением всех вершин.
+Если же нажать "Сбросить" не во время работы алгоритма, то карта вершин очистится.''',
+        ),
         actions: <Widget>[
           TextButton(
             child: const Text('Понятно'),
